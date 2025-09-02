@@ -1,0 +1,15 @@
+{
+	"name": "kingdom-defense",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite --port 4497",
+		"build": "tsc && vite build",
+		"preview": "vite preview"
+	},
+	"devDependencies": {
+		"typescript": "~5.8.3",
+		"vite": "^7.1.2"
+	}
+}
