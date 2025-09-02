@@ -26,6 +26,9 @@ const playBtn = document.querySelector("#play-btn")!;
 const canvas = document.querySelector("canvas")!;
 const ctx = canvas.getContext("2d")!;
 
+const orcIdleImg = new Image();
+orcIdleImg.src = "/src/assets/images/Orc-Idle.png";
+
 const orcAttackImg = new Image();
 orcAttackImg.src = "/src/assets/images/Orc-Attack01.png";
 
@@ -35,7 +38,7 @@ orcWalkImg.src = "/src/assets/images/Orc-Walk.png";
 const orcAttack02Img = new Image();
 orcAttack02Img.src = "/src/assets/images/Orc-Attack02.png";
 
-canvas.width = 600;
+canvas.width = 800;
 canvas.height = 800;
 
 await wait(200);
@@ -63,7 +66,7 @@ playBtn.addEventListener("click", (e) => {
 let x = 0;
 let moveRight = true;
 function animate() {
-    ctx.clearRect(0, 0, 600, 800);
+    ctx.clearRect(0, 0, 800, 800);
 
     currTime = Date.now();
     delta = currTime - prevTime;
@@ -73,19 +76,20 @@ function animate() {
     const attackFrame = Math.trunc(totalTime / 100) % 6;
     const walkFrame = Math.trunc(totalTime / 100) % 8;
     const attackFrame2 = Math.trunc(totalTime / 100) % 6;
+    const idleFrame = Math.trunc(totalTime / 400) % 6;
 
     // console.log({ totalTime, delta, attackFrame });
 
     // ctx.strokeStyle = "#FF0000";
     // ctx.strokeRect(130, 160, 30, 40);
 
-    // ctx.fillStyle = "#FFFFFF";
-    // ctx.fillRect(230, 620, 30, 40);
+    ctx.fillStyle = "#009900";
+    ctx.fillRect(0, 0, 800, 800);
 
     // ctx.fillStyle = "#FFFF00";
     // ctx.fillRect(530, 380, 30, 40);
 
-    // ctx.drawImage(orcImg, 0, 0);
+    // ctx.drawImage(orcIdleImg, 0, 0);
 
     // DRAW 3 ORCS
     ctx.drawImage(orcAttackImg, attackFrame * 100, 0, 100, 100, 0, 0, 100, 100);
@@ -105,16 +109,18 @@ function animate() {
     ctx.drawImage(orcAttack02Img, attackFrame2 * 100, 0, 100, 100, 0, 500, -100, 100);
     ctx.restore();
 
+    ctx.drawImage(orcIdleImg, idleFrame * 100, 0, 100, 100, 0, 600, 100, 100);
+
     // DRAW ORC WALKING
     if (moveRight) {
-        x += 2;
-        ctx.drawImage(orcWalkImg, walkFrame * 100, 0, 100, 100, x, 600, 100, 100);
+        x += 0.2;
+        ctx.drawImage(orcWalkImg, walkFrame * 100, 0, 100, 100, x, 700, 100, 100);
     } else {
-        x -= 2;
+        x -= 0.2;
         ctx.save();
         ctx.scale(-1, 1);
         ctx.translate(0, 0);
-        ctx.drawImage(orcWalkImg, walkFrame * 100, 0, 100, 100, -x, 600, -100, 100);
+        ctx.drawImage(orcWalkImg, walkFrame * 100, 0, 100, 100, -x, 700, -100, 100);
         ctx.restore();
     }
     if (x > 500 || x < 0) moveRight = !moveRight;
