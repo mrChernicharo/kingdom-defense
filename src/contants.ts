@@ -93,7 +93,7 @@ export const orcAttrs: Omit<CharAttrs, "team"> = {
     speed: 30,
     attackRange: 22,
     attacksPerMinute: 25,
-    sightRange: 120,
+    sightRange: 150,
 };
 
 export const soldierAttrs: Omit<CharAttrs, "team"> = {
@@ -103,5 +103,5 @@ export const soldierAttrs: Omit<CharAttrs, "team"> = {
     speed: 36,
     attackRange: 16,
     attacksPerMinute: 36,
-    sightRange: 100,
+    sightRange: 120,
 };

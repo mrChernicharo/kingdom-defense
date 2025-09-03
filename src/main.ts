@@ -189,9 +189,7 @@ class Character extends GameEntity {
             this.target.takeDamage(this.damage);
             // prettier-ignore
             console.log(
-                `${this.type.toUpperCase()} Hits ${this.target.type.toUpperCase()} dealing ${this.damage} dmg`
-                + '\n' +  
-                `${this.target.type.toUpperCase()} hp is now: ${this.target.hp}`
+                `${this.type.toUpperCase()} Hits ${this.target.type.toUpperCase()} dealing ${this.damage} dmg \n%c${this.target.type.toUpperCase()} hp is now: ${this.target.hp}`, 'color: orange'
             );
         }
         if (this.cooldownTimer >= 600) {
@@ -233,6 +231,7 @@ class Character extends GameEntity {
 
             if (this.deadTimer > TIME_TO_REMOVE_DEAD_CHARACTERS) {
                 delete Game.entities[this.id];
+                console.log(Object.keys(Game.entities).length + " entities ::::");
             }
         }
 
@@ -341,12 +340,13 @@ class Orc extends Character {
 class Game {
     static entities: Record<string, GameEntity> = {};
     // static target: Vec2 | null = null;
+    charToDeploy: CharType;
 
     constructor() {
         canvas.width = CANVAS_WIDTH;
         canvas.height = CANVAS_HEIGHT;
 
-        const levelEntities = [
+        [
             new Orc(Team.red, 80, 0),
             new Orc(Team.red, 180, 0),
             new Orc(Team.red, 280, 0),
@@ -359,14 +359,15 @@ class Game {
             //     .fill(0)
             //     .map((_, i) => i * 20)
             //     .map((x) => new Orc(Team.red, x, 0)),
-        ];
-
-        levelEntities.forEach((entity) => {
+        ].forEach((entity) => {
             Game.entities[entity.id] = entity;
         });
 
+        this.charToDeploy = CharType.soldier;
+
         playBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
         canvas.addEventListener("click", this.spawnSoldier.bind(this));
+        window.addEventListener("keypress", this.toggleCharToDeploy.bind(this));
 
         this.toggleIsPlaying();
     }
@@ -375,16 +376,24 @@ class Game {
         Clock.togglePause();
         playBtn.textContent = Clock.isPaused ? "Play" : "Pause";
 
-        // console.log("<toggleIsPlaying>", this);
-
         if (!Clock.isPaused) {
             this.tick();
         }
     }
 
     spawnSoldier(ev: MouseEvent) {
-        const soldier = new Soldier(Team.blue, ev.offsetX, ev.offsetY);
-        Game.entities[soldier.id] = soldier;
+        let char: Character;
+        if (this.charToDeploy == CharType.soldier) char = new Soldier(Team.blue, ev.offsetX, ev.offsetY);
+        else char = new Orc(Team.red, ev.offsetX, ev.offsetY);
+        Game.entities[char.id] = char;
+    }
+
+    toggleCharToDeploy(ev: KeyboardEvent) {
+        if (ev.key === " ") {
+            ev.preventDefault();
+            this.charToDeploy = this.charToDeploy == CharType.orc ? CharType.soldier : CharType.orc;
+            console.log(this.charToDeploy);
+        }
     }
 
     tick() {
