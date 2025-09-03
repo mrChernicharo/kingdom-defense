@@ -52,6 +52,7 @@ const CANVAS_HEIGHT = 800;
 const SPRITE_IMG_SIZE = 100;
 const SPRITE_HEIGHT = 20;
 const SPRITE_WIDTH = 20;
+const ATTACK_COOLDOWN = 2000;
 
 class Vec2 {
     x = 0;
@@ -119,7 +120,6 @@ class GameEntity {
     }
 }
 
-const ATTACK_COOLDOWN = 3000;
 class Enemy extends GameEntity implements Updatable {
     spriteIdx: number;
     speed: number;
@@ -131,7 +131,7 @@ class Enemy extends GameEntity implements Updatable {
     constructor(type: string, x = 0, y = 0) {
         super(type, x, y);
         this.state = EnemyState.idle;
-        this.speed = 30;
+        this.speed = 32;
         this.attackRange = 22;
         this.cooldown = 0;
         this.spriteIdx = 0;
@@ -155,39 +155,56 @@ class Enemy extends GameEntity implements Updatable {
         this.pos = nextPos;
     }
 
+    turnToFaceTarget() {
+        if (!Game.target) return;
+
+        const direction = new Vec2(Game.target.x - this.pos.x, Game.target.y - this.pos.y);
+        if (direction.x > 0) {
+            this.facing = "RIGHT";
+        } else if (direction.x < 0) {
+            this.facing = "LEFT";
+        }
+    }
+
+    performAttack() {
+        // console.log(this.cooldown);
+        if (this.cooldown >= ATTACK_COOLDOWN) {
+            this.state = EnemyState.attack;
+            this.cooldown = 0;
+        }
+        if (this.cooldown > 300 && this.state === EnemyState.attack && !this.isHit /* && target.isAlive() */) {
+            this.isHit = true;
+            console.log("TARGET TAKES HIT!");
+        }
+        if (this.cooldown >= 600) {
+            this.state = EnemyState.idle;
+            this.isHit = false;
+        }
+    }
+
     update(delta: number) {
+        // if (!target) searchTarget()
+
         if (Game.target) {
             const distanceToTarget = this.pos.distance(Game.target);
 
-            const direction = new Vec2(Game.target.x - this.pos.x, Game.target.y - this.pos.y);
-            if (direction.x > 0) {
-                this.facing = "RIGHT";
-            } else if (direction.x < 0) {
-                this.facing = "LEFT";
-            }
+            this.turnToFaceTarget();
 
             if (distanceToTarget > this.attackRange) {
                 this.walkTowards(Game.target, delta * 0.001);
             } else {
-                // console.log(this.cooldown);
-                if (this.cooldown >= ATTACK_COOLDOWN) {
-                    this.state = EnemyState.attack;
-                    this.cooldown = 0;
-                }
-                if (this.cooldown > 300 && this.state === EnemyState.attack && !this.isHit /* && target.isAlive() */) {
-                    this.isHit = true;
-                    console.log("TARGET TAKES HIT!");
-                }
-                if (this.cooldown >= 600) {
-                    this.state = EnemyState.idle;
-                    this.isHit = false;
-                }
+                this.performAttack();
             }
         } else {
-            if (Clock.elapsed < ATTACK_COOLDOWN) {
-                this.state = EnemyState.idle;
+            const finishLine = new Vec2(this.pos.x, CANVAS_HEIGHT - 20);
+            // console.log(this.pos.distance(finishLine), this.state);
+
+            if (this.pos.distance(finishLine) < 10) {
+                if (this.state === EnemyState.walk) {
+                    console.log("FINISH LINE REACHED!");
+                    this.state = EnemyState.idle;
+                }
             } else {
-                const finishLine = new Vec2(this.pos.x, CANVAS_HEIGHT - 20);
                 this.walkTowards(finishLine, delta * 0.001);
             }
         }
@@ -235,13 +252,6 @@ class Enemy extends GameEntity implements Updatable {
 }
 
 class Game {
-    // updatables: Updatable[] = [
-    //     new Enemy("orc", 0, 0),
-    //     new Enemy("orc", 295, 0),
-    //     new Enemy("orc", 590, 0),
-    //     // new Enemy("orc", 0, 780),
-    //     // new Enemy("orc", 580, 780),
-    // ];
     updatables = [
         // new Enemy("orc", 0, 0),
         new Enemy("orc", 295, 0),
@@ -329,6 +339,12 @@ class Game {
 const game = new Game();
 
 // await wait(200);
+
+// ctx.strokeStyle = "#eeaa00";
+// ctx.beginPath();
+// ctx.ellipse(100, 100, 50, 75, Math.PI / 4, 0, 2 * Math.PI);
+// ctx.closePath();
+// ctx.stroke();
 
 // console.log("hello", { canvas, ctx });
 
