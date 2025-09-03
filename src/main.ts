@@ -119,22 +119,29 @@ class GameEntity {
     }
 }
 
+const ATTACK_COOLDOWN = 3000;
 class Enemy extends GameEntity implements Updatable {
     spriteIdx: number;
     speed: number;
+    attackRange: number;
+    isHit: boolean;
     state: EnemyState;
-    goal: Vec2;
+    cooldown: number;
     facing: "LEFT" | "RIGHT" = "RIGHT";
     constructor(type: string, x = 0, y = 0) {
         super(type, x, y);
         this.state = EnemyState.idle;
-        this.speed = 12;
-        this.goal = new Vec2(x, CANVAS_HEIGHT);
-        this.spriteIdx = Math.trunc(Clock.elapsed / poseFrameSpeed[this.state]) % poseFrameCount[this.state];
+        this.speed = 30;
+        this.attackRange = 22;
+        this.cooldown = 0;
+        this.spriteIdx = 0;
+        this.isHit = false;
         // this.spriteIdx = Math.trunc(Clock.elapsed / 400) % 6;
     }
 
     walkTowards(targetPos: Vec2, delta: number) {
+        this.state = EnemyState.walk;
+
         const direction = new Vec2(targetPos.x - this.pos.x, targetPos.y - this.pos.y);
         const magnitude = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
         // const magnitude = Math.sqrt(Math.pow(direction.x, 2) + Math.pow(direction.y, 2));
@@ -145,32 +152,53 @@ class Enemy extends GameEntity implements Updatable {
             this.pos.y + normalizedVec.y * this.speed * delta
         );
 
-        if (direction.x > 0) {
-            this.facing = "RIGHT";
-        } else if (direction.x < 0) {
-            this.facing = "LEFT";
-        }
-
-        // return nextPos;
         this.pos = nextPos;
     }
 
     update(delta: number) {
-        this.spriteIdx = Math.trunc(Clock.elapsed / poseFrameSpeed[this.state]) % poseFrameCount[this.state];
-        // this.spriteIdx = Math.trunc(Clock.elapsed / 400) % 6;
-        // this.pos.y += this.speed * delta * 0.001;
-        // console.log(this.type, delta);
-
         if (Game.target) {
             const distanceToTarget = this.pos.distance(Game.target);
 
-            console.log(distanceToTarget);
+            const direction = new Vec2(Game.target.x - this.pos.x, Game.target.y - this.pos.y);
+            if (direction.x > 0) {
+                this.facing = "RIGHT";
+            } else if (direction.x < 0) {
+                this.facing = "LEFT";
+            }
 
-            this.state = EnemyState.walk;
-            this.walkTowards(Game.target, delta * 0.001);
+            if (distanceToTarget > this.attackRange) {
+                this.walkTowards(Game.target, delta * 0.001);
+            } else {
+                // console.log(this.cooldown);
+                if (this.cooldown >= ATTACK_COOLDOWN) {
+                    this.state = EnemyState.attack;
+                    this.cooldown = 0;
+                }
+                if (this.cooldown > 300 && this.state === EnemyState.attack && !this.isHit /* && target.isAlive() */) {
+                    this.isHit = true;
+                    console.log("TARGET TAKES HIT!");
+                }
+                if (this.cooldown >= 600) {
+                    this.state = EnemyState.idle;
+                    this.isHit = false;
+                }
+            }
         } else {
-            this.state = EnemyState.idle;
+            if (Clock.elapsed < ATTACK_COOLDOWN) {
+                this.state = EnemyState.idle;
+            } else {
+                const finishLine = new Vec2(this.pos.x, CANVAS_HEIGHT - 20);
+                this.walkTowards(finishLine, delta * 0.001);
+            }
         }
+
+        if (this.state == EnemyState.attack) {
+            this.spriteIdx = Math.trunc(this.cooldown / 100); // 0 - 5
+        } else {
+            this.spriteIdx = Math.trunc(Clock.elapsed / poseFrameSpeed[this.state]) % poseFrameCount[this.state];
+        }
+
+        this.cooldown += delta;
     }
 
     draw() {
@@ -215,9 +243,9 @@ class Game {
     //     // new Enemy("orc", 580, 780),
     // ];
     updatables = [
-        new Enemy("orc", 0, 0),
+        // new Enemy("orc", 0, 0),
         new Enemy("orc", 295, 0),
-        new Enemy("orc", 590, 0),
+        // new Enemy("orc", 590, 0),
         // new Enemy("orc", 0, 780),
         // new Enemy("orc", 580, 780),
         // ...Array(30)
@@ -278,18 +306,18 @@ class Game {
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         // console.log('<Game.tick>', { delta, elapsed: Clock.elapsed });
 
+        if (Game.target) {
+            ctx.fillStyle = "#ee0066";
+            const [w, h] = [20, 20];
+            ctx.fillRect(Game.target.x, Game.target.y, w, h);
+        }
+
         this.updatables
             .sort((a, b) => a.pos.y - b.pos.y)
             .forEach((updatable) => {
                 updatable.update(delta);
                 updatable.draw();
             });
-
-        if (Game.target) {
-            ctx.fillStyle = "#ee0066";
-            const [w, h] = [20, 20];
-            ctx.fillRect(Game.target.x, Game.target.y, w, h);
-        }
 
         // this.prevTime = this.currTime;
         if (!Clock.isPaused) {
