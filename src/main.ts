@@ -59,16 +59,22 @@ class GameEntity {
     pos: Vec2;
     type: string;
     id: string;
-    constructor(type: string, x = 0, y = 0) {
+    hp: number;
+
+    constructor(type: string, x = 0, y = 0, hp: number) {
         this.id = idMaker();
         this.type = type;
         this.pos = new Vec2(x, y);
+        this.hp = hp;
     }
     update(delta: number) {
         throw Error("must overload update method");
     }
     draw() {
         throw Error("must overload draw method");
+    }
+    isDead() {
+        return this.hp <= 0;
     }
 }
 
@@ -80,9 +86,7 @@ class Character extends GameEntity {
     spriteIdx: number;
     facing: Facing;
 
-    hp: number;
     damage: number;
-
     speed: number;
     sightRange: number;
     attackRange: number;
@@ -93,14 +97,13 @@ class Character extends GameEntity {
     hasLandedHit: boolean;
 
     constructor(x = 0, y = 0, attrs: CharAttrs) {
-        super(attrs.type, x, y);
+        super(attrs.type, x, y, attrs.hp);
 
         this.team = attrs.team; // teamBlue: walks bottom-up X teamRed: walks top-down
         this.state = EnemyState.idle;
         this.facing = Facing.right;
         this.target = null;
 
-        this.hp = attrs.hp;
         this.damage = attrs.damage;
         this.speed = attrs.speed;
         this.attacksPerMinute = attrs.attacksPerMinute;
@@ -141,18 +144,17 @@ class Character extends GameEntity {
     }
 
     performAttack() {
+        if (!this.target || this.target.isDead()) return;
+
         // console.log(this.cooldown);
         if (this.cooldownTimer >= this.attackCooldown) {
             this.state = EnemyState.attack;
             this.cooldownTimer = 0;
         }
-        if (
-            this.cooldownTimer > 300 &&
-            this.state === EnemyState.attack &&
-            !this.hasLandedHit /* && target.isAlive() */
-        ) {
+        if (this.cooldownTimer > 300 && this.state === EnemyState.attack && !this.hasLandedHit) {
             this.hasLandedHit = true;
-            console.log("TARGET TAKES HIT!");
+            this.target.hp -= this.damage;
+            console.log(this.target.type, " TAKES HIT! hp:", this.target.hp);
         }
         if (this.cooldownTimer >= 600) {
             this.state = EnemyState.idle;
@@ -181,6 +183,12 @@ class Character extends GameEntity {
 
     update(delta: number) {
         if (this.target) {
+            if (this.target.isDead()) {
+                delete Game.entities[this.target.id];
+                this.target = null;
+                return;
+            }
+
             this.turnToFaceTarget();
 
             const distanceToTarget = this.pos.distance(this.target.pos);
@@ -286,9 +294,10 @@ class Game {
 
         const levelEntities = [
             new Orc(Team.red, 40, 0),
-            new Soldier(Team.blue, 100, CANVAS_HEIGHT - 20),
             new Orc(Team.red, 240, 0),
+            new Soldier(Team.blue, 100, CANVAS_HEIGHT - 20),
             new Soldier(Team.blue, 200, CANVAS_HEIGHT - 20),
+            new Soldier(Team.blue, 300, CANVAS_HEIGHT - 20),
             // new Soldier(Team.red, 340, 0),
             // ...Array(30)
             //     .fill(0)
@@ -317,14 +326,6 @@ class Game {
         }
     }
 
-    // toggleTarget(ev: MouseEvent) {
-    //     if (Game.target === null) {
-    //         Game.target = new Vec2(ev.offsetX, ev.offsetY);
-    //     } else {
-    //         Game.target = null;
-    //     }
-    // }
-
     tick() {
         const delta = Clock.tick();
         ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -333,15 +334,6 @@ class Game {
         ctx.fillStyle = "#007f00";
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-        // if (Game.target) {
-        //     ctx.strokeStyle = "#eeaa00";
-        //     ctx.beginPath();
-        //     ctx.ellipse(Game.target.x, Game.target.y, 4, 4, 0, 0, 2 * Math.PI);
-        //     // ctx.ellipse(Game.target.x + 5, Game.target.y + 5, 10, 20, Clock.elapsed * 0.001, 0, 2 * Math.PI);
-        //     ctx.closePath();
-        //     ctx.stroke();
-        // }
-
         Object.values(Game.entities)
             .sort((a, b) => a.pos.y - b.pos.y)
             .forEach((entity) => {
@@ -349,11 +341,10 @@ class Game {
                 entity.draw();
             });
 
-        // this.prevTime = this.currTime;
         if (!Clock.isPaused) {
             requestAnimationFrame(this.tick.bind(this));
         }
     }
 }
 
-const game = new Game();
+new Game();
