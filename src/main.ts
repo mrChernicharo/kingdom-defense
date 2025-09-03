@@ -11,6 +11,41 @@ export enum EnemyState {
     dead = "dead",
 }
 
+export enum Facing {
+    left = "left",
+    right = "right",
+}
+
+export enum Team {
+    blue = "blue",
+    red = "red",
+}
+
+export enum CharType {
+    orc = "orc",
+    soldier = "soldier",
+}
+
+interface CharAttrs {
+    type: CharType;
+    speed: number;
+    attacksPerMinute: number;
+    attackRange: number;
+    team: Team;
+}
+
+const soldierIdleImg = new Image();
+soldierIdleImg.src = "/src/assets/images/Soldier-Idle.png";
+
+const soldierWalkImg = new Image();
+soldierWalkImg.src = "/src/assets/images/Soldier-Walk.png";
+
+const soldierAttackImg = new Image();
+soldierAttackImg.src = "/src/assets/images/Soldier-Attack01.png";
+
+const soldierDeadImg = new Image();
+soldierDeadImg.src = "/src/assets/images/Soldier-Death.png";
+
 const orcIdleImg = new Image();
 orcIdleImg.src = "/src/assets/images/Orc-Idle.png";
 
@@ -23,25 +58,49 @@ orcAttackImg.src = "/src/assets/images/Orc-Attack01.png";
 const orcDeadImg = new Image();
 orcDeadImg.src = "/src/assets/images/Orc-Death.png";
 
-const poseFrameCount = {
-    [EnemyState.idle]: 6,
-    [EnemyState.walk]: 8,
-    [EnemyState.attack]: 6,
-    [EnemyState.dead]: 4,
+const poseFrameCount: Record<string, Record<EnemyState, number>> = {
+    soldier: {
+        [EnemyState.idle]: 6,
+        [EnemyState.walk]: 8,
+        [EnemyState.attack]: 6,
+        [EnemyState.dead]: 4,
+    },
+    orc: {
+        [EnemyState.idle]: 6,
+        [EnemyState.walk]: 8,
+        [EnemyState.attack]: 6,
+        [EnemyState.dead]: 4,
+    },
 };
 
-const poseFrameSpeed = {
-    [EnemyState.idle]: 400,
-    [EnemyState.walk]: 100,
-    [EnemyState.attack]: 100,
-    [EnemyState.dead]: 100,
+const poseFrameSpeed: Record<string, Record<EnemyState, number>> = {
+    soldier: {
+        [EnemyState.idle]: 400,
+        [EnemyState.walk]: 100,
+        [EnemyState.attack]: 100,
+        [EnemyState.dead]: 100,
+    },
+    orc: {
+        [EnemyState.idle]: 400,
+        [EnemyState.walk]: 100,
+        [EnemyState.attack]: 100,
+        [EnemyState.dead]: 100,
+    },
 };
 
-const poseImage = {
-    [EnemyState.idle]: orcIdleImg,
-    [EnemyState.walk]: orcWalkImg,
-    [EnemyState.attack]: orcAttackImg,
-    [EnemyState.dead]: orcDeadImg,
+const poseImage: Record<string, Record<EnemyState, HTMLImageElement>> = {
+    soldier: {
+        [EnemyState.idle]: soldierIdleImg,
+        [EnemyState.walk]: soldierWalkImg,
+        [EnemyState.attack]: soldierAttackImg,
+        [EnemyState.dead]: soldierDeadImg,
+    },
+    orc: {
+        [EnemyState.idle]: orcIdleImg,
+        [EnemyState.walk]: orcWalkImg,
+        [EnemyState.attack]: orcAttackImg,
+        [EnemyState.dead]: orcDeadImg,
+    },
 };
 
 // const orcAttack02Img = new Image();
@@ -52,7 +111,7 @@ const CANVAS_HEIGHT = 800;
 const SPRITE_IMG_SIZE = 100;
 const SPRITE_HEIGHT = 20;
 const SPRITE_WIDTH = 20;
-const ATTACK_COOLDOWN = 2000;
+// const ATTACK_COOLDOWN = 2000;
 
 class Vec2 {
     x = 0;
@@ -67,20 +126,6 @@ class Vec2 {
         const magnitude = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
         return magnitude;
     }
-
-    // add(vec: Vec2) {
-    //     this.x + vec.x;
-    //     this.y + vec.y;
-    // }
-
-    // static add(vec1: Vec2, vec2: Vec2) {
-    //     vec1.x + vec2.x;
-    //     vec1.y + vec2.y;
-    // }
-
-    // static clone() {
-    //     return new Vec2(x, this.y)
-    // }
 }
 
 class Clock {
@@ -120,23 +165,33 @@ class GameEntity {
     }
 }
 
-class Enemy extends GameEntity implements Updatable {
-    spriteIdx: number;
+class Character extends GameEntity implements Updatable {
     speed: number;
+    facing: Facing;
     attackRange: number;
-    isHit: boolean;
+    spriteIdx: number;
+    hasLandedHit: boolean;
     state: EnemyState;
-    cooldown: number;
-    facing: "LEFT" | "RIGHT" = "RIGHT";
-    constructor(type: string, x = 0, y = 0) {
-        super(type, x, y);
+    cooldownTimer: number;
+    attackCooldown: number;
+    team: Team;
+    attacksPerMinute: number;
+
+    constructor(x = 0, y = 0, attrs: CharAttrs) {
+        super(attrs.type, x, y);
+
+        this.team = attrs.team;
+        this.speed = attrs.speed;
+        this.attacksPerMinute = attrs.attacksPerMinute;
+        this.attackRange = attrs.attackRange;
+        this.attackCooldown = 60_000 / this.attacksPerMinute;
+
         this.state = EnemyState.idle;
-        this.speed = 32;
-        this.attackRange = 22;
-        this.cooldown = 0;
+        this.facing = Facing.right;
+
+        this.cooldownTimer = 0;
         this.spriteIdx = 0;
-        this.isHit = false;
-        // this.spriteIdx = Math.trunc(Clock.elapsed / 400) % 6;
+        this.hasLandedHit = false;
     }
 
     walkTowards(targetPos: Vec2, delta: number) {
@@ -160,25 +215,29 @@ class Enemy extends GameEntity implements Updatable {
 
         const direction = new Vec2(Game.target.x - this.pos.x, Game.target.y - this.pos.y);
         if (direction.x > 0) {
-            this.facing = "RIGHT";
+            this.facing = Facing.right;
         } else if (direction.x < 0) {
-            this.facing = "LEFT";
+            this.facing = Facing.left;
         }
     }
 
     performAttack() {
         // console.log(this.cooldown);
-        if (this.cooldown >= ATTACK_COOLDOWN) {
+        if (this.cooldownTimer >= this.attackCooldown) {
             this.state = EnemyState.attack;
-            this.cooldown = 0;
+            this.cooldownTimer = 0;
         }
-        if (this.cooldown > 300 && this.state === EnemyState.attack && !this.isHit /* && target.isAlive() */) {
-            this.isHit = true;
+        if (
+            this.cooldownTimer > 300 &&
+            this.state === EnemyState.attack &&
+            !this.hasLandedHit /* && target.isAlive() */
+        ) {
+            this.hasLandedHit = true;
             console.log("TARGET TAKES HIT!");
         }
-        if (this.cooldown >= 600) {
+        if (this.cooldownTimer >= 600) {
             this.state = EnemyState.idle;
-            this.isHit = false;
+            this.hasLandedHit = false;
         }
     }
 
@@ -210,40 +269,42 @@ class Enemy extends GameEntity implements Updatable {
         }
 
         if (this.state == EnemyState.attack) {
-            this.spriteIdx = Math.trunc(this.cooldown / 100); // 0 - 5
+            this.spriteIdx = Math.trunc(this.cooldownTimer / 100); // 0 - 5
         } else {
-            this.spriteIdx = Math.trunc(Clock.elapsed / poseFrameSpeed[this.state]) % poseFrameCount[this.state];
+            this.spriteIdx =
+                Math.trunc(Clock.elapsed / poseFrameSpeed[this.type][this.state]) %
+                poseFrameCount[this.type][this.state];
         }
 
-        this.cooldown += delta;
+        this.cooldownTimer += delta;
     }
 
     draw() {
-        if (this.facing == "LEFT") {
+        if (this.facing == Facing.left) {
             ctx.save();
             ctx.scale(-1, 1);
             ctx.translate(0, 0);
             ctx.drawImage(
-                poseImage[this.state],
+                poseImage[this.type][this.state],
                 this.spriteIdx * 100,
                 0,
                 SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE,
                 -this.pos.x + SPRITE_IMG_SIZE / 2 - SPRITE_WIDTH / 2,
-                this.pos.y - poseImage[this.state].height / 2 + SPRITE_HEIGHT / 2,
+                this.pos.y - poseImage[this.type][this.state].height / 2 + SPRITE_HEIGHT / 2,
                 -SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE
             );
             ctx.restore();
         } else {
             ctx.drawImage(
-                poseImage[this.state],
+                poseImage[this.type][this.state],
                 this.spriteIdx * 100,
                 0,
                 SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE,
                 this.pos.x - SPRITE_IMG_SIZE / 2 + SPRITE_WIDTH / 2,
-                this.pos.y - poseImage[this.state].height / 2 + SPRITE_HEIGHT / 2,
+                this.pos.y - poseImage[this.type][this.state].height / 2 + SPRITE_HEIGHT / 2,
                 SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE
             );
@@ -251,10 +312,42 @@ class Enemy extends GameEntity implements Updatable {
     }
 }
 
+class Soldier extends Character {
+    constructor(team: Team, x = 0, y = 0) {
+        super(x, y, {
+            type: CharType.soldier,
+            speed: 36,
+            attackRange: 22,
+            attacksPerMinute: 36,
+            team,
+        });
+    }
+}
+
+class Orc extends Character {
+    constructor(team: Team, x = 0, y = 0) {
+        super(x, y, {
+            type: CharType.orc,
+            speed: 32,
+            attackRange: 22,
+            attacksPerMinute: 30,
+            team,
+        });
+    }
+}
+
 class Game {
     updatables = [
         // new Enemy("orc", 0, 0),
-        new Enemy("orc", 295, 0),
+        new Orc(Team.red, 140, 0),
+        new Soldier(Team.blue, 340, 0),
+        // new Character(295, 0, {
+        //     type: CharType.orc,
+        //     attackRange: 22,
+        //     attacksPerMinute: 30,
+        //     speed: 32,
+        //     team: Team.red,
+        // }),
         // new Enemy("orc", 590, 0),
         // new Enemy("orc", 0, 780),
         // new Enemy("orc", 580, 780),
