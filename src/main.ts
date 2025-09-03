@@ -61,6 +61,12 @@ class Vec2 {
         this.y = y;
     }
 
+    distance(target: Vec2) {
+        const direction = new Vec2(target.x - this.x, target.y - this.y);
+        const magnitude = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
+        return magnitude;
+    }
+
     // add(vec: Vec2) {
     //     this.x + vec.x;
     //     this.y + vec.y;
@@ -118,6 +124,7 @@ class Enemy extends GameEntity implements Updatable {
     speed: number;
     state: EnemyState;
     goal: Vec2;
+    facing: "LEFT" | "RIGHT" = "RIGHT";
     constructor(type: string, x = 0, y = 0) {
         super(type, x, y);
         this.state = EnemyState.idle;
@@ -127,46 +134,75 @@ class Enemy extends GameEntity implements Updatable {
         // this.spriteIdx = Math.trunc(Clock.elapsed / 400) % 6;
     }
 
-    walkTowards(targetPos: Vec2, delta: number): Vec2 {
+    walkTowards(targetPos: Vec2, delta: number) {
         const direction = new Vec2(targetPos.x - this.pos.x, targetPos.y - this.pos.y);
-        const magnitude = Math.sqrt(Math.pow(direction.x, 2) + Math.pow(direction.y, 2));
+        const magnitude = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
+        // const magnitude = Math.sqrt(Math.pow(direction.x, 2) + Math.pow(direction.y, 2));
+        // const magnitude = this.pos.distance(targetPos);
         const normalizedVec = new Vec2(direction.x / magnitude, direction.y / magnitude);
         const nextPos = new Vec2(
             this.pos.x + normalizedVec.x * this.speed * delta,
             this.pos.y + normalizedVec.y * this.speed * delta
         );
-        // const nextPos = new Vec2(this.pos.x + normalizedVec.x, this.pos.y + normalizedVec.y);
 
-        return nextPos;
+        if (direction.x > 0) {
+            this.facing = "RIGHT";
+        } else if (direction.x < 0) {
+            this.facing = "LEFT";
+        }
+
+        // return nextPos;
+        this.pos = nextPos;
     }
 
     update(delta: number) {
         this.spriteIdx = Math.trunc(Clock.elapsed / poseFrameSpeed[this.state]) % poseFrameCount[this.state];
         // this.spriteIdx = Math.trunc(Clock.elapsed / 400) % 6;
-
         // this.pos.y += this.speed * delta * 0.001;
         // console.log(this.type, delta);
 
         if (Game.target) {
-            const nextPos = this.walkTowards(Game.target, delta * 0.001);
+            const distanceToTarget = this.pos.distance(Game.target);
 
-            this.pos = nextPos;
+            console.log(distanceToTarget);
+
+            this.state = EnemyState.walk;
+            this.walkTowards(Game.target, delta * 0.001);
         } else {
+            this.state = EnemyState.idle;
         }
     }
 
     draw() {
-        ctx.drawImage(
-            poseImage[this.state],
-            this.spriteIdx * 100,
-            0,
-            SPRITE_IMG_SIZE,
-            SPRITE_IMG_SIZE,
-            this.pos.x - SPRITE_IMG_SIZE / 2 + SPRITE_WIDTH / 2,
-            this.pos.y - poseImage[this.state].height / 2 + SPRITE_HEIGHT / 2,
-            SPRITE_IMG_SIZE,
-            SPRITE_IMG_SIZE
-        );
+        if (this.facing == "LEFT") {
+            ctx.save();
+            ctx.scale(-1, 1);
+            ctx.translate(0, 0);
+            ctx.drawImage(
+                poseImage[this.state],
+                this.spriteIdx * 100,
+                0,
+                SPRITE_IMG_SIZE,
+                SPRITE_IMG_SIZE,
+                -this.pos.x + SPRITE_IMG_SIZE / 2 - SPRITE_WIDTH / 2,
+                this.pos.y - poseImage[this.state].height / 2 + SPRITE_HEIGHT / 2,
+                -SPRITE_IMG_SIZE,
+                SPRITE_IMG_SIZE
+            );
+            ctx.restore();
+        } else {
+            ctx.drawImage(
+                poseImage[this.state],
+                this.spriteIdx * 100,
+                0,
+                SPRITE_IMG_SIZE,
+                SPRITE_IMG_SIZE,
+                this.pos.x - SPRITE_IMG_SIZE / 2 + SPRITE_WIDTH / 2,
+                this.pos.y - poseImage[this.state].height / 2 + SPRITE_HEIGHT / 2,
+                SPRITE_IMG_SIZE,
+                SPRITE_IMG_SIZE
+            );
+        }
     }
 }
 
@@ -179,10 +215,15 @@ class Game {
     //     // new Enemy("orc", 580, 780),
     // ];
     updatables = [
-        ...Array(30)
-            .fill(0)
-            .map((_, i) => i * SPRITE_WIDTH)
-            .map((x) => new Enemy("orc", x, 0)),
+        new Enemy("orc", 0, 0),
+        new Enemy("orc", 295, 0),
+        new Enemy("orc", 590, 0),
+        // new Enemy("orc", 0, 780),
+        // new Enemy("orc", 580, 780),
+        // ...Array(30)
+        //     .fill(0)
+        //     .map((_, i) => i * SPRITE_WIDTH)
+        //     .map((x) => new Enemy("orc", x, 0)),
         // ...Array(30)
         //     .fill(0)
         //     .map((_, i) => i * SPRITE_WIDTH)
