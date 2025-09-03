@@ -1,117 +1,23 @@
+import {
+    finishLinesYpos,
+    poseFrameSpeed,
+    poseFrameCount,
+    poseImage,
+    SPRITE_IMG_SIZE,
+    DRAW_CHAR_CENTER_POS,
+    CANVAS_WIDTH,
+    CANVAS_HEIGHT,
+    DRAW_CHAR_SIGHT_RADIUS,
+    orcAttrs,
+    soldierAttrs,
+} from "./contants";
 import { idMaker, wait } from "./helperFns";
+import type { CharAttrs } from "./types";
+import { Facing, EnemyState, Team, CharType } from "./types";
 
 const playBtn = document.querySelector("#play-btn") as HTMLButtonElement;
 const canvas = document.querySelector("canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d")!;
-
-export enum EnemyState {
-    idle = "idle",
-    walk = "walk",
-    attack = "attack",
-    dead = "dead",
-}
-
-export enum Facing {
-    left = "left",
-    right = "right",
-}
-
-export enum Team {
-    blue = "blue",
-    red = "red",
-}
-
-export enum CharType {
-    orc = "orc",
-    soldier = "soldier",
-}
-
-interface CharAttrs {
-    type: CharType;
-    speed: number;
-    attacksPerMinute: number;
-    attackRange: number;
-    team: Team;
-}
-
-const soldierIdleImg = new Image();
-soldierIdleImg.src = "/src/assets/images/Soldier-Idle.png";
-
-const soldierWalkImg = new Image();
-soldierWalkImg.src = "/src/assets/images/Soldier-Walk.png";
-
-const soldierAttackImg = new Image();
-soldierAttackImg.src = "/src/assets/images/Soldier-Attack01.png";
-
-const soldierDeadImg = new Image();
-soldierDeadImg.src = "/src/assets/images/Soldier-Death.png";
-
-const orcIdleImg = new Image();
-orcIdleImg.src = "/src/assets/images/Orc-Idle.png";
-
-const orcWalkImg = new Image();
-orcWalkImg.src = "/src/assets/images/Orc-Walk.png";
-
-const orcAttackImg = new Image();
-orcAttackImg.src = "/src/assets/images/Orc-Attack01.png";
-
-const orcDeadImg = new Image();
-orcDeadImg.src = "/src/assets/images/Orc-Death.png";
-
-const poseFrameCount: Record<string, Record<EnemyState, number>> = {
-    soldier: {
-        [EnemyState.idle]: 6,
-        [EnemyState.walk]: 8,
-        [EnemyState.attack]: 6,
-        [EnemyState.dead]: 4,
-    },
-    orc: {
-        [EnemyState.idle]: 6,
-        [EnemyState.walk]: 8,
-        [EnemyState.attack]: 6,
-        [EnemyState.dead]: 4,
-    },
-};
-
-const poseFrameSpeed: Record<string, Record<EnemyState, number>> = {
-    soldier: {
-        [EnemyState.idle]: 400,
-        [EnemyState.walk]: 100,
-        [EnemyState.attack]: 100,
-        [EnemyState.dead]: 100,
-    },
-    orc: {
-        [EnemyState.idle]: 400,
-        [EnemyState.walk]: 100,
-        [EnemyState.attack]: 100,
-        [EnemyState.dead]: 100,
-    },
-};
-
-const poseImage: Record<string, Record<EnemyState, HTMLImageElement>> = {
-    soldier: {
-        [EnemyState.idle]: soldierIdleImg,
-        [EnemyState.walk]: soldierWalkImg,
-        [EnemyState.attack]: soldierAttackImg,
-        [EnemyState.dead]: soldierDeadImg,
-    },
-    orc: {
-        [EnemyState.idle]: orcIdleImg,
-        [EnemyState.walk]: orcWalkImg,
-        [EnemyState.attack]: orcAttackImg,
-        [EnemyState.dead]: orcDeadImg,
-    },
-};
-
-// const orcAttack02Img = new Image();
-// orcAttack02Img.src = "/src/assets/images/Orc-Attack02.png";
-
-const CANVAS_WIDTH = 600;
-const CANVAS_HEIGHT = 800;
-const SPRITE_IMG_SIZE = 100;
-const SPRITE_HEIGHT = 20;
-const SPRITE_WIDTH = 20;
-// const ATTACK_COOLDOWN = 2000;
 
 class Vec2 {
     x = 0;
@@ -149,11 +55,6 @@ class Clock {
     }
 }
 
-class Updatable {
-    update(delta: number) {}
-    draw() {}
-}
-
 class GameEntity {
     pos: Vec2;
     type: string;
@@ -163,31 +64,49 @@ class GameEntity {
         this.type = type;
         this.pos = new Vec2(x, y);
     }
+    update(delta: number) {
+        throw Error("must overload update method");
+    }
+    draw() {
+        throw Error("must overload draw method");
+    }
 }
 
-class Character extends GameEntity implements Updatable {
-    speed: number;
-    facing: Facing;
-    attackRange: number;
-    spriteIdx: number;
-    hasLandedHit: boolean;
-    state: EnemyState;
-    cooldownTimer: number;
-    attackCooldown: number;
+class Character extends GameEntity {
     team: Team;
+    state: EnemyState;
+    target: GameEntity | null;
+
+    spriteIdx: number;
+    facing: Facing;
+
+    hp: number;
+    damage: number;
+
+    speed: number;
+    sightRange: number;
+    attackRange: number;
     attacksPerMinute: number;
+    attackCooldown: number;
+
+    cooldownTimer: number;
+    hasLandedHit: boolean;
 
     constructor(x = 0, y = 0, attrs: CharAttrs) {
         super(attrs.type, x, y);
 
-        this.team = attrs.team;
+        this.team = attrs.team; // teamBlue: walks bottom-up X teamRed: walks top-down
+        this.state = EnemyState.idle;
+        this.facing = Facing.right;
+        this.target = null;
+
+        this.hp = attrs.hp;
+        this.damage = attrs.damage;
         this.speed = attrs.speed;
         this.attacksPerMinute = attrs.attacksPerMinute;
         this.attackRange = attrs.attackRange;
+        this.sightRange = attrs.sightRange;
         this.attackCooldown = 60_000 / this.attacksPerMinute;
-
-        this.state = EnemyState.idle;
-        this.facing = Facing.right;
 
         this.cooldownTimer = 0;
         this.spriteIdx = 0;
@@ -211,9 +130,9 @@ class Character extends GameEntity implements Updatable {
     }
 
     turnToFaceTarget() {
-        if (!Game.target) return;
+        if (!this.target) return;
 
-        const direction = new Vec2(Game.target.x - this.pos.x, Game.target.y - this.pos.y);
+        const direction = new Vec2(this.target.pos.x - this.pos.x, this.target.pos.y - this.pos.y);
         if (direction.x > 0) {
             this.facing = Facing.right;
         } else if (direction.x < 0) {
@@ -241,24 +160,41 @@ class Character extends GameEntity implements Updatable {
         }
     }
 
+    seekTarget() {
+        let minDist = Infinity;
+
+        Object.values(Game.entities).forEach((entity) => {
+            const sameTeam = (entity as Character).team === this.team;
+            if (sameTeam) return;
+
+            const dist = this.pos.distance(entity.pos);
+            if (dist < minDist) {
+                minDist = dist;
+
+                // console.log({ dist, t: this.target });
+                if (dist < this.sightRange) {
+                    this.target = entity;
+                }
+            }
+        });
+    }
+
     update(delta: number) {
-        // if (!target) searchTarget()
-
-        if (Game.target) {
-            const distanceToTarget = this.pos.distance(Game.target);
-
+        if (this.target) {
             this.turnToFaceTarget();
 
+            const distanceToTarget = this.pos.distance(this.target.pos);
             if (distanceToTarget > this.attackRange) {
-                this.walkTowards(Game.target, delta * 0.001);
+                this.walkTowards(this.target.pos, delta * 0.001);
             } else {
                 this.performAttack();
             }
         } else {
-            const finishLine = new Vec2(this.pos.x, CANVAS_HEIGHT - 20);
-            // console.log(this.pos.distance(finishLine), this.state);
+            this.seekTarget();
 
-            if (this.pos.distance(finishLine) < 10) {
+            const finishLine = new Vec2(this.pos.x, finishLinesYpos[this.team]);
+            const distanceToFinishLine = this.pos.distance(finishLine);
+            if (distanceToFinishLine < 10) {
                 if (this.state === EnemyState.walk) {
                     console.log("FINISH LINE REACHED!");
                     this.state = EnemyState.idle;
@@ -280,6 +216,14 @@ class Character extends GameEntity implements Updatable {
     }
 
     draw() {
+        if (DRAW_CHAR_SIGHT_RADIUS) {
+            ctx.strokeStyle = "#00FF00";
+            ctx.beginPath();
+            ctx.ellipse(this.pos.x, this.pos.y, this.sightRange, this.sightRange, 0, 0, 2 * Math.PI);
+            ctx.closePath();
+            ctx.stroke();
+        }
+
         if (this.facing == Facing.left) {
             ctx.save();
             ctx.scale(-1, 1);
@@ -290,8 +234,8 @@ class Character extends GameEntity implements Updatable {
                 0,
                 SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE,
-                -this.pos.x + SPRITE_IMG_SIZE / 2 - SPRITE_WIDTH / 2,
-                this.pos.y - poseImage[this.type][this.state].height / 2 + SPRITE_HEIGHT / 2,
+                -this.pos.x + SPRITE_IMG_SIZE / 2,
+                this.pos.y - poseImage[this.type][this.state].height / 2 - 6,
                 -SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE
             );
@@ -303,80 +247,61 @@ class Character extends GameEntity implements Updatable {
                 0,
                 SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE,
-                this.pos.x - SPRITE_IMG_SIZE / 2 + SPRITE_WIDTH / 2,
-                this.pos.y - poseImage[this.type][this.state].height / 2 + SPRITE_HEIGHT / 2,
+                this.pos.x - SPRITE_IMG_SIZE / 2,
+                this.pos.y - poseImage[this.type][this.state].height / 2 - 6,
                 SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE
             );
+        }
+
+        if (DRAW_CHAR_CENTER_POS) {
+            ctx.strokeStyle = "#FF0000";
+            ctx.beginPath();
+            ctx.ellipse(this.pos.x, this.pos.y, 2, 2, 0, 0, 2 * Math.PI);
+            ctx.closePath();
+            ctx.stroke();
         }
     }
 }
 
 class Soldier extends Character {
     constructor(team: Team, x = 0, y = 0) {
-        super(x, y, {
-            type: CharType.soldier,
-            speed: 36,
-            attackRange: 22,
-            attacksPerMinute: 36,
-            team,
-        });
+        super(x, y, { ...soldierAttrs, team });
     }
 }
 
 class Orc extends Character {
     constructor(team: Team, x = 0, y = 0) {
-        super(x, y, {
-            type: CharType.orc,
-            speed: 32,
-            attackRange: 22,
-            attacksPerMinute: 30,
-            team,
-        });
+        super(x, y, { ...orcAttrs, team });
     }
 }
 
 class Game {
-    updatables = [
-        // new Enemy("orc", 0, 0),
-        new Orc(Team.red, 140, 0),
-        new Soldier(Team.blue, 340, 0),
-        // new Character(295, 0, {
-        //     type: CharType.orc,
-        //     attackRange: 22,
-        //     attacksPerMinute: 30,
-        //     speed: 32,
-        //     team: Team.red,
-        // }),
-        // new Enemy("orc", 590, 0),
-        // new Enemy("orc", 0, 780),
-        // new Enemy("orc", 580, 780),
-        // ...Array(30)
-        //     .fill(0)
-        //     .map((_, i) => i * SPRITE_WIDTH)
-        //     .map((x) => new Enemy("orc", x, 0)),
-        // ...Array(30)
-        //     .fill(0)
-        //     .map((_, i) => i * SPRITE_WIDTH)
-        //     .map((x) => new Enemy("orc", x, 30)),
-        // ...Array(30)
-        //     .fill(0)
-        //     .map((_, i) => i * SPRITE_WIDTH)
-        //     .map((x) => new Enemy("orc", x, 60)),
-        // ...Array(30)
-        //     .fill(0)
-        //     .map((_, i) => i * SPRITE_WIDTH)
-        //     .map((x) => new Enemy("orc", x, 90)),
-    ];
-
-    static target: Vec2 | null = null;
+    static entities: Record<string, GameEntity> = {};
+    // static target: Vec2 | null = null;
 
     constructor() {
         canvas.width = CANVAS_WIDTH;
         canvas.height = CANVAS_HEIGHT;
 
+        const levelEntities = [
+            new Orc(Team.red, 40, 0),
+            new Soldier(Team.blue, 100, CANVAS_HEIGHT - 20),
+            new Orc(Team.red, 240, 0),
+            new Soldier(Team.blue, 200, CANVAS_HEIGHT - 20),
+            // new Soldier(Team.red, 340, 0),
+            // ...Array(30)
+            //     .fill(0)
+            //     .map((_, i) => i * 20)
+            //     .map((x) => new Orc(Team.red, x, 0)),
+        ];
+
+        levelEntities.forEach((entity) => {
+            Game.entities[entity.id] = entity;
+        });
+
         playBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
-        canvas.addEventListener("click", this.toggleTarget.bind(this));
+        // canvas.addEventListener("click", this.toggleTarget.bind(this));
 
         this.toggleIsPlaying();
     }
@@ -392,34 +317,36 @@ class Game {
         }
     }
 
-    toggleTarget(ev: MouseEvent) {
-        // console.log(ev.offsetX, ev.offsetY);
-        if (Game.target === null) {
-            Game.target = new Vec2(ev.offsetX, ev.offsetY);
-        } else {
-            Game.target = null;
-        }
-    }
+    // toggleTarget(ev: MouseEvent) {
+    //     if (Game.target === null) {
+    //         Game.target = new Vec2(ev.offsetX, ev.offsetY);
+    //     } else {
+    //         Game.target = null;
+    //     }
+    // }
 
     tick() {
         const delta = Clock.tick();
         ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
+        // grass
         ctx.fillStyle = "#007f00";
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-        // console.log('<Game.tick>', { delta, elapsed: Clock.elapsed });
 
-        if (Game.target) {
-            ctx.fillStyle = "#ee0066";
-            const [w, h] = [20, 20];
-            ctx.fillRect(Game.target.x, Game.target.y, w, h);
-        }
+        // if (Game.target) {
+        //     ctx.strokeStyle = "#eeaa00";
+        //     ctx.beginPath();
+        //     ctx.ellipse(Game.target.x, Game.target.y, 4, 4, 0, 0, 2 * Math.PI);
+        //     // ctx.ellipse(Game.target.x + 5, Game.target.y + 5, 10, 20, Clock.elapsed * 0.001, 0, 2 * Math.PI);
+        //     ctx.closePath();
+        //     ctx.stroke();
+        // }
 
-        this.updatables
+        Object.values(Game.entities)
             .sort((a, b) => a.pos.y - b.pos.y)
-            .forEach((updatable) => {
-                updatable.update(delta);
-                updatable.draw();
+            .forEach((entity) => {
+                entity.update(delta);
+                entity.draw();
             });
 
         // this.prevTime = this.currTime;
@@ -430,89 +357,3 @@ class Game {
 }
 
 const game = new Game();
-
-// await wait(200);
-
-// ctx.strokeStyle = "#eeaa00";
-// ctx.beginPath();
-// ctx.ellipse(100, 100, 50, 75, Math.PI / 4, 0, 2 * Math.PI);
-// ctx.closePath();
-// ctx.stroke();
-
-// console.log("hello", { canvas, ctx });
-
-// let isPlaying = true;
-// let currTime = 0;
-// let prevTime = 0;
-// let delta = 0;
-// let totalTime = 0;
-
-// let x = 0;
-// let moveRight = true;
-// function animate() {
-//     ctx.clearRect(0, 0, 800, 800);
-
-//     currTime = Date.now();
-//     delta = currTime - prevTime;
-//     if (delta > 20) delta = 16;
-//     totalTime += delta;
-
-//     const attackFrame = Math.trunc(totalTime / 100) % 6;
-//     const walkFrame = Math.trunc(totalTime / 100) % 8;
-//     const attackFrame2 = Math.trunc(totalTime / 100) % 6;
-//     const idleFrame = Math.trunc(totalTime / 400) % 6;
-
-//     // console.log({ totalTime, delta, attackFrame });
-
-//     // ctx.strokeStyle = "#FF0000";
-//     // ctx.strokeRect(130, 160, 30, 40);
-
-//     ctx.fillStyle = "#009900";
-//     ctx.fillRect(0, 0, 800, 800);
-
-//     // ctx.fillStyle = "#FFFF00";
-//     // ctx.fillRect(530, 380, 30, 40);
-
-//     // ctx.drawImage(orcIdleImg, 0, 0);
-
-//     // DRAW 3 ORCS
-//     ctx.drawImage(orcAttackImg, attackFrame * 100, 0, 100, 100, 0, 0, 100, 100);
-
-//     ctx.drawImage(orcWalkImg, walkFrame * 100, 0, 100, 100, 0, 100, 100, 100);
-
-//     ctx.drawImage(orcAttack02Img, attackFrame2 * 100, 0, 100, 100, 0, 200, 100, 100);
-
-//     // DRAW 3 FLIPPED ORCS
-//     ctx.save();
-//     ctx.scale(-1, 1);
-//     ctx.translate(0, 0);
-//     ctx.drawImage(orcWalkImg, walkFrame * 100, 0, 100, 100, 0, 300, -100, 100);
-
-//     ctx.drawImage(orcAttackImg, attackFrame * 100, 0, 100, 100, 0, 400, -100, 100);
-
-//     ctx.drawImage(orcAttack02Img, attackFrame2 * 100, 0, 100, 100, 0, 500, -100, 100);
-//     ctx.restore();
-
-//     ctx.drawImage(orcIdleImg, idleFrame * 100, 0, 100, 100, 0, 600, 100, 100);
-
-//     // DRAW ORC WALKING
-//     if (moveRight) {
-//         x += 0.2;
-//         ctx.drawImage(orcWalkImg, walkFrame * 100, 0, 100, 100, x, 700, 100, 100);
-//     } else {
-//         x -= 0.2;
-//         ctx.save();
-//         ctx.scale(-1, 1);
-//         ctx.translate(0, 0);
-//         ctx.drawImage(orcWalkImg, walkFrame * 100, 0, 100, 100, -x, 700, -100, 100);
-//         ctx.restore();
-//     }
-//     if (x > 500 || x < 0) moveRight = !moveRight;
-
-//     prevTime = currTime;
-//     if (!isPlaying) return;
-
-//     requestAnimationFrame(animate);
-// }
-
-// animate();
