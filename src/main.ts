@@ -8,6 +8,7 @@ import {
     CANVAS_WIDTH,
     CANVAS_HEIGHT,
     DRAW_CHAR_SIGHT_RADIUS,
+    TIME_TO_REMOVE_DEAD_CHARACTERS,
     orcAttrs,
     soldierAttrs,
 } from "./contants";
@@ -68,16 +69,19 @@ class GameEntity {
         this.hp = hp;
     }
     update(delta: number) {
-        throw Error("must overload update method");
+        throw Error("the update method must be overloaded!");
     }
     draw() {
-        throw Error("must overload draw method");
+        throw Error("the draw method must be overloaded!");
     }
     isDead() {
         return this.hp <= 0;
     }
     isAlive() {
         return this.hp > 0;
+    }
+    takeDamage(damage: number) {
+        throw Error("the takeDamage method must be overloaded!");
     }
 }
 
@@ -99,6 +103,7 @@ class Character extends GameEntity {
     deadTimer: number;
     cooldownTimer: number;
     hasLandedHit: boolean;
+    isTakingDamage: boolean;
 
     constructor(x = 0, y = 0, attrs: CharAttrs) {
         super(attrs.type, x, y, attrs.hp);
@@ -115,10 +120,12 @@ class Character extends GameEntity {
         this.sightRange = attrs.sightRange;
         this.attackCooldown = 60_000 / this.attacksPerMinute;
 
-        this.cooldownTimer = 0;
+        this.cooldownTimer = this.attackCooldown;
         this.deadTimer = 0;
         this.spriteIdx = 0;
+
         this.hasLandedHit = false;
+        this.isTakingDamage = false;
     }
 
     walkTowards(targetPos: Vec2, delta: number) {
@@ -161,6 +168,14 @@ class Character extends GameEntity {
         }
     }
 
+    takeDamage(damage: number) {
+        this.hp -= damage;
+        this.isTakingDamage = true;
+        setTimeout(() => {
+            this.isTakingDamage = false;
+        }, 150);
+    }
+
     performAttack() {
         if (!this.target || this.target.isDead()) return;
 
@@ -171,8 +186,13 @@ class Character extends GameEntity {
         }
         if (this.cooldownTimer > 300 && this.state === EnemyState.attack && !this.hasLandedHit) {
             this.hasLandedHit = true;
-            this.target.hp -= this.damage;
-            console.log(this.target.type, " TAKES HIT! hp:", this.target.hp);
+            this.target.takeDamage(this.damage);
+            // prettier-ignore
+            console.log(
+                `${this.type.toUpperCase()} Hits ${this.target.type.toUpperCase()} dealing ${this.damage} dmg`
+                + '\n' +  
+                `${this.target.type.toUpperCase()} hp is now: ${this.target.hp}`
+            );
         }
         if (this.cooldownTimer >= 600) {
             this.state = EnemyState.idle;
@@ -180,7 +200,7 @@ class Character extends GameEntity {
         }
     }
 
-    seekClosestTarget(): GameEntity | null {
+    lookForClosestTarget(): GameEntity | null {
         let minDist = Infinity;
         let target: GameEntity | null = null;
 
@@ -211,28 +231,28 @@ class Character extends GameEntity {
                 this.state = EnemyState.dead;
             }
 
-            if (this.deadTimer > 2000) {
+            if (this.deadTimer > TIME_TO_REMOVE_DEAD_CHARACTERS) {
                 delete Game.entities[this.id];
             }
         }
 
         if (this.isAlive()) {
-            this.target = this.seekClosestTarget();
+            this.target = this.lookForClosestTarget();
 
-            if (this.target && this.target.isAlive()) {
-                this.turnToFaceTarget();
-
-                const distanceToTarget = this.pos.distance(this.target.pos);
-                if (distanceToTarget > this.attackRange) {
-                    this.walkTowards(this.target.pos, delta * 0.001);
+            if (this.target) {
+                if (this.target.isDead()) {
+                    this.target = null;
                 } else {
-                    this.performAttack();
+                    this.turnToFaceTarget();
+
+                    const distanceToTarget = this.pos.distance(this.target.pos);
+                    if (distanceToTarget > this.attackRange) {
+                        this.walkTowards(this.target.pos, delta * 0.001);
+                    } else {
+                        this.performAttack();
+                    }
                 }
             } else {
-                if (this.target && this.target.isDead()) {
-                    this.target = null;
-                }
-
                 this.walkToFinishLine(delta);
             }
         }
@@ -262,6 +282,9 @@ class Character extends GameEntity {
             ctx.stroke();
         }
 
+        if (this.isTakingDamage) {
+            ctx.filter = "grayscale(100%) brightness(1000%)";
+        }
         if (this.facing == Facing.left) {
             ctx.save();
             ctx.scale(-1, 1);
@@ -291,6 +314,7 @@ class Character extends GameEntity {
                 SPRITE_IMG_SIZE
             );
         }
+        ctx.filter = "none";
 
         if (DRAW_CHAR_CENTER_POS) {
             ctx.strokeStyle = "#FF0000";
@@ -349,7 +373,7 @@ class Game {
 
     toggleIsPlaying() {
         Clock.togglePause();
-        playBtn.textContent = Clock.isPaused ? "Pause" : "Play";
+        playBtn.textContent = Clock.isPaused ? "Play" : "Pause";
 
         // console.log("<toggleIsPlaying>", this);
 

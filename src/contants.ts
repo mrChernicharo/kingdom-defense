@@ -9,8 +9,10 @@ export const SPRITE_IMG_SIZE = 100;
 export const SPRITE_HEIGHT = 20;
 export const SPRITE_WIDTH = 20;
 
-export const DRAW_CHAR_CENTER_POS = true;
-export const DRAW_CHAR_SIGHT_RADIUS = true;
+export const DRAW_CHAR_CENTER_POS = false;
+export const DRAW_CHAR_SIGHT_RADIUS = false;
+
+export const TIME_TO_REMOVE_DEAD_CHARACTERS = 3000;
 
 export const finishLinesYpos = {
     [Team.blue]: 0,
