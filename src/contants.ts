@@ -14,7 +14,7 @@ export const DRAW_CHAR_SIGHT_RADIUS = true;
 
 export const finishLinesYpos = {
     [Team.blue]: 0,
-    [Team.red]: CANVAS_HEIGHT - 20,
+    [Team.red]: CANVAS_HEIGHT,
 };
 
 export const soldierIdleImg = new Image();

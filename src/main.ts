@@ -76,6 +76,9 @@ class GameEntity {
     isDead() {
         return this.hp <= 0;
     }
+    isAlive() {
+        return this.hp > 0;
+    }
 }
 
 class Character extends GameEntity {
@@ -93,6 +96,7 @@ class Character extends GameEntity {
     attacksPerMinute: number;
     attackCooldown: number;
 
+    deadTimer: number;
     cooldownTimer: number;
     hasLandedHit: boolean;
 
@@ -112,6 +116,7 @@ class Character extends GameEntity {
         this.attackCooldown = 60_000 / this.attacksPerMinute;
 
         this.cooldownTimer = 0;
+        this.deadTimer = 0;
         this.spriteIdx = 0;
         this.hasLandedHit = false;
     }
@@ -130,6 +135,19 @@ class Character extends GameEntity {
         );
 
         this.pos = nextPos;
+    }
+
+    walkToFinishLine(delta: number) {
+        const finishLine = new Vec2(this.pos.x, finishLinesYpos[this.team]);
+        const distanceToFinishLine = this.pos.distance(finishLine);
+        if (distanceToFinishLine < 10) {
+            if (this.state === EnemyState.walk) {
+                console.log("FINISH LINE REACHED!");
+                this.state = EnemyState.idle;
+            }
+        } else {
+            this.walkTowards(finishLine, delta * 0.001);
+        }
     }
 
     turnToFaceTarget() {
@@ -162,10 +180,13 @@ class Character extends GameEntity {
         }
     }
 
-    seekTarget() {
+    seekClosestTarget(): GameEntity | null {
         let minDist = Infinity;
+        let target: GameEntity | null = null;
 
         Object.values(Game.entities).forEach((entity) => {
+            if (entity.isDead()) return;
+
             const sameTeam = (entity as Character).team === this.team;
             if (sameTeam) return;
 
@@ -175,49 +196,58 @@ class Character extends GameEntity {
 
                 // console.log({ dist, t: this.target });
                 if (dist < this.sightRange) {
-                    this.target = entity;
+                    target = entity;
                 }
             }
         });
+
+        return target;
     }
 
     update(delta: number) {
-        if (this.target) {
-            if (this.target.isDead()) {
-                delete Game.entities[this.target.id];
-                this.target = null;
-                return;
+        if (this.isDead()) {
+            this.deadTimer += delta;
+            if (this.state != EnemyState.dead) {
+                this.state = EnemyState.dead;
             }
 
-            this.turnToFaceTarget();
-
-            const distanceToTarget = this.pos.distance(this.target.pos);
-            if (distanceToTarget > this.attackRange) {
-                this.walkTowards(this.target.pos, delta * 0.001);
-            } else {
-                this.performAttack();
-            }
-        } else {
-            this.seekTarget();
-
-            const finishLine = new Vec2(this.pos.x, finishLinesYpos[this.team]);
-            const distanceToFinishLine = this.pos.distance(finishLine);
-            if (distanceToFinishLine < 10) {
-                if (this.state === EnemyState.walk) {
-                    console.log("FINISH LINE REACHED!");
-                    this.state = EnemyState.idle;
-                }
-            } else {
-                this.walkTowards(finishLine, delta * 0.001);
+            if (this.deadTimer > 2000) {
+                delete Game.entities[this.id];
             }
         }
 
-        if (this.state == EnemyState.attack) {
-            this.spriteIdx = Math.trunc(this.cooldownTimer / 100); // 0 - 5
-        } else {
-            this.spriteIdx =
-                Math.trunc(Clock.elapsed / poseFrameSpeed[this.type][this.state]) %
-                poseFrameCount[this.type][this.state];
+        if (this.isAlive()) {
+            this.target = this.seekClosestTarget();
+
+            if (this.target && this.target.isAlive()) {
+                this.turnToFaceTarget();
+
+                const distanceToTarget = this.pos.distance(this.target.pos);
+                if (distanceToTarget > this.attackRange) {
+                    this.walkTowards(this.target.pos, delta * 0.001);
+                } else {
+                    this.performAttack();
+                }
+            } else {
+                if (this.target && this.target.isDead()) {
+                    this.target = null;
+                }
+
+                this.walkToFinishLine(delta);
+            }
+        }
+
+        switch (this.state) {
+            case EnemyState.attack:
+                this.spriteIdx = Math.trunc(this.cooldownTimer / 100); // 0 - 5
+                break;
+            case EnemyState.dead:
+                this.spriteIdx = Math.trunc(Math.min(this.deadTimer, 399) / 100); // 0 - 3
+                break;
+            default:
+                this.spriteIdx =
+                    Math.trunc(Clock.elapsed / poseFrameSpeed[this.type][this.state]) %
+                    poseFrameCount[this.type][this.state];
         }
 
         this.cooldownTimer += delta;
@@ -293,11 +323,13 @@ class Game {
         canvas.height = CANVAS_HEIGHT;
 
         const levelEntities = [
-            new Orc(Team.red, 40, 0),
-            new Orc(Team.red, 240, 0),
-            new Soldier(Team.blue, 100, CANVAS_HEIGHT - 20),
-            new Soldier(Team.blue, 200, CANVAS_HEIGHT - 20),
-            new Soldier(Team.blue, 300, CANVAS_HEIGHT - 20),
+            new Orc(Team.red, 80, 0),
+            new Orc(Team.red, 180, 0),
+            new Orc(Team.red, 280, 0),
+            // new Orc(Team.red, 380, 0),
+            // new Soldier(Team.blue, 100, CANVAS_HEIGHT - 20),
+            // new Soldier(Team.blue, 200, CANVAS_HEIGHT - 20),
+            // new Soldier(Team.blue, 300, CANVAS_HEIGHT - 20),
             // new Soldier(Team.red, 340, 0),
             // ...Array(30)
             //     .fill(0)
@@ -310,7 +342,7 @@ class Game {
         });
 
         playBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
-        // canvas.addEventListener("click", this.toggleTarget.bind(this));
+        canvas.addEventListener("click", this.spawnSoldier.bind(this));
 
         this.toggleIsPlaying();
     }
@@ -324,6 +356,11 @@ class Game {
         if (!Clock.isPaused) {
             this.tick();
         }
+    }
+
+    spawnSoldier(ev: MouseEvent) {
+        const soldier = new Soldier(Team.blue, ev.offsetX, ev.offsetY);
+        Game.entities[soldier.id] = soldier;
     }
 
     tick() {
