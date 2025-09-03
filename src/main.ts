@@ -12,13 +12,13 @@ import {
     orcAttrs,
     soldierAttrs,
 } from "./contants";
-import { idMaker, wait } from "./helperFns";
+import { idMaker } from "./helperFns";
 import type { CharAttrs } from "./types";
 import { Facing, EnemyState, Team, CharType } from "./types";
 
 const playBtn = document.querySelector("#play-btn") as HTMLButtonElement;
-const canvas = document.querySelector("canvas") as HTMLCanvasElement;
-const ctx = canvas.getContext("2d")!;
+const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
+const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
 class Vec2 {
     x = 0;
@@ -68,7 +68,7 @@ class GameEntity {
         this.pos = new Vec2(x, y);
         this.hp = hp;
     }
-    update(delta: number) {
+    update(_delta: number) {
         throw Error("the update method must be overloaded!");
     }
     draw() {
@@ -80,7 +80,7 @@ class GameEntity {
     isAlive() {
         return this.hp > 0;
     }
-    takeDamage(damage: number) {
+    takeDamage(_damage: number) {
         throw Error("the takeDamage method must be overloaded!");
     }
 }
@@ -101,6 +101,7 @@ class Character extends GameEntity {
     attackCooldown: number;
 
     deadTimer: number;
+    hurtTimer: number;
     cooldownTimer: number;
     hasLandedHit: boolean;
     isTakingDamage: boolean;
@@ -122,6 +123,7 @@ class Character extends GameEntity {
 
         this.cooldownTimer = this.attackCooldown;
         this.deadTimer = 0;
+        this.hurtTimer = 0;
         this.spriteIdx = 0;
 
         this.hasLandedHit = false;
@@ -170,10 +172,8 @@ class Character extends GameEntity {
 
     takeDamage(damage: number) {
         this.hp -= damage;
+        this.hurtTimer = 0;
         this.isTakingDamage = true;
-        setTimeout(() => {
-            this.isTakingDamage = false;
-        }, 150);
     }
 
     performAttack() {
@@ -269,6 +269,13 @@ class Character extends GameEntity {
                     poseFrameCount[this.type][this.state];
         }
 
+        if (this.hurtTimer > 150) {
+            this.isTakingDamage = false;
+        }
+        if (this.isTakingDamage) {
+            this.hurtTimer += delta;
+        }
+
         this.cooldownTimer += delta;
     }
 
@@ -345,6 +352,7 @@ class Game {
     constructor() {
         canvas.width = CANVAS_WIDTH;
         canvas.height = CANVAS_HEIGHT;
+        canvas.classList.remove("hidden");
 
         [
             new Orc(Team.red, 80, 0),
@@ -417,4 +425,6 @@ class Game {
     }
 }
 
-new Game();
+window.addEventListener("DOMContentLoaded", () => {
+    new Game();
+});

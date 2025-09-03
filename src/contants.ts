@@ -1,5 +1,14 @@
 // export const CANVAS_WIDTH = 600;
 
+import soldierIdleImgSrc from "/src/assets/images/Soldier-Idle.png";
+import soldierWalkImgSrc from "/src/assets/images/Soldier-Walk.png";
+import soldierAttackImgSrc from "/src/assets/images/Soldier-Attack01.png";
+import soldierDeadImgSrc from "/src/assets/images/Soldier-Death.png";
+import orcIdleImgSrc from "/src/assets/images/Orc-Idle.png";
+import orcWalkImgSrc from "/src/assets/images/Orc-Walk.png";
+import orcAttackImgSrc from "/src/assets/images/Orc-Attack01.png";
+import orcDeadImgSrc from "/src/assets/images/Orc-Death.png";
+
 import { Team, EnemyState, CharType, type CharAttrs } from "./types";
 
 // export const CANVAS_HEIGHT = 800;
@@ -20,28 +29,28 @@ export const finishLinesYpos = {
 };
 
 export const soldierIdleImg = new Image();
-soldierIdleImg.src = "/src/assets/images/Soldier-Idle.png";
+soldierIdleImg.src = soldierIdleImgSrc;
 
 export const soldierWalkImg = new Image();
-soldierWalkImg.src = "/src/assets/images/Soldier-Walk.png";
+soldierWalkImg.src = soldierWalkImgSrc;
 
 export const soldierAttackImg = new Image();
-soldierAttackImg.src = "/src/assets/images/Soldier-Attack01.png";
+soldierAttackImg.src = soldierAttackImgSrc;
 
 export const soldierDeadImg = new Image();
-soldierDeadImg.src = "/src/assets/images/Soldier-Death.png";
+soldierDeadImg.src = soldierDeadImgSrc;
 
 export const orcIdleImg = new Image();
-orcIdleImg.src = "/src/assets/images/Orc-Idle.png";
+orcIdleImg.src = orcIdleImgSrc;
 
 export const orcWalkImg = new Image();
-orcWalkImg.src = "/src/assets/images/Orc-Walk.png";
+orcWalkImg.src = orcWalkImgSrc;
 
 export const orcAttackImg = new Image();
-orcAttackImg.src = "/src/assets/images/Orc-Attack01.png";
+orcAttackImg.src = orcAttackImgSrc;
 
 export const orcDeadImg = new Image();
-orcDeadImg.src = "/src/assets/images/Orc-Death.png";
+orcDeadImg.src = orcDeadImgSrc;
 
 export const poseFrameCount: Record<string, Record<EnemyState, number>> = {
     soldier: {
