@@ -1,0 +1,6 @@
+-   larger sprites
+-   mo assets
+-   draw blue/red base
+-   base interaction
+-   damage numbers
+-

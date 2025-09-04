@@ -15,6 +15,7 @@ export enum Team {
 export enum CharType {
     orc = "orc",
     soldier = "soldier",
+    skeleton = "skeleton",
 }
 
 export interface CharAttrs {

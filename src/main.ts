@@ -11,10 +11,12 @@ import {
     TIME_TO_REMOVE_DEAD_CHARACTERS,
     orcAttrs,
     soldierAttrs,
+    SPRITE_TRANSFORMS,
+    skeletonAttrs,
 } from "./contants";
 import { idMaker } from "./helperFns";
 import type { CharAttrs } from "./types";
-import { Facing, EnemyState, Team, CharType } from "./types";
+import { Facing, EnemyState, Team } from "./types";
 
 const playBtn = document.querySelector("#play-btn") as HTMLButtonElement;
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
@@ -291,9 +293,13 @@ class Character extends GameEntity {
         if (this.isTakingDamage) {
             ctx.filter = "grayscale(100%) brightness(1000%)";
         }
+
+        const st = SPRITE_TRANSFORMS.md;
         if (this.facing == Facing.left) {
             ctx.save();
+            ctx.scale(st.scale, st.scale);
             ctx.scale(-1, 1);
+            ctx.translate(this.pos.x / st.translate, -this.pos.y / st.translate);
             ctx.translate(0, 0);
             ctx.drawImage(
                 poseImage[this.type][this.state],
@@ -308,6 +314,9 @@ class Character extends GameEntity {
             );
             ctx.restore();
         } else {
+            ctx.save();
+            ctx.scale(st.scale, st.scale);
+            ctx.translate(-this.pos.x / st.translate, -this.pos.y / st.translate);
             ctx.drawImage(
                 poseImage[this.type][this.state],
                 this.spriteIdx * 100,
@@ -319,7 +328,25 @@ class Character extends GameEntity {
                 SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE
             );
+            ctx.restore();
         }
+
+        // ctx.save();
+        // ctx.scale(2, 2);
+        // ctx.translate(-this.pos.x / 2, -this.pos.y / 2);
+        // ctx.drawImage(
+        //     poseImage[this.type][this.state],
+        //     this.spriteIdx * SPRITE_IMG_SIZE,
+        //     0,
+        //     SPRITE_IMG_SIZE,
+        //     SPRITE_IMG_SIZE,
+        //     this.pos.x - SPRITE_IMG_SIZE / 2,
+        //     this.pos.y - poseImage[this.type][this.state].height / 2 - 6,
+        //     SPRITE_IMG_SIZE,
+        //     SPRITE_IMG_SIZE
+        // );
+        // ctx.restore();
+
         ctx.filter = "none";
 
         if (DRAW_CHAR_CENTER_POS) {
@@ -344,10 +371,18 @@ class Orc extends Character {
     }
 }
 
+class Skeleton extends Character {
+    constructor(team: Team, x = 0, y = 0) {
+        super(x, y, { ...skeletonAttrs, team });
+    }
+}
+
+const ALL_CHARACTER_CLASSES = [Soldier, Skeleton, Orc];
+
 class Game {
     static entities: Record<string, GameEntity> = {};
     // static target: Vec2 | null = null;
-    charToDeploy: CharType;
+    charIdx = 0;
 
     constructor() {
         canvas.width = CANVAS_WIDTH;
@@ -355,9 +390,11 @@ class Game {
         canvas.classList.remove("hidden");
 
         [
-            new Orc(Team.red, 80, 0),
+            new Orc(Team.red, 20, 0),
+            new Orc(Team.red, 100, 0),
             new Orc(Team.red, 180, 0),
-            new Orc(Team.red, 280, 0),
+            new Skeleton(Team.red, CANVAS_WIDTH - 20, 0),
+            new Skeleton(Team.red, CANVAS_WIDTH - 200, 0),
             // new Orc(Team.red, 380, 0),
             // new Soldier(Team.blue, 100, CANVAS_HEIGHT - 20),
             // new Soldier(Team.blue, 200, CANVAS_HEIGHT - 20),
@@ -371,10 +408,8 @@ class Game {
             Game.entities[entity.id] = entity;
         });
 
-        this.charToDeploy = CharType.soldier;
-
         playBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
-        canvas.addEventListener("click", this.spawnSoldier.bind(this));
+        canvas.addEventListener("click", this.spawnCharacter.bind(this));
         window.addEventListener("keypress", this.toggleCharToDeploy.bind(this));
 
         this.toggleIsPlaying();
@@ -389,18 +424,25 @@ class Game {
         }
     }
 
-    spawnSoldier(ev: MouseEvent) {
-        let char: Character;
-        if (this.charToDeploy == CharType.soldier) char = new Soldier(Team.blue, ev.offsetX, ev.offsetY);
-        else char = new Orc(Team.red, ev.offsetX, ev.offsetY);
+    spawnCharacter(ev: MouseEvent) {
+        // let char: Character;
+        // if (this.charToDeploy == CharType.soldier) char = new Soldier(Team.blue, ev.offsetX, ev.offsetY);
+        // else char = new Orc(Team.red, ev.offsetX, ev.offsetY);
+        const Class = ALL_CHARACTER_CLASSES[this.charIdx];
+        let team = Team.red;
+        if (Class.name == "Soldier") team = Team.blue;
+        const char = new Class(team, ev.offsetX, ev.offsetY);
         Game.entities[char.id] = char;
     }
 
     toggleCharToDeploy(ev: KeyboardEvent) {
         if (ev.key === " ") {
             ev.preventDefault();
-            this.charToDeploy = this.charToDeploy == CharType.orc ? CharType.soldier : CharType.orc;
-            console.log(this.charToDeploy);
+            this.charIdx++;
+            this.charIdx %= ALL_CHARACTER_CLASSES.length;
+            console.log(this.charIdx);
+            // this.charToDeploy = this.charToDeploy == CharType.orc ? CharType.soldier : CharType.orc;
+            // console.log(this.charToDeploy);
         }
     }
 
