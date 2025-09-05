@@ -431,6 +431,7 @@ class Game {
         const Class = ALL_CHARACTER_CLASSES[this.charIdx];
         let team = Team.red;
         if (Class.name == "Soldier") team = Team.blue;
+        // console.log({ Class, team });
         const char = new Class(team, ev.offsetX, ev.offsetY);
         Game.entities[char.id] = char;
     }
