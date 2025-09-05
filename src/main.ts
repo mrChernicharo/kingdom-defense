@@ -1,3 +1,4 @@
+import castleWalls from "/src/assets/images/castle-wall.png";
 import {
     finishLinesYpos,
     poseFrameSpeed,
@@ -21,6 +22,9 @@ import { Facing, EnemyState, Team } from "./types";
 const playBtn = document.querySelector("#play-btn") as HTMLButtonElement;
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+
+const castleWallsImg = new Image();
+castleWallsImg.src = castleWalls;
 
 class Vec2 {
     x = 0;
@@ -294,7 +298,7 @@ class Character extends GameEntity {
             ctx.filter = "grayscale(100%) brightness(1000%)";
         }
 
-        const st = SPRITE_TRANSFORMS.md;
+        const st = SPRITE_TRANSFORMS.sm;
         if (this.facing == Facing.left) {
             ctx.save();
             ctx.scale(st.scale, st.scale);
@@ -454,6 +458,8 @@ class Game {
         // grass
         ctx.fillStyle = "#007f00";
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        ctx.drawImage(castleWallsImg, 0, CANVAS_HEIGHT - 110, Math.min(window.innerWidth, 600), 160);
 
         Object.values(Game.entities)
             .sort((a, b) => a.pos.y - b.pos.y)

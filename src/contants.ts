@@ -17,14 +17,16 @@ import skeletonDeadImgSrc from "/src/assets/images/Skeleton-Death.png";
 
 import { Team, EnemyState, CharType, type CharAttrs } from "./types";
 
-export const CANVAS_WIDTH = 600;
-export const CANVAS_HEIGHT = 800;
+export const CANVAS_WIDTH = Math.min(window.innerWidth, 600);
+export const CANVAS_HEIGHT = window.innerHeight;
+// export const CANVAS_HEIGHT = Math.min(window.innerHeight, 900);
+
 export const SPRITE_IMG_SIZE = 100;
 
 export const SPRITE_SCALE = 1.5;
 export const SPRITE_TRANSFORMS = {
     xs: { scale: 1, translate: 0 },
-    sm: { scale: 1.5, translate: 0.3333 },
+    sm: { scale: 1.5, translate: 3 },
     md: { scale: 2, translate: 2 },
     lg: { scale: 3, translate: 1.5 },
 };

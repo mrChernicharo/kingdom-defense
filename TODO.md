@@ -1,6 +1,6 @@
--   larger sprites
--   mo assets
+-   larger sprites ✅
+-   mo assets ✅
 -   draw blue/red base
--   base interaction
+-   base interactions
 -   damage numbers
--
+-   responsiveness
