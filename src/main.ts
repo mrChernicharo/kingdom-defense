@@ -19,6 +19,7 @@ import { idMaker } from "./helperFns";
 import type { CharAttrs } from "./types";
 import { Facing, EnemyState, Team } from "./types";
 
+const gameoverBanner = document.querySelector("#gameover-banner") as HTMLDivElement;
 const playBtn = document.querySelector("#play-btn") as HTMLButtonElement;
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
@@ -91,6 +92,48 @@ class GameEntity {
     }
 }
 
+class Castle {
+    hp: number;
+    hurtTimer: number;
+    isTakingDamage: boolean;
+    constructor(hp: number) {
+        this.hp = hp;
+        this.hurtTimer = 150;
+        this.isTakingDamage = false;
+    }
+
+    isAlive() {
+        return this.hp > 0;
+    }
+
+    isDead() {
+        return this.hp <= 0;
+    }
+
+    takeDamage(damage: number) {
+        this.hp -= damage;
+        this.hurtTimer = 0;
+        this.isTakingDamage = true;
+    }
+
+    draw() {
+        if (this.isTakingDamage) {
+            ctx.filter = "brightness(400%)";
+        }
+        ctx.drawImage(castleWallsImg, 0, CANVAS_HEIGHT - 110, Math.min(window.innerWidth, 600), 160);
+        ctx.filter = "none";
+    }
+
+    update(delta: number) {
+        if (this.hurtTimer > 150) {
+            this.isTakingDamage = false;
+        }
+        if (this.isTakingDamage) {
+            this.hurtTimer += delta;
+        }
+    }
+}
+
 class Character extends GameEntity {
     team: Team;
     state: EnemyState;
@@ -134,6 +177,12 @@ class Character extends GameEntity {
 
         this.hasLandedHit = false;
         this.isTakingDamage = false;
+    }
+
+    isAtFinishLine() {
+        const distToFinish = finishLinesYpos[this.team] - this.pos.y;
+        // console.log({ distToFinish });
+        return distToFinish < 12;
     }
 
     walkTowards(targetPos: Vec2, delta: number) {
@@ -203,6 +252,24 @@ class Character extends GameEntity {
             this.hasLandedHit = false;
         }
     }
+    attackCastle() {
+        if (this.cooldownTimer >= this.attackCooldown) {
+            this.state = EnemyState.attack;
+            this.cooldownTimer = 0;
+        }
+        if (this.cooldownTimer > 300 && this.state === EnemyState.attack && !this.hasLandedHit) {
+            this.hasLandedHit = true;
+            Game.castle.takeDamage(this.damage);
+            // prettier-ignore
+            console.log(
+                `${this.type.toUpperCase()} Hits Caslte dealing ${this.damage} dmg \n%cCastle hp is now: ${Game.castle.hp}`, 'color: orange'
+            );
+        }
+        if (this.cooldownTimer >= 600) {
+            this.state = EnemyState.idle;
+            this.hasLandedHit = false;
+        }
+    }
 
     lookForClosestTarget(): GameEntity | null {
         let minDist = Infinity;
@@ -258,7 +325,11 @@ class Character extends GameEntity {
                     }
                 }
             } else {
-                this.walkToFinishLine(delta);
+                if (this.team === Team.red && this.isAtFinishLine()) {
+                    this.attackCastle();
+                } else {
+                    this.walkToFinishLine(delta);
+                }
             }
         }
 
@@ -298,7 +369,7 @@ class Character extends GameEntity {
             ctx.filter = "grayscale(100%) brightness(1000%)";
         }
 
-        const st = SPRITE_TRANSFORMS.sm;
+        const st = SPRITE_TRANSFORMS.md;
         if (this.facing == Facing.left) {
             ctx.save();
             ctx.scale(st.scale, st.scale);
@@ -386,12 +457,16 @@ const ALL_CHARACTER_CLASSES = [Soldier, Skeleton, Orc];
 class Game {
     static entities: Record<string, GameEntity> = {};
     // static target: Vec2 | null = null;
+    static castle: Castle;
+
     charIdx = 0;
 
     constructor() {
         canvas.width = CANVAS_WIDTH;
         canvas.height = CANVAS_HEIGHT;
         canvas.classList.remove("hidden");
+
+        Game.castle = new Castle(400);
 
         [
             new Orc(Team.red, 20, 0),
@@ -459,7 +534,8 @@ class Game {
         ctx.fillStyle = "#007f00";
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-        ctx.drawImage(castleWallsImg, 0, CANVAS_HEIGHT - 110, Math.min(window.innerWidth, 600), 160);
+        Game.castle.update(delta);
+        Game.castle.draw();
 
         Object.values(Game.entities)
             .sort((a, b) => a.pos.y - b.pos.y)
@@ -470,6 +546,14 @@ class Game {
 
         if (!Clock.isPaused) {
             requestAnimationFrame(this.tick.bind(this));
+        }
+
+        if (Game.castle.isDead()) {
+            console.log("GAME OVER");
+            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            gameoverBanner.classList.remove("hidden");
+            // ctx.fillText("Game Over", 100, 400);s
+            Clock.togglePause();
         }
     }
 }

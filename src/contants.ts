@@ -22,8 +22,6 @@ export const CANVAS_HEIGHT = window.innerHeight;
 // export const CANVAS_HEIGHT = Math.min(window.innerHeight, 900);
 
 export const SPRITE_IMG_SIZE = 100;
-
-export const SPRITE_SCALE = 1.5;
 export const SPRITE_TRANSFORMS = {
     xs: { scale: 1, translate: 0 },
     sm: { scale: 1.5, translate: 3 },
@@ -40,7 +38,7 @@ export const TIME_TO_REMOVE_DEAD_CHARACTERS = 3000;
 
 export const finishLinesYpos = {
     [Team.blue]: 0,
-    [Team.red]: CANVAS_HEIGHT,
+    [Team.red]: CANVAS_HEIGHT - 72,
 };
 
 export const soldierIdleImg = new Image();
@@ -155,7 +153,7 @@ export const skeletonAttrs: Omit<CharAttrs, "team"> = {
     type: CharType.skeleton,
     hp: 140,
     damage: 20,
-    speed: 40,
+    speed: 240,
     attackRange: 16,
     attacksPerMinute: 40,
     sightRange: 130,
