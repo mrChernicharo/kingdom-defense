@@ -58,8 +58,18 @@ h1 {
     filter: drop-shadow(0 0 2em #3178c6aa);
 }
 
+li {
+    list-style: none;
+}
+
+#cards-display > ul {
+    display: flex;
+}
+
 .card {
+    cursor: grab;
     padding: 2em;
+    border: 1px solid;
 }
 
 .read-the-docs {

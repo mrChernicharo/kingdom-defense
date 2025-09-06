@@ -38,7 +38,7 @@ export const TIME_TO_REMOVE_DEAD_CHARACTERS = 3000;
 
 export const finishLinesYpos = {
     [Team.blue]: 0,
-    [Team.red]: CANVAS_HEIGHT - 72,
+    [Team.red]: CANVAS_HEIGHT - 180,
 };
 
 export const soldierIdleImg = new Image();
@@ -153,7 +153,7 @@ export const skeletonAttrs: Omit<CharAttrs, "team"> = {
     type: CharType.skeleton,
     hp: 140,
     damage: 20,
-    speed: 240,
+    speed: 40,
     attackRange: 16,
     attacksPerMinute: 40,
     sightRange: 130,

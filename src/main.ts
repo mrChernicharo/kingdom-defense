@@ -16,10 +16,11 @@ import {
     skeletonAttrs,
 } from "./contants";
 import { idMaker } from "./helperFns";
-import type { CharAttrs } from "./types";
+import type { CharAttrs, CharType } from "./types";
 import { Facing, EnemyState, Team } from "./types";
 
-const gameoverBanner = document.querySelector("#gameover-banner") as HTMLDivElement;
+const gameOverBanner = document.querySelector("#gameover-banner") as HTMLDivElement;
+const cardsDisplay = document.querySelector("#cards-display ul") as HTMLUListElement;
 const playBtn = document.querySelector("#play-btn") as HTMLButtonElement;
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
@@ -120,7 +121,7 @@ class Castle {
         if (this.isTakingDamage) {
             ctx.filter = "brightness(400%)";
         }
-        ctx.drawImage(castleWallsImg, 0, CANVAS_HEIGHT - 110, Math.min(window.innerWidth, 600), 160);
+        ctx.drawImage(castleWallsImg, 0, finishLinesYpos.red - 40, Math.min(window.innerWidth, 600), 160);
         ctx.filter = "none";
     }
 
@@ -461,9 +462,14 @@ class Game {
 
     charIdx = 0;
 
+    isDraggingCard = false;
+    selectedCard: CharType | null = null;
+    dragPos: Vec2 | null = null;
+
     constructor() {
         canvas.width = CANVAS_WIDTH;
         canvas.height = CANVAS_HEIGHT;
+        cardsDisplay.style.width = CANVAS_WIDTH + "px";
         canvas.classList.remove("hidden");
 
         Game.castle = new Castle(400);
@@ -488,10 +494,37 @@ class Game {
         });
 
         playBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
-        canvas.addEventListener("click", this.spawnCharacter.bind(this));
         window.addEventListener("keypress", this.toggleCharToDeploy.bind(this));
+        cardsDisplay.addEventListener("pointerdown", this.startDrag.bind(this));
+        canvas.addEventListener("pointermove", this.dragCard.bind(this));
+        canvas.addEventListener("pointerup", this.dragEnd.bind(this));
 
         this.toggleIsPlaying();
+    }
+
+    startDrag(ev: PointerEvent) {
+        this.isDraggingCard = true;
+        this.selectedCard = (ev.target as HTMLLIElement).dataset.unit as CharType;
+        console.log("startDrag", this.selectedCard, ev);
+    }
+
+    dragCard(ev: PointerEvent) {
+        if (!this.isDraggingCard) return;
+        this.dragPos = new Vec2(ev.offsetX, ev.offsetY);
+    }
+
+    dragEnd(ev: PointerEvent) {
+        this.dragPos = null;
+        const soldier = new Soldier(Team.blue, ev.offsetX, ev.offsetY);
+        Game.entities[soldier.id] = soldier;
+
+        this.selectedCard = null;
+        this.isDraggingCard = false;
+    }
+
+    spawnCharacter(ev: MouseEvent) {
+        const soldier = new Soldier(Team.blue, Math.random() * CANVAS_WIDTH, CANVAS_HEIGHT - 200);
+        Game.entities[soldier.id] = soldier;
     }
 
     toggleIsPlaying() {
@@ -501,18 +534,6 @@ class Game {
         if (!Clock.isPaused) {
             this.tick();
         }
-    }
-
-    spawnCharacter(ev: MouseEvent) {
-        // let char: Character;
-        // if (this.charToDeploy == CharType.soldier) char = new Soldier(Team.blue, ev.offsetX, ev.offsetY);
-        // else char = new Orc(Team.red, ev.offsetX, ev.offsetY);
-        const Class = ALL_CHARACTER_CLASSES[this.charIdx];
-        let team = Team.red;
-        if (Class.name == "Soldier") team = Team.blue;
-        // console.log({ Class, team });
-        const char = new Class(team, ev.offsetX, ev.offsetY);
-        Game.entities[char.id] = char;
     }
 
     toggleCharToDeploy(ev: KeyboardEvent) {
@@ -548,10 +569,31 @@ class Game {
             requestAnimationFrame(this.tick.bind(this));
         }
 
+        if (this.dragPos) {
+            const st = SPRITE_TRANSFORMS.md;
+
+            ctx.save();
+            ctx.scale(st.scale, st.scale);
+            ctx.translate(-this.dragPos.x / st.translate, -this.dragPos.y / st.translate);
+            ctx.filter = "opacity(0.5)";
+            ctx.drawImage(
+                poseImage.soldier.idle,
+                0,
+                0,
+                SPRITE_IMG_SIZE,
+                SPRITE_IMG_SIZE,
+                this.dragPos.x - SPRITE_IMG_SIZE / 2,
+                this.dragPos.y - poseImage.soldier.idle.height / 2 - 6,
+                SPRITE_IMG_SIZE,
+                SPRITE_IMG_SIZE
+            );
+            ctx.restore();
+        }
+
         if (Game.castle.isDead()) {
             console.log("GAME OVER");
             ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-            gameoverBanner.classList.remove("hidden");
+            gameOverBanner.classList.remove("hidden");
             // ctx.fillText("Game Over", 100, 400);s
             Clock.togglePause();
         }
