@@ -1,3 +1,4 @@
+import castleWalls from "/src/assets/images/castle-wall.png";
 // export const CANVAS_WIDTH = 600;
 
 import soldierIdleImgSrc from "/src/assets/images/Soldier-Idle.png";
@@ -17,6 +18,17 @@ import skeletonDeadImgSrc from "/src/assets/images/Skeleton-Death.png";
 
 import { Team, EnemyState, CharType, type CharAttrs } from "./types";
 
+export const afterWaveScreen = document.querySelector("#after-wave-screen") as HTMLDivElement;
+export const nextWaveBtn = afterWaveScreen.querySelector("button") as HTMLButtonElement;
+export const gameOverBanner = document.querySelector("#gameover-banner") as HTMLDivElement;
+export const cardsDisplay = document.querySelector("#cards-display ul") as HTMLUListElement;
+export const playBtn = document.querySelector("#play-btn") as HTMLButtonElement;
+export const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
+export const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+
+export const castleWallsImg = new Image();
+castleWallsImg.src = castleWalls;
+
 export const CANVAS_WIDTH = Math.min(window.innerWidth, 600);
 export const CANVAS_HEIGHT = window.innerHeight;
 // export const CANVAS_HEIGHT = Math.min(window.innerHeight, 900);
@@ -31,8 +43,8 @@ export const SPRITE_TRANSFORMS = {
 // export const SPRITE_HEIGHT = 20;
 // export const SPRITE_WIDTH = 20;
 
-export const DRAW_CHAR_CENTER_POS = true;
-export const DRAW_CHAR_SIGHT_RADIUS = true;
+export const DRAW_CHAR_CENTER_POS = false;
+export const DRAW_CHAR_SIGHT_RADIUS = false;
 
 export const TIME_TO_REMOVE_DEAD_CHARACTERS = 3000;
 
