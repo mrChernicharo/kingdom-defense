@@ -64,12 +64,11 @@ class DragCardManager {
 
     tick() {
         if (this.dragPos && this.selectedCard) {
-            const st = SPRITE_TRANSFORMS.lg;
-
+            const { scale, translate } = SPRITE_TRANSFORMS;
             // draw SPRITE PREVIEW
             ctx.save();
-            ctx.scale(st.scale, st.scale);
-            ctx.translate(-this.dragPos.x / st.translate, -this.dragPos.y / st.translate);
+            ctx.scale(scale, scale);
+            ctx.translate(-this.dragPos.x / translate, -this.dragPos.y / translate);
             ctx.filter = "opacity(0.5)";
             ctx.drawImage(
                 poseImage[this.selectedCard].idle,
@@ -142,7 +141,6 @@ export class Game {
     static castle: Castle;
     static textEntities: Record<string, FloatingText> = {};
 
-    charIdx = 0;
     dragCardManager: DragCardManager;
     waveManager: WaveManager;
 
@@ -183,8 +181,7 @@ export class Game {
         const delta = Clock.tick();
         ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-        // grass
-        ctx.fillStyle = "#007f00";
+        ctx.fillStyle = this.waveManager.level.bgColor;
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
         Game.castle.update(delta);

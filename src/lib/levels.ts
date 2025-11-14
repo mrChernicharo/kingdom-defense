@@ -7,12 +7,14 @@ export type EnemyBlueprint = [EnemyClass, number, number];
 
 export type Level = {
     name: string;
+    bgColor: string;
     waves: EnemyBlueprint[][];
 };
 
 export const LEVELS: Level[] = [
     {
         name: "forest 01",
+        bgColor: "#007f00",
         waves: [
             [
                 [Skeleton, 60, 0],
@@ -22,27 +24,27 @@ export const LEVELS: Level[] = [
             [
                 [Orc, 20, 0],
                 [Orc, 180, 0],
-                [Skeleton, CANVAS_WIDTH - 20, 0],
+                [Skeleton, CANVAS_WIDTH - 40, 0],
                 [Skeleton, CANVAS_WIDTH - 200, 0],
             ],
             [
                 [Orc, 20, 0],
                 [Orc, 100, 0],
                 [Orc, 180, 0],
-                [Skeleton, CANVAS_WIDTH - 20, 0],
+                [Skeleton, CANVAS_WIDTH - 40, 0],
                 [Skeleton, CANVAS_WIDTH - 110, 0],
                 [Skeleton, CANVAS_WIDTH - 200, 0],
             ],
         ],
     },
-
     {
         name: "forest 02",
+        bgColor: "#999e17ff",
         waves: [
             [
                 [Orc, 20, 0],
                 [Orc, 180, 0],
-                [Skeleton, CANVAS_WIDTH - 20, 0],
+                [Skeleton, CANVAS_WIDTH - 40, 0],
                 [Skeleton, CANVAS_WIDTH - 110, 0],
                 [Skeleton, CANVAS_WIDTH - 200, 0],
             ],
@@ -50,7 +52,7 @@ export const LEVELS: Level[] = [
                 [Orc, 20, 0],
                 [Orc, 100, 0],
                 [Orc, 180, 0],
-                [Skeleton, CANVAS_WIDTH - 20, 0],
+                [Skeleton, CANVAS_WIDTH - 40, 0],
                 [Skeleton, CANVAS_WIDTH - 110, 0],
                 [Skeleton, CANVAS_WIDTH - 200, 0],
             ],
@@ -58,87 +60,22 @@ export const LEVELS: Level[] = [
     },
     {
         name: "forest 03",
+        bgColor: "#0d620dff",
         waves: [
             [
                 [Orc, 20, 0],
                 [Orc, 100, 0],
                 [Orc, 180, 0],
-                [Skeleton, CANVAS_WIDTH - 20, 0],
+                [Skeleton, CANVAS_WIDTH - 40, 0],
                 [Skeleton, CANVAS_WIDTH - 200, 0],
             ],
             [
                 [Orc, 20, 0],
                 [Orc, 100, 0],
                 [Orc, 180, 0],
-                [Skeleton, CANVAS_WIDTH - 20, 0],
+                [Skeleton, CANVAS_WIDTH - 40, 0],
                 [Skeleton, CANVAS_WIDTH - 200, 0],
             ],
         ],
     },
 ];
-
-// export const LEVELS = [
-//     {
-//         name: "forest 01",
-//         waves: [
-//             [
-//                 // new Orc(Team.red, 180, 0),
-//                 // new Skeleton(Team.red, CANVAS_WIDTH - 20, 0),
-//                 new Skeleton(Team.red, CANVAS_WIDTH - 200, 0),
-//             ],
-//             [
-//                 new Orc(Team.red, 20, 0),
-//                 new Orc(Team.red, 180, 0),
-//                 new Skeleton(Team.red, CANVAS_WIDTH - 20, 0),
-//                 new Skeleton(Team.red, CANVAS_WIDTH - 200, 0),
-//             ],
-//             [
-//                 new Orc(Team.red, 20, 0),
-//                 new Orc(Team.red, 100, 0),
-//                 new Orc(Team.red, 180, 0),
-//                 new Skeleton(Team.red, CANVAS_WIDTH - 20, 0),
-//                 new Skeleton(Team.red, CANVAS_WIDTH - 110, 0),
-//                 new Skeleton(Team.red, CANVAS_WIDTH - 200, 0),
-//             ],
-//         ],
-//     },
-//     {
-//         name: "forest 02",
-//         waves: [
-//             [
-//                 new Orc(Team.red, 20, 0),
-//                 new Orc(Team.red, 180, 0),
-//                 new Skeleton(Team.red, CANVAS_WIDTH - 20, 0),
-//                 new Skeleton(Team.red, CANVAS_WIDTH - 110, 0),
-//                 new Skeleton(Team.red, CANVAS_WIDTH - 200, 0),
-//             ],
-//             [
-//                 new Orc(Team.red, 20, 0),
-//                 new Orc(Team.red, 100, 0),
-//                 new Orc(Team.red, 180, 0),
-//                 new Skeleton(Team.red, CANVAS_WIDTH - 20, 0),
-//                 new Skeleton(Team.red, CANVAS_WIDTH - 110, 0),
-//                 new Skeleton(Team.red, CANVAS_WIDTH - 200, 0),
-//             ],
-//         ],
-//     },
-//     {
-//         name: "forest 03",
-//         waves: [
-//             [
-//                 new Orc(Team.red, 20, 0),
-//                 new Orc(Team.red, 100, 0),
-//                 new Orc(Team.red, 180, 0),
-//                 new Skeleton(Team.red, CANVAS_WIDTH - 20, 0),
-//                 new Skeleton(Team.red, CANVAS_WIDTH - 200, 0),
-//             ],
-//             [
-//                 new Orc(Team.red, 20, 0),
-//                 new Orc(Team.red, 100, 0),
-//                 new Orc(Team.red, 180, 0),
-//                 new Skeleton(Team.red, CANVAS_WIDTH - 20, 0),
-//                 new Skeleton(Team.red, CANVAS_WIDTH - 200, 0),
-//             ],
-//         ],
-//     },
-// ];

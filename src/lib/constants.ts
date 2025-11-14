@@ -39,12 +39,13 @@ export const CANVAS_HEIGHT = window.innerHeight;
 // export const CANVAS_HEIGHT = Math.min(window.innerHeight, 900);
 
 export const SPRITE_IMG_SIZE = 100;
-export const SPRITE_TRANSFORMS = {
+const SPRITE_TRANSFORMS_OPTS = {
     xs: { scale: 1, translate: 0 },
     sm: { scale: 1.5, translate: 3 },
     md: { scale: 2, translate: 2 },
     lg: { scale: 3, translate: 1.5 },
 };
+export const SPRITE_TRANSFORMS = SPRITE_TRANSFORMS_OPTS.md;
 // export const SPRITE_HEIGHT = 20;
 // export const SPRITE_WIDTH = 20;
 

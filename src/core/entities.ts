@@ -335,12 +335,13 @@ export class Character extends GameEntity {
             ctx.filter = "grayscale(100%) brightness(1000%)";
         }
 
-        const st = SPRITE_TRANSFORMS.lg;
+        const { scale, translate } = SPRITE_TRANSFORMS;
+
         if (this.facing == Facing.left) {
             ctx.save();
-            ctx.scale(st.scale, st.scale);
+            ctx.scale(scale, scale);
             ctx.scale(-1, 1);
-            ctx.translate(this.pos.x / st.translate, -this.pos.y / st.translate);
+            ctx.translate(this.pos.x / translate, -this.pos.y / translate);
             ctx.translate(0, 0);
             ctx.drawImage(
                 poseImage[this.type][this.state],
@@ -356,8 +357,8 @@ export class Character extends GameEntity {
             ctx.restore();
         } else {
             ctx.save();
-            ctx.scale(st.scale, st.scale);
-            ctx.translate(-this.pos.x / st.translate, -this.pos.y / st.translate);
+            ctx.scale(scale, scale);
+            ctx.translate(-this.pos.x / translate, -this.pos.y / translate);
             ctx.drawImage(
                 poseImage[this.type][this.state],
                 this.spriteIdx * 100,
@@ -440,7 +441,6 @@ export class FloatingText extends Updatable {
     draw() {
         ctx.font = `bold ${floatingTextFontSize[this.size]}px Arial`;
         ctx.fillStyle = this.color;
-        ctx.strokeStyle = this.color;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
