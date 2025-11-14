@@ -4,3 +4,6 @@
 -   base interactions
 -   damage numbers
 -   responsiveness
+-   more units
+-   power ups (cards)
+-   unit cost -→ elixir bar

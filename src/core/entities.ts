@@ -15,21 +15,28 @@ import {
     ctx,
 } from "../lib/constants";
 import { idMaker } from "../lib/helperFns";
-import { Team, EnemyState, Facing } from "../lib/types";
-import type { CharAttrs } from "../lib/types";
+import { Team, CharacterState, Facing } from "../lib/types";
+import type { CharacterAttrs } from "../lib/types";
 import { Game } from "./game";
 import { Clock, Vec2 } from "./shared";
 
-export class GameEntity {
+export class GamePoint {
     pos: Vec2;
-    type: string;
     id: string;
+
+    constructor(x = 0, y = 0) {
+        this.id = idMaker();
+        this.pos = new Vec2(x, y);
+    }
+}
+
+export class GameEntity extends GamePoint {
+    type: string;
     hp: number;
 
     constructor(type: string, x = 0, y = 0, hp: number) {
-        this.id = idMaker();
+        super(x, y);
         this.type = type;
-        this.pos = new Vec2(x, y);
         this.hp = hp;
     }
     update(_delta: number) {
@@ -93,8 +100,8 @@ export class Castle {
 
 export class Character extends GameEntity {
     team: Team;
-    state: EnemyState;
-    target: GameEntity | null;
+    state: CharacterState;
+    target: GameEntity | Castle | null;
 
     spriteIdx: number;
     facing: Facing;
@@ -112,11 +119,11 @@ export class Character extends GameEntity {
     hasLandedHit: boolean;
     isTakingDamage: boolean;
 
-    constructor(x = 0, y = 0, attrs: CharAttrs) {
+    constructor(x = 0, y = 0, attrs: CharacterAttrs) {
         super(attrs.type, x, y, attrs.hp);
 
         this.team = attrs.team; // teamBlue: walks bottom-up X teamRed: walks top-down
-        this.state = EnemyState.idle;
+        this.state = CharacterState.idle;
         this.facing = Facing.right;
         this.target = null;
 
@@ -143,7 +150,7 @@ export class Character extends GameEntity {
     }
 
     walkTowards(targetPos: Vec2, delta: number) {
-        this.state = EnemyState.walk;
+        this.state = CharacterState.walk;
 
         const direction = new Vec2(targetPos.x - this.pos.x, targetPos.y - this.pos.y);
         const magnitude = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
@@ -162,9 +169,9 @@ export class Character extends GameEntity {
         const finishLine = new Vec2(this.pos.x, finishLinesYpos[this.team]);
         const distanceToFinishLine = this.pos.distance(finishLine);
         if (distanceToFinishLine < 10) {
-            if (this.state === EnemyState.walk) {
+            if (this.state === CharacterState.walk) {
                 console.log("FINISH LINE REACHED!");
-                this.state = EnemyState.idle;
+                this.state = CharacterState.idle;
             }
         } else {
             this.walkTowards(finishLine, delta * 0.001);
@@ -172,7 +179,7 @@ export class Character extends GameEntity {
     }
 
     turnToFaceTarget() {
-        if (!this.target) return;
+        if (!this.target || this.target instanceof Castle) return;
 
         const direction = new Vec2(this.target.pos.x - this.pos.x, this.target.pos.y - this.pos.y);
         if (direction.x > 0) {
@@ -193,40 +200,47 @@ export class Character extends GameEntity {
 
         // console.log(this.cooldown);
         if (this.cooldownTimer >= this.attackCooldown) {
-            this.state = EnemyState.attack;
+            this.state = CharacterState.attack;
             this.cooldownTimer = 0;
         }
-        if (this.cooldownTimer > 300 && this.state === EnemyState.attack && !this.hasLandedHit) {
+        if (this.cooldownTimer > 300 && this.state === CharacterState.attack && !this.hasLandedHit) {
             this.hasLandedHit = true;
             this.target.takeDamage(this.damage);
-            // prettier-ignore
+
             console.log(
-                `${this.type.toUpperCase()} Hits ${this.target.type.toUpperCase()} dealing ${this.damage} dmg \n%c${this.target.type.toUpperCase()} hp is now: ${this.target.hp}`, 'color: orange'
+                this.target instanceof Castle
+                    ? `${this.type.toUpperCase()} Hits Caslte dealing ${this.damage} dmg \n%cCastle hp is now: ${
+                          Game.castle.hp
+                      }`
+                    : `${this.type.toUpperCase()} ${this.spriteIdx} Hits ${this.target.type.toUpperCase()} dealing ${
+                          this.damage
+                      } dmg \n%c${this.target.type.toUpperCase()} hp is now: ${this.target.hp}`,
+                "color: orange"
             );
         }
         if (this.cooldownTimer >= 600) {
-            this.state = EnemyState.idle;
+            this.state = CharacterState.idle;
             this.hasLandedHit = false;
         }
     }
-    attackCastle() {
-        if (this.cooldownTimer >= this.attackCooldown) {
-            this.state = EnemyState.attack;
-            this.cooldownTimer = 0;
-        }
-        if (this.cooldownTimer > 300 && this.state === EnemyState.attack && !this.hasLandedHit) {
-            this.hasLandedHit = true;
-            Game.castle.takeDamage(this.damage);
-            // prettier-ignore
-            console.log(
-                `${this.type.toUpperCase()} Hits Caslte dealing ${this.damage} dmg \n%cCastle hp is now: ${Game.castle.hp}`, 'color: orange'
-            );
-        }
-        if (this.cooldownTimer >= 600) {
-            this.state = EnemyState.idle;
-            this.hasLandedHit = false;
-        }
-    }
+    // attackCastle() {
+    //     if (this.cooldownTimer >= this.attackCooldown) {
+    //         this.state = CharacterState.attack;
+    //         this.cooldownTimer = 0;
+    //     }
+    //     if (this.cooldownTimer > 300 && this.state === CharacterState.attack && !this.hasLandedHit) {
+    //         this.hasLandedHit = true;
+    //         Game.castle.takeDamage(this.damage);
+    //         // prettier-ignore
+    //         console.log(
+    //             `${this.type.toUpperCase()} Hits Caslte dealing ${this.damage} dmg \n%cCastle hp is now: ${Game.castle.hp}`, 'color: orange'
+    //         );
+    //     }
+    //     if (this.cooldownTimer >= 600) {
+    //         this.state = CharacterState.idle;
+    //         this.hasLandedHit = false;
+    //     }
+    // }
 
     lookForClosestTarget(): GameEntity | null {
         let minDist = Infinity;
@@ -255,8 +269,8 @@ export class Character extends GameEntity {
     update(delta: number) {
         if (this.isDead()) {
             this.deadTimer += delta;
-            if (this.state != EnemyState.dead) {
-                this.state = EnemyState.dead;
+            if (this.state != CharacterState.dead) {
+                this.state = CharacterState.dead;
             }
 
             if (this.deadTimer > TIME_TO_REMOVE_DEAD_CHARACTERS) {
@@ -283,7 +297,9 @@ export class Character extends GameEntity {
                 }
             } else {
                 if (this.team === Team.red && this.isAtFinishLine()) {
-                    this.attackCastle();
+                    this.target = Game.castle;
+                    this.performAttack();
+                    this;
                 } else {
                     this.walkToFinishLine(delta);
                 }
@@ -291,10 +307,10 @@ export class Character extends GameEntity {
         }
 
         switch (this.state) {
-            case EnemyState.attack:
+            case CharacterState.attack:
                 this.spriteIdx = Math.trunc(this.cooldownTimer / 100); // 0 - 5
                 break;
-            case EnemyState.dead:
+            case CharacterState.dead:
                 this.spriteIdx = Math.trunc(Math.min(this.deadTimer, 399) / 100); // 0 - 3
                 break;
             default:
@@ -406,5 +422,29 @@ export class Orc extends Character {
 export class Skeleton extends Character {
     constructor(team: Team, x = 0, y = 0) {
         super(x, y, { ...skeletonAttrs, team });
+    }
+}
+
+export class FloatingText extends GamePoint {
+    text: string;
+    duration: number;
+    color: "white" | "green" | "blue" | "yellow" | "red" | "purple";
+    size: "s" | "m" | "l";
+
+    constructor(
+        x = 0,
+        y = 0,
+        text: string,
+        opts: {
+            duration?: number;
+            color?: "white" | "green" | "blue" | "yellow" | "red" | "purple";
+            size?: "s" | "m" | "l";
+        }
+    ) {
+        super(x, y);
+        this.text = text;
+        this.color = opts.color ?? "white";
+        this.size = opts.size ?? "m";
+        this.duration = opts.duration ?? 1000;
     }
 }

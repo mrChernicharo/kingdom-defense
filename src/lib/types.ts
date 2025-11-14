@@ -1,9 +1,3 @@
-export enum EnemyState {
-    idle = "idle",
-    walk = "walk",
-    attack = "attack",
-    dead = "dead",
-}
 export enum Facing {
     left = "left",
     right = "right",
@@ -12,14 +6,20 @@ export enum Team {
     blue = "blue",
     red = "red",
 }
-export enum CharType {
+export enum CharacterType {
     orc = "orc",
     soldier = "soldier",
     skeleton = "skeleton",
 }
 
-export interface CharAttrs {
-    type: CharType;
+export enum CharacterState {
+    idle = "idle",
+    walk = "walk",
+    attack = "attack",
+    dead = "dead",
+}
+export interface CharacterAttrs {
+    type: CharacterType;
     hp: number;
     damage: number;
     speed: number;

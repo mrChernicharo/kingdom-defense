@@ -16,7 +16,7 @@ import skeletonWalkImgSrc from "/src/assets/images/Skeleton-Walk.png";
 import skeletonAttackImgSrc from "/src/assets/images/Skeleton-Attack01.png";
 import skeletonDeadImgSrc from "/src/assets/images/Skeleton-Death.png";
 
-import { Team, EnemyState, CharType, type CharAttrs } from "./types";
+import { Team, CharacterState, CharacterType, type CharacterAttrs } from "./types";
 
 export const afterWaveScreen = document.querySelector("#after-wave-screen") as HTMLDivElement;
 export const nextWaveBtn = afterWaveScreen.querySelector("button") as HTMLButtonElement;
@@ -80,69 +80,69 @@ skeletonWalkImg.src = skeletonWalkImgSrc;
 skeletonAttackImg.src = skeletonAttackImgSrc;
 skeletonDeadImg.src = skeletonDeadImgSrc;
 
-export const poseFrameCount: Record<string, Record<EnemyState, number>> = {
+export const poseFrameCount: Record<string, Record<CharacterState, number>> = {
     soldier: {
-        [EnemyState.idle]: 6,
-        [EnemyState.walk]: 8,
-        [EnemyState.attack]: 6,
-        [EnemyState.dead]: 4,
+        [CharacterState.idle]: 6,
+        [CharacterState.walk]: 8,
+        [CharacterState.attack]: 6,
+        [CharacterState.dead]: 4,
     },
     orc: {
-        [EnemyState.idle]: 6,
-        [EnemyState.walk]: 8,
-        [EnemyState.attack]: 6,
-        [EnemyState.dead]: 4,
+        [CharacterState.idle]: 6,
+        [CharacterState.walk]: 8,
+        [CharacterState.attack]: 6,
+        [CharacterState.dead]: 4,
     },
     skeleton: {
-        [EnemyState.idle]: 6,
-        [EnemyState.walk]: 8,
-        [EnemyState.attack]: 6,
-        [EnemyState.dead]: 4,
+        [CharacterState.idle]: 6,
+        [CharacterState.walk]: 8,
+        [CharacterState.attack]: 6,
+        [CharacterState.dead]: 4,
     },
 };
-export const poseFrameSpeed: Record<string, Record<EnemyState, number>> = {
+export const poseFrameSpeed: Record<string, Record<CharacterState, number>> = {
     soldier: {
-        [EnemyState.idle]: 400,
-        [EnemyState.walk]: 100,
-        [EnemyState.attack]: 100,
-        [EnemyState.dead]: 100,
+        [CharacterState.idle]: 400,
+        [CharacterState.walk]: 100,
+        [CharacterState.attack]: 100,
+        [CharacterState.dead]: 100,
     },
     orc: {
-        [EnemyState.idle]: 400,
-        [EnemyState.walk]: 100,
-        [EnemyState.attack]: 100,
-        [EnemyState.dead]: 100,
+        [CharacterState.idle]: 400,
+        [CharacterState.walk]: 100,
+        [CharacterState.attack]: 100,
+        [CharacterState.dead]: 100,
     },
     skeleton: {
-        [EnemyState.idle]: 400,
-        [EnemyState.walk]: 100,
-        [EnemyState.attack]: 100,
-        [EnemyState.dead]: 100,
+        [CharacterState.idle]: 400,
+        [CharacterState.walk]: 100,
+        [CharacterState.attack]: 100,
+        [CharacterState.dead]: 100,
     },
 };
-export const poseImage: Record<string, Record<EnemyState, HTMLImageElement>> = {
+export const poseImage: Record<string, Record<CharacterState, HTMLImageElement>> = {
     soldier: {
-        [EnemyState.idle]: soldierIdleImg,
-        [EnemyState.walk]: soldierWalkImg,
-        [EnemyState.attack]: soldierAttackImg,
-        [EnemyState.dead]: soldierDeadImg,
+        [CharacterState.idle]: soldierIdleImg,
+        [CharacterState.walk]: soldierWalkImg,
+        [CharacterState.attack]: soldierAttackImg,
+        [CharacterState.dead]: soldierDeadImg,
     },
     orc: {
-        [EnemyState.idle]: orcIdleImg,
-        [EnemyState.walk]: orcWalkImg,
-        [EnemyState.attack]: orcAttackImg,
-        [EnemyState.dead]: orcDeadImg,
+        [CharacterState.idle]: orcIdleImg,
+        [CharacterState.walk]: orcWalkImg,
+        [CharacterState.attack]: orcAttackImg,
+        [CharacterState.dead]: orcDeadImg,
     },
     skeleton: {
-        [EnemyState.idle]: skeletonIdleImg,
-        [EnemyState.walk]: skeletonWalkImg,
-        [EnemyState.attack]: skeletonAttackImg,
-        [EnemyState.dead]: skeletonDeadImg,
+        [CharacterState.idle]: skeletonIdleImg,
+        [CharacterState.walk]: skeletonWalkImg,
+        [CharacterState.attack]: skeletonAttackImg,
+        [CharacterState.dead]: skeletonDeadImg,
     },
 };
 
-export const orcAttrs: Omit<CharAttrs, "team"> = {
-    type: CharType.orc,
+export const orcAttrs: Omit<CharacterAttrs, "team"> = {
+    type: CharacterType.orc,
     hp: 300,
     damage: 40,
     speed: 30,
@@ -151,8 +151,8 @@ export const orcAttrs: Omit<CharAttrs, "team"> = {
     sightRange: 150,
 };
 
-export const soldierAttrs: Omit<CharAttrs, "team"> = {
-    type: CharType.soldier,
+export const soldierAttrs: Omit<CharacterAttrs, "team"> = {
+    type: CharacterType.soldier,
     hp: 200,
     damage: 30,
     speed: 36,
@@ -161,8 +161,8 @@ export const soldierAttrs: Omit<CharAttrs, "team"> = {
     sightRange: 120,
 };
 
-export const skeletonAttrs: Omit<CharAttrs, "team"> = {
-    type: CharType.skeleton,
+export const skeletonAttrs: Omit<CharacterAttrs, "team"> = {
+    type: CharacterType.skeleton,
     hp: 140,
     damage: 20,
     speed: 40,

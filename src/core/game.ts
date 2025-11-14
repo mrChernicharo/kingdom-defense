@@ -14,13 +14,13 @@ import {
 } from "../lib/constants";
 import { wait } from "../lib/helperFns";
 import { LEVELS } from "../lib/levels";
-import { type CharType, Team } from "../lib/types";
+import { type CharacterType, Team } from "../lib/types";
 import { GameEntity, Castle, Skeleton, Soldier, Character } from "./entities";
 import { Clock, Vec2 } from "./shared";
 
 class DragCardManager {
     isDraggingCard = false;
-    selectedCard: CharType | null = null;
+    selectedCard: CharacterType | null = null;
     dragPos: Vec2 | null = null;
 
     constructor() {
@@ -32,7 +32,7 @@ class DragCardManager {
 
     startDrag(ev: PointerEvent) {
         this.isDraggingCard = true;
-        this.selectedCard = (ev.target as HTMLLIElement).dataset.unit as CharType;
+        this.selectedCard = (ev.target as HTMLLIElement).dataset.unit as CharacterType;
         console.log("startDrag", this.selectedCard, ev);
     }
 
@@ -91,15 +91,17 @@ class WaveManager {
 
     async onCallNextWave() {
         this.waveIdx++;
+
         if (this.waveIdx >= this.level.waves.length) {
             console.log("Victory!");
             await wait(2000);
             return location.assign("/lobby.html");
+        } else {
+            console.log("Called next wave");
+            this.toggleAfterWaveScreen();
+            this.startWave();
+            window.dispatchEvent(new CustomEvent("wave-start", { detail: null }));
         }
-
-        this.toggleAfterWaveScreen();
-        this.startWave();
-        window.dispatchEvent(new CustomEvent("wave-start", { detail: null }));
     }
 
     startWave() {
@@ -144,6 +146,7 @@ export class Game {
         this.waveManager.startWave();
 
         this.toggleIsPlaying();
+
         playBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
         window.addEventListener("wave-start", () => {
             console.log("wave-start");
