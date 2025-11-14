@@ -15,7 +15,7 @@ import {
 import { wait } from "../lib/helperFns";
 import { LEVELS } from "../lib/levels";
 import { type CharacterType, Team } from "../lib/types";
-import { GameEntity, Castle, Skeleton, Soldier, Character } from "./entities";
+import { GameEntity, Castle, Skeleton, Soldier, Character, FloatingText } from "./entities";
 import { Clock, Vec2 } from "./shared";
 
 class DragCardManager {
@@ -42,6 +42,7 @@ class DragCardManager {
     }
 
     dragEnd(ev: PointerEvent) {
+        if (!this.isDraggingCard) return;
         this.dragPos = null;
         const soldier = new Soldier(Team.blue, ev.offsetX, ev.offsetY);
         Game.entities[soldier.id] = soldier;
@@ -128,6 +129,7 @@ class WaveManager {
 export class Game {
     static entities: Record<string, GameEntity> = {};
     static castle: Castle;
+    static textEntities: Record<string, FloatingText> = {};
 
     charIdx = 0;
     dragCardManager: DragCardManager;
@@ -175,6 +177,13 @@ export class Game {
         Game.castle.draw();
 
         Object.values(Game.entities)
+            .sort((a, b) => a.pos.y - b.pos.y)
+            .forEach((entity) => {
+                entity.update(delta);
+                entity.draw();
+            });
+
+        Object.values(Game.textEntities)
             .sort((a, b) => a.pos.y - b.pos.y)
             .forEach((entity) => {
                 entity.update(delta);

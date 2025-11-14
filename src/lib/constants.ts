@@ -146,9 +146,9 @@ export const orcAttrs: Omit<CharacterAttrs, "team"> = {
     hp: 300,
     damage: 40,
     speed: 30,
-    attackRange: 22,
+    attackRange: 52,
     attacksPerMinute: 25,
-    sightRange: 150,
+    sightRange: 220,
 };
 
 export const soldierAttrs: Omit<CharacterAttrs, "team"> = {
@@ -156,9 +156,9 @@ export const soldierAttrs: Omit<CharacterAttrs, "team"> = {
     hp: 200,
     damage: 30,
     speed: 36,
-    attackRange: 16,
+    attackRange: 44,
     attacksPerMinute: 36,
-    sightRange: 120,
+    sightRange: 240,
 };
 
 export const skeletonAttrs: Omit<CharacterAttrs, "team"> = {
@@ -166,7 +166,7 @@ export const skeletonAttrs: Omit<CharacterAttrs, "team"> = {
     hp: 140,
     damage: 20,
     speed: 40,
-    attackRange: 16,
+    attackRange: 36,
     attacksPerMinute: 40,
-    sightRange: 130,
+    sightRange: 190,
 };

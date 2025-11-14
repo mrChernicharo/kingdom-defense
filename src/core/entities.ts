@@ -30,7 +30,16 @@ export class GamePoint {
     }
 }
 
-export class GameEntity extends GamePoint {
+export class Updatable extends GamePoint {
+    update(_delta: number) {
+        throw Error("the update method must be overloaded!");
+    }
+    draw() {
+        throw Error("the draw method must be overloaded!");
+    }
+}
+
+export class GameEntity extends Updatable {
     type: string;
     hp: number;
 
@@ -38,12 +47,8 @@ export class GameEntity extends GamePoint {
         super(x, y);
         this.type = type;
         this.hp = hp;
-    }
-    update(_delta: number) {
-        throw Error("the update method must be overloaded!");
-    }
-    draw() {
-        throw Error("the draw method must be overloaded!");
+        // TODO:
+        // Game.entities[this.id] = this;
     }
     isDead() {
         return this.hp <= 0;
@@ -207,6 +212,11 @@ export class Character extends GameEntity {
             this.hasLandedHit = true;
             this.target.takeDamage(this.damage);
 
+            if (this.target instanceof GamePoint) {
+                const color = (this.target as Character)?.team == Team.blue ? "orange" : "white";
+                new FloatingText(this.target.pos.x, this.target.pos.y, String(this.damage), { color });
+            }
+
             console.log(
                 this.target instanceof Castle
                     ? `${this.type.toUpperCase()} Hits Caslte dealing ${this.damage} dmg \n%cCastle hp is now: ${
@@ -223,24 +233,6 @@ export class Character extends GameEntity {
             this.hasLandedHit = false;
         }
     }
-    // attackCastle() {
-    //     if (this.cooldownTimer >= this.attackCooldown) {
-    //         this.state = CharacterState.attack;
-    //         this.cooldownTimer = 0;
-    //     }
-    //     if (this.cooldownTimer > 300 && this.state === CharacterState.attack && !this.hasLandedHit) {
-    //         this.hasLandedHit = true;
-    //         Game.castle.takeDamage(this.damage);
-    //         // prettier-ignore
-    //         console.log(
-    //             `${this.type.toUpperCase()} Hits Caslte dealing ${this.damage} dmg \n%cCastle hp is now: ${Game.castle.hp}`, 'color: orange'
-    //         );
-    //     }
-    //     if (this.cooldownTimer >= 600) {
-    //         this.state = CharacterState.idle;
-    //         this.hasLandedHit = false;
-    //     }
-    // }
 
     lookForClosestTarget(): GameEntity | null {
         let minDist = Infinity;
@@ -425,26 +417,59 @@ export class Skeleton extends Character {
     }
 }
 
-export class FloatingText extends GamePoint {
+type FloatingTextColor = "white" | "aquamarine" | "lightblue" | "goldenrod" | "orange" | "red" | "purple";
+type FloatingTextOpts = {
+    duration?: number;
+    color?: FloatingTextColor;
+    size?: "s" | "m" | "l";
+};
+
+const floatingTextFontSize = {
+    s: 12,
+    m: 16,
+    l: 24,
+};
+const OFFSET = 24;
+export class FloatingText extends Updatable {
     text: string;
     duration: number;
-    color: "white" | "green" | "blue" | "yellow" | "red" | "purple";
+    color: FloatingTextColor;
     size: "s" | "m" | "l";
+    elapsed = 0;
 
-    constructor(
-        x = 0,
-        y = 0,
-        text: string,
-        opts: {
-            duration?: number;
-            color?: "white" | "green" | "blue" | "yellow" | "red" | "purple";
-            size?: "s" | "m" | "l";
-        }
-    ) {
-        super(x, y);
+    constructor(x = 0, y = 0, text: string, opts?: FloatingTextOpts) {
+        super(x, y - OFFSET);
         this.text = text;
-        this.color = opts.color ?? "white";
-        this.size = opts.size ?? "m";
-        this.duration = opts.duration ?? 1000;
+        this.color = opts?.color ?? "white";
+        this.size = opts?.size ?? "m";
+        this.duration = opts?.duration ?? 1000;
+        Game.textEntities[this.id] = this;
+    }
+
+    draw() {
+        ctx.font = `bold ${floatingTextFontSize[this.size]}px Arial`;
+        ctx.fillStyle = this.color;
+        ctx.strokeStyle = this.color;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        const perc = Math.max((this.duration - this.elapsed) / this.duration, 0);
+        ctx.globalAlpha = perc; // decrease opacity by setting globalAlfa between 0 and 1
+        ctx.fillText(this.text, this.pos.x, this.pos.y);
+        ctx.globalAlpha = 1;
+    }
+
+    update(delta: number) {
+        this.elapsed += delta;
+
+        if (this.elapsed > this.duration) {
+            this.destroy();
+        } else {
+            this.pos.y -= 0.02 * delta;
+        }
+    }
+
+    destroy() {
+        delete Game.textEntities[this.id];
     }
 }
