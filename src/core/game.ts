@@ -14,8 +14,8 @@ import {
 } from "../lib/constants";
 import { wait } from "../lib/helperFns";
 import { LEVELS } from "../lib/levels";
-import { type CharacterType, Team } from "../lib/types";
-import { GameEntity, Castle, Skeleton, Soldier, Character, FloatingText } from "./entities";
+import { CharacterType, Team } from "../lib/types";
+import { GameEntity, Castle, Skeleton, Soldier, Character, FloatingText, Swordsman } from "./entities";
 import { Clock, Vec2 } from "./shared";
 
 class DragCardManager {
@@ -44,29 +44,41 @@ class DragCardManager {
     dragEnd(ev: PointerEvent) {
         if (!this.isDraggingCard) return;
         this.dragPos = null;
-        const soldier = new Soldier(Team.blue, ev.offsetX, ev.offsetY);
-        Game.entities[soldier.id] = soldier;
+
+        let entity: GameEntity | undefined = undefined;
+        switch (this.selectedCard) {
+            case CharacterType.soldier:
+                entity = new Soldier(Team.blue, ev.offsetX, ev.offsetY);
+                break;
+            case CharacterType.swordsman:
+                entity = new Swordsman(Team.blue, ev.offsetX, ev.offsetY);
+                break;
+        }
+        if (!entity) throw Error("entity error");
+
+        Game.entities[entity.id] = entity;
 
         this.selectedCard = null;
         this.isDraggingCard = false;
     }
 
     tick() {
-        if (this.dragPos) {
+        if (this.dragPos && this.selectedCard) {
             const st = SPRITE_TRANSFORMS.md;
 
+            // draw SPRITE PREVIEW
             ctx.save();
             ctx.scale(st.scale, st.scale);
             ctx.translate(-this.dragPos.x / st.translate, -this.dragPos.y / st.translate);
             ctx.filter = "opacity(0.5)";
             ctx.drawImage(
-                poseImage.soldier.idle,
+                poseImage[this.selectedCard].idle,
                 0,
                 0,
                 SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE,
                 this.dragPos.x - SPRITE_IMG_SIZE / 2,
-                this.dragPos.y - poseImage.soldier.idle.height / 2 - 6,
+                this.dragPos.y - poseImage[this.selectedCard].idle.height / 2 - 6,
                 SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE
             );

@@ -10,6 +10,7 @@ export enum CharacterType {
     orc = "orc",
     soldier = "soldier",
     skeleton = "skeleton",
+    swordsman = "swordsman",
 }
 
 export enum CharacterState {

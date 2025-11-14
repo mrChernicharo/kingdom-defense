@@ -6,6 +6,11 @@ import soldierWalkImgSrc from "/src/assets/images/Soldier-Walk.png";
 import soldierAttackImgSrc from "/src/assets/images/Soldier-Attack01.png";
 import soldierDeadImgSrc from "/src/assets/images/Soldier-Death.png";
 
+import swordsmanIdleImgSrc from "/src/assets/images/Swordsman-Idle.png";
+import swordsmanWalkImgSrc from "/src/assets/images/Swordsman-Walk.png";
+import swordsmanAttackImgSrc from "/src/assets/images/Swordsman-Attack01.png";
+import swordsmanDeadImgSrc from "/src/assets/images/Swordsman-Death.png";
+
 import orcIdleImgSrc from "/src/assets/images/Orc-Idle.png";
 import orcWalkImgSrc from "/src/assets/images/Orc-Walk.png";
 import orcAttackImgSrc from "/src/assets/images/Orc-Attack01.png";
@@ -62,6 +67,15 @@ soldierWalkImg.src = soldierWalkImgSrc;
 soldierAttackImg.src = soldierAttackImgSrc;
 soldierDeadImg.src = soldierDeadImgSrc;
 
+export const swordsmanIdleImg = new Image();
+export const swordsmanWalkImg = new Image();
+export const swordsmanAttackImg = new Image();
+export const swordsmanDeadImg = new Image();
+swordsmanIdleImg.src = swordsmanIdleImgSrc;
+swordsmanWalkImg.src = swordsmanWalkImgSrc;
+swordsmanAttackImg.src = swordsmanAttackImgSrc;
+swordsmanDeadImg.src = swordsmanDeadImgSrc;
+
 export const orcIdleImg = new Image();
 export const orcWalkImg = new Image();
 export const orcAttackImg = new Image();
@@ -87,6 +101,12 @@ export const poseFrameCount: Record<string, Record<CharacterState, number>> = {
         [CharacterState.attack]: 6,
         [CharacterState.dead]: 4,
     },
+    swordsman: {
+        [CharacterState.idle]: 6,
+        [CharacterState.walk]: 8,
+        [CharacterState.attack]: 6,
+        [CharacterState.dead]: 4,
+    },
     orc: {
         [CharacterState.idle]: 6,
         [CharacterState.walk]: 8,
@@ -102,6 +122,12 @@ export const poseFrameCount: Record<string, Record<CharacterState, number>> = {
 };
 export const poseFrameSpeed: Record<string, Record<CharacterState, number>> = {
     soldier: {
+        [CharacterState.idle]: 400,
+        [CharacterState.walk]: 100,
+        [CharacterState.attack]: 100,
+        [CharacterState.dead]: 100,
+    },
+    swordsman: {
         [CharacterState.idle]: 400,
         [CharacterState.walk]: 100,
         [CharacterState.attack]: 100,
@@ -126,6 +152,12 @@ export const poseImage: Record<string, Record<CharacterState, HTMLImageElement>>
         [CharacterState.walk]: soldierWalkImg,
         [CharacterState.attack]: soldierAttackImg,
         [CharacterState.dead]: soldierDeadImg,
+    },
+    swordsman: {
+        [CharacterState.idle]: swordsmanIdleImg,
+        [CharacterState.walk]: swordsmanWalkImg,
+        [CharacterState.attack]: swordsmanAttackImg,
+        [CharacterState.dead]: swordsmanDeadImg,
     },
     orc: {
         [CharacterState.idle]: orcIdleImg,
@@ -153,6 +185,16 @@ export const orcAttrs: Omit<CharacterAttrs, "team"> = {
 
 export const soldierAttrs: Omit<CharacterAttrs, "team"> = {
     type: CharacterType.soldier,
+    hp: 200,
+    damage: 30,
+    speed: 36,
+    attackRange: 44,
+    attacksPerMinute: 36,
+    sightRange: 240,
+};
+
+export const swordsmanAttrs: Omit<CharacterAttrs, "team"> = {
+    type: CharacterType.swordsman,
     hp: 200,
     damage: 30,
     speed: 36,

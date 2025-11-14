@@ -13,6 +13,7 @@ import {
     skeletonAttrs,
     castleWallsImg,
     ctx,
+    swordsmanAttrs,
 } from "../lib/constants";
 import { idMaker } from "../lib/helperFns";
 import { Team, CharacterState, Facing } from "../lib/types";
@@ -371,22 +372,6 @@ export class Character extends GameEntity {
             ctx.restore();
         }
 
-        // ctx.save();
-        // ctx.scale(2, 2);
-        // ctx.translate(-this.pos.x / 2, -this.pos.y / 2);
-        // ctx.drawImage(
-        //     poseImage[this.type][this.state],
-        //     this.spriteIdx * SPRITE_IMG_SIZE,
-        //     0,
-        //     SPRITE_IMG_SIZE,
-        //     SPRITE_IMG_SIZE,
-        //     this.pos.x - SPRITE_IMG_SIZE / 2,
-        //     this.pos.y - poseImage[this.type][this.state].height / 2 - 6,
-        //     SPRITE_IMG_SIZE,
-        //     SPRITE_IMG_SIZE
-        // );
-        // ctx.restore();
-
         ctx.filter = "none";
 
         if (DRAW_CHAR_CENTER_POS) {
@@ -402,6 +387,12 @@ export class Character extends GameEntity {
 export class Soldier extends Character {
     constructor(team: Team, x = 0, y = 0) {
         super(x, y, { ...soldierAttrs, team });
+    }
+}
+
+export class Swordsman extends Character {
+    constructor(team: Team, x = 0, y = 0) {
+        super(x, y, { ...swordsmanAttrs, team });
     }
 }
 
@@ -454,9 +445,9 @@ export class FloatingText extends Updatable {
         ctx.textBaseline = "middle";
 
         const perc = Math.max((this.duration - this.elapsed) / this.duration, 0);
-        ctx.globalAlpha = perc; // decrease opacity by setting globalAlfa between 0 and 1
+        ctx.filter = `opacity(${perc})`;
         ctx.fillText(this.text, this.pos.x, this.pos.y);
-        ctx.globalAlpha = 1;
+        ctx.filter = "none";
     }
 
     update(delta: number) {
