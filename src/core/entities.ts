@@ -14,6 +14,7 @@ import {
     castleWallsImg,
     ctx,
     swordsmanAttrs,
+    DRAW_CHAR_RADIUS,
 } from "../lib/constants";
 import { idMaker } from "../lib/helperFns";
 import { Team, CharacterState, Facing } from "../lib/types";
@@ -43,11 +44,13 @@ export class Updatable extends GamePoint {
 export class GameEntity extends Updatable {
     type: string;
     hp: number;
+    radius: number;
 
-    constructor(type: string, x = 0, y = 0, hp: number) {
+    constructor(type: string, x = 0, y = 0, hp: number, radius = 16) {
         super(x, y);
         this.type = type;
         this.hp = hp;
+        this.radius = radius;
         // TODO:
         // Game.entities[this.id] = this;
     }
@@ -121,7 +124,10 @@ export class Character extends GameEntity {
 
     deadTimer: number;
     hurtTimer: number;
-    cooldownTimer: number;
+    turnTimer: number;
+    canTurn: boolean;
+
+    attackCooldownTimer: number;
     hasLandedHit: boolean;
     isTakingDamage: boolean;
 
@@ -138,12 +144,16 @@ export class Character extends GameEntity {
         this.attacksPerMinute = attrs.attacksPerMinute;
         this.attackRange = attrs.attackRange;
         this.sightRange = attrs.sightRange;
-        this.attackCooldown = 60_000 / this.attacksPerMinute;
 
-        this.cooldownTimer = this.attackCooldown;
+        this.attackCooldown = 60_000 / this.attacksPerMinute;
+        this.attackCooldownTimer = this.attackCooldown;
+
         this.deadTimer = 0;
         this.hurtTimer = 0;
         this.spriteIdx = 0;
+
+        this.canTurn = true;
+        this.turnTimer = 0;
 
         this.hasLandedHit = false;
         this.isTakingDamage = false;
@@ -186,8 +196,11 @@ export class Character extends GameEntity {
 
     turnToFaceTarget() {
         if (!this.target || this.target instanceof Castle) return;
+        this.turnTimer = 0;
+        this.canTurn = false;
 
         const direction = new Vec2(this.target.pos.x - this.pos.x, this.target.pos.y - this.pos.y);
+
         if (direction.x > 0) {
             this.facing = Facing.right;
         } else if (direction.x < 0) {
@@ -205,11 +218,11 @@ export class Character extends GameEntity {
         if (!this.target || this.target.isDead()) return;
 
         // console.log(this.cooldown);
-        if (this.cooldownTimer >= this.attackCooldown) {
+        if (this.attackCooldownTimer >= this.attackCooldown) {
             this.state = CharacterState.attack;
-            this.cooldownTimer = 0;
+            this.attackCooldownTimer = 0;
         }
-        if (this.cooldownTimer > 300 && this.state === CharacterState.attack && !this.hasLandedHit) {
+        if (this.attackCooldownTimer > 300 && this.state === CharacterState.attack && !this.hasLandedHit) {
             this.hasLandedHit = true;
             this.target.takeDamage(this.damage);
 
@@ -229,7 +242,7 @@ export class Character extends GameEntity {
                 "color: orange"
             );
         }
-        if (this.cooldownTimer >= 600) {
+        if (this.attackCooldownTimer >= 600) {
             this.state = CharacterState.idle;
             this.hasLandedHit = false;
         }
@@ -279,7 +292,9 @@ export class Character extends GameEntity {
                 if (this.target.isDead()) {
                     this.target = null;
                 } else {
-                    this.turnToFaceTarget();
+                    if (this.canTurn) {
+                        this.turnToFaceTarget();
+                    }
 
                     const distanceToTarget = this.pos.distance(this.target.pos);
                     if (distanceToTarget > this.attackRange) {
@@ -301,7 +316,7 @@ export class Character extends GameEntity {
 
         switch (this.state) {
             case CharacterState.attack:
-                this.spriteIdx = Math.trunc(this.cooldownTimer / 100); // 0 - 5
+                this.spriteIdx = Math.trunc(this.attackCooldownTimer / 100); // 0 - 5
                 break;
             case CharacterState.dead:
                 this.spriteIdx = Math.trunc(Math.min(this.deadTimer, 399) / 100); // 0 - 3
@@ -319,7 +334,12 @@ export class Character extends GameEntity {
             this.hurtTimer += delta;
         }
 
-        this.cooldownTimer += delta;
+        this.attackCooldownTimer += delta;
+
+        if (this.turnTimer > 500) {
+            this.canTurn = true;
+        }
+        this.turnTimer += delta;
     }
 
     draw() {
@@ -327,6 +347,14 @@ export class Character extends GameEntity {
             ctx.strokeStyle = "#00FF00";
             ctx.beginPath();
             ctx.ellipse(this.pos.x, this.pos.y, this.sightRange, this.sightRange, 0, 0, 2 * Math.PI);
+            ctx.closePath();
+            ctx.stroke();
+        }
+
+        if (DRAW_CHAR_RADIUS) {
+            ctx.strokeStyle = "#0099ff";
+            ctx.beginPath();
+            ctx.ellipse(this.pos.x, this.pos.y - 10, this.radius, this.radius, 0, 0, 2 * Math.PI);
             ctx.closePath();
             ctx.stroke();
         }

@@ -136,6 +136,55 @@ class WaveManager {
     }
 }
 
+class CollisionManager {
+    update() {
+        const allEntities = Object.values(Game.entities);
+
+        for (let i = 0; i < allEntities.length; i++) {
+            const entityA = allEntities[i];
+
+            for (let j = i + 1; j < allEntities.length; j++) {
+                const entityB = allEntities[j];
+
+                if (this.checkCollision(entityA, entityB)) {
+                    this.resolveCollision(entityA, entityB);
+                }
+            }
+        }
+    }
+    checkCollision(entityA: GameEntity, entityB: GameEntity) {
+        return entityA.pos.distance(entityB.pos) < entityA.radius + entityB.radius;
+    }
+    resolveCollision(entityA: GameEntity, entityB: GameEntity) {
+        const dx = entityA.pos.x - entityB.pos.x;
+        const dy = entityA.pos.y - entityB.pos.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const minDistance = entityA.radius + entityB.radius;
+
+        if (distance < minDistance && distance !== 0) {
+            // 1. Calculate the amount of overlap
+            const overlap = minDistance - distance;
+
+            // 2. Calculate the normalized direction vector (vector from B to A)
+            // This vector points *out* of the collision
+            const nx = dx / distance;
+            const ny = dy / distance;
+
+            // 3. Calculate the total separation distance to move
+            const separationX = nx * (overlap / 2);
+            const separationY = ny * (overlap / 2);
+
+            // 4. Move each entity by half the separation distance
+            // This splits the responsibility for the move between the two entities
+            entityA.pos.x += separationX;
+            entityA.pos.y += separationY;
+
+            entityB.pos.x -= separationX; // Subtract because we want to move B in the opposite direction
+            entityB.pos.y -= separationY;
+        }
+    }
+}
+
 export class Game {
     static entities: Record<string, GameEntity> = {};
     static castle: Castle;
@@ -143,22 +192,18 @@ export class Game {
 
     dragCardManager: DragCardManager;
     waveManager: WaveManager;
+    collisionManager: CollisionManager;
 
     constructor() {
-        canvas.width = CANVAS_WIDTH;
-        canvas.height = CANVAS_HEIGHT;
-        cardsDisplay.style.width = CANVAS_WIDTH + "px";
-        canvas.classList.remove("hidden");
-
-        // Disable image smoothing for crisp pixel art
-        ctx.imageSmoothingEnabled = false;
+        this.canvasSetup();
 
         Game.castle = new Castle(400);
 
         this.dragCardManager = new DragCardManager();
+        this.collisionManager = new CollisionManager();
         this.waveManager = new WaveManager();
-        this.waveManager.startWave();
 
+        this.waveManager.startWave();
         this.toggleIsPlaying();
 
         playBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
@@ -166,6 +211,15 @@ export class Game {
             console.log("wave-start");
             this.toggleIsPlaying();
         });
+    }
+
+    canvasSetup() {
+        canvas.width = CANVAS_WIDTH;
+        canvas.height = CANVAS_HEIGHT;
+        cardsDisplay.style.width = CANVAS_WIDTH + "px";
+        canvas.classList.remove("hidden");
+        // Disable image smoothing for crisp pixel art
+        ctx.imageSmoothingEnabled = false;
     }
 
     toggleIsPlaying() {
@@ -191,8 +245,14 @@ export class Game {
             .sort((a, b) => a.pos.y - b.pos.y)
             .forEach((entity) => {
                 entity.update(delta);
-                entity.draw();
             });
+
+        // alter entities positions in case of collisions
+        this.collisionManager.update();
+
+        Object.values(Game.entities).forEach((entity) => {
+            entity.draw();
+        });
 
         Object.values(Game.textEntities)
             .sort((a, b) => a.pos.y - b.pos.y)

@@ -49,11 +49,6 @@ export const SPRITE_TRANSFORMS = SPRITE_TRANSFORMS_OPTS.md;
 // export const SPRITE_HEIGHT = 20;
 // export const SPRITE_WIDTH = 20;
 
-export const DRAW_CHAR_CENTER_POS = false;
-export const DRAW_CHAR_SIGHT_RADIUS = false;
-
-export const TIME_TO_REMOVE_DEAD_CHARACTERS = 3000;
-
 export const finishLinesYpos = {
     [Team.blue]: 0,
     [Team.red]: CANVAS_HEIGHT - 180,
@@ -213,3 +208,8 @@ export const skeletonAttrs: Omit<CharacterAttrs, "team"> = {
     attacksPerMinute: 40,
     sightRange: 190,
 };
+
+export const DRAW_CHAR_CENTER_POS = false;
+export const DRAW_CHAR_RADIUS = true;
+export const DRAW_CHAR_SIGHT_RADIUS = false;
+export const TIME_TO_REMOVE_DEAD_CHARACTERS = 3000;
