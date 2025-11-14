@@ -335,7 +335,7 @@ export class Character extends GameEntity {
             ctx.filter = "grayscale(100%) brightness(1000%)";
         }
 
-        const st = SPRITE_TRANSFORMS.md;
+        const st = SPRITE_TRANSFORMS.lg;
         if (this.facing == Facing.left) {
             ctx.save();
             ctx.scale(st.scale, st.scale);

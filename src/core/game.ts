@@ -13,9 +13,9 @@ import {
     nextWaveBtn,
 } from "../lib/constants";
 import { wait } from "../lib/helperFns";
-import { LEVELS } from "../lib/levels";
+import { LEVELS, type Level } from "../lib/levels";
 import { CharacterType, Team } from "../lib/types";
-import { GameEntity, Castle, Skeleton, Soldier, Character, FloatingText, Swordsman } from "./entities";
+import { GameEntity, Castle, Soldier, Character, FloatingText, Swordsman } from "./entities";
 import { Clock, Vec2 } from "./shared";
 
 class DragCardManager {
@@ -64,7 +64,7 @@ class DragCardManager {
 
     tick() {
         if (this.dragPos && this.selectedCard) {
-            const st = SPRITE_TRANSFORMS.md;
+            const st = SPRITE_TRANSFORMS.lg;
 
             // draw SPRITE PREVIEW
             ctx.save();
@@ -91,10 +91,7 @@ class WaveManager {
     waveIdx = 0;
     waveFinished = false;
     afterWaveScreenVisible = false;
-    level: {
-        name: string;
-        waves: Skeleton[][];
-    };
+    level: Level;
 
     constructor() {
         nextWaveBtn.addEventListener("click", this.onCallNextWave.bind(this));
@@ -122,8 +119,10 @@ class WaveManager {
         this.waveFinished = false;
         console.log({ level: this.level, location, waveIdx: this.waveIdx });
 
-        this.level.waves[this.waveIdx].forEach((entity) => {
-            Game.entities[entity.id] = entity;
+        this.level.waves[this.waveIdx].forEach((enemyBlueprint) => {
+            const [EnemyClass, x, y] = enemyBlueprint;
+            const enemy = new EnemyClass(Team.red, x, y);
+            Game.entities[enemy.id] = enemy;
         });
     }
 
@@ -152,6 +151,9 @@ export class Game {
         canvas.height = CANVAS_HEIGHT;
         cardsDisplay.style.width = CANVAS_WIDTH + "px";
         canvas.classList.remove("hidden");
+
+        // Disable image smoothing for crisp pixel art
+        ctx.imageSmoothingEnabled = false;
 
         Game.castle = new Castle(400);
 
