@@ -28,4 +28,5 @@ export interface CharacterAttrs {
     attackRange: number;
     sightRange: number;
     team: Team;
+    cost: number;
 }

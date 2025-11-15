@@ -1,3 +1,8 @@
+import { FLOATING_TEXT_Y_OFFSET } from "../lib/constants";
+import { ctx } from "../lib/DOM";
+import { idMaker } from "../lib/helperFns";
+import { Game } from "./game";
+
 export class Vec2 {
     x = 0;
     y = 0;
@@ -10,6 +15,83 @@ export class Vec2 {
         const direction = new Vec2(target.x - this.x, target.y - this.y);
         const magnitude = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
         return magnitude;
+    }
+}
+
+export class GamePoint {
+    pos: Vec2;
+    id: string;
+
+    constructor(x = 0, y = 0) {
+        this.id = idMaker();
+        this.pos = new Vec2(x, y);
+    }
+}
+
+export class Updatable extends GamePoint {
+    update(_delta: number) {
+        throw Error("the update method must be overloaded!");
+    }
+    draw() {
+        throw Error("the draw method must be overloaded!");
+    }
+}
+
+type FloatingTextColor = "white" | "aquamarine" | "lightblue" | "goldenrod" | "orange" | "red" | "purple";
+type FloatingTextSize = "s" | "m" | "l";
+
+type FloatingTextOpts = {
+    duration?: number;
+    color?: FloatingTextColor;
+    size?: FloatingTextSize;
+};
+
+const floatingTextFontSize = {
+    s: 12,
+    m: 16,
+    l: 24,
+};
+
+export class FloatingText extends Updatable {
+    text: string;
+    duration: number;
+    color: FloatingTextColor;
+    size: FloatingTextSize;
+    elapsed = 0;
+
+    constructor(x = 0, y = 0, text: string, opts?: FloatingTextOpts) {
+        super(x, y - FLOATING_TEXT_Y_OFFSET);
+        this.text = text;
+        this.color = opts?.color ?? "white";
+        this.size = opts?.size ?? "m";
+        this.duration = opts?.duration ?? 1000;
+        Game.textEntities[this.id] = this;
+    }
+
+    draw() {
+        ctx.font = `bold ${floatingTextFontSize[this.size]}px Arial`;
+        ctx.fillStyle = this.color;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        const perc = Math.max((this.duration - this.elapsed) / this.duration, 0);
+        ctx.filter = `opacity(${perc})`;
+        ctx.fillText(this.text, this.pos.x, this.pos.y);
+        ctx.filter = "none";
+    }
+
+    update(delta: number) {
+        this.elapsed += delta;
+
+        if (this.elapsed > this.duration) {
+            this.destroy();
+        } else {
+            this.pos.y -= 0.02 * delta;
+        }
+    }
+
+    destroy() {
+        delete Game.textEntities[this.id];
     }
 }
 

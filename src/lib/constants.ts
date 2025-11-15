@@ -169,6 +169,7 @@ export const orcAttrs: Omit<CharacterAttrs, "team"> = {
     attackRange: 52,
     attacksPerMinute: 25,
     sightRange: 220,
+    cost: 4,
 };
 
 export const soldierAttrs: Omit<CharacterAttrs, "team"> = {
@@ -179,6 +180,7 @@ export const soldierAttrs: Omit<CharacterAttrs, "team"> = {
     attackRange: 44,
     attacksPerMinute: 36,
     sightRange: 240,
+    cost: 3,
 };
 
 export const swordsmanAttrs: Omit<CharacterAttrs, "team"> = {
@@ -189,6 +191,7 @@ export const swordsmanAttrs: Omit<CharacterAttrs, "team"> = {
     attackRange: 44,
     attacksPerMinute: 40,
     sightRange: 260,
+    cost: 5,
 };
 
 export const skeletonAttrs: Omit<CharacterAttrs, "team"> = {
@@ -199,6 +202,7 @@ export const skeletonAttrs: Omit<CharacterAttrs, "team"> = {
     attackRange: 36,
     attacksPerMinute: 40,
     sightRange: 190,
+    cost: 2,
 };
 
 export const DRAW_CHAR_RADIUS = true;

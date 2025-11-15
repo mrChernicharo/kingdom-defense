@@ -5,44 +5,57 @@ import {
     poseImage,
     SPRITE_IMG_SIZE,
     DRAG_UNIT_Y_LIMIT_PERCENT,
+    soldierAttrs,
+    swordsmanAttrs,
 } from "../lib/constants";
-import { cardsDisplay, canvas, ctx, nextWaveBtn, afterWaveScreen, playBtn, gameOverBanner } from "../lib/DOM";
+import {
+    unitsDisplay,
+    canvas,
+    ctx,
+    nextWaveBtn,
+    afterWaveScreen,
+    playBtn,
+    gameOverBanner,
+    manaBar,
+    manaBarFill,
+    manaDisplay,
+} from "../lib/DOM";
 import { wait } from "../lib/helperFns";
 import { LEVELS, type Level } from "../lib/levels";
 import { CharacterType, Team } from "../lib/types";
-import { GameEntity, Castle, Soldier, Character, FloatingText, Swordsman } from "./entities";
-import { Clock, Vec2 } from "./shared";
+import { GameEntity, Castle, Soldier, Character, Swordsman } from "./entities";
+import { Clock, FloatingText, Vec2 } from "./shared";
 
-class DragCardManager {
-    isDraggingCard = false;
-    selectedCard: CharacterType | null = null;
+class DragUnitManager {
+    isDraggingUnit = false;
+    selectedUnit: CharacterType | null = null;
     dragPos: Vec2 | null = null;
     TOP_DRAG_Y = CANVAS_HEIGHT - CANVAS_HEIGHT * DRAG_UNIT_Y_LIMIT_PERCENT;
 
     constructor() {
         // window.addEventListener("keypress", this.toggleCharToDeploy.bind(this));
-        cardsDisplay.addEventListener("pointerdown", this.startDrag.bind(this));
+        unitsDisplay.addEventListener("pointerdown", this.startDrag.bind(this));
         canvas.addEventListener("pointermove", this.dragCard.bind(this));
         canvas.addEventListener("pointerup", this.dragEnd.bind(this));
     }
 
     startDrag(ev: PointerEvent) {
-        this.isDraggingCard = true;
-        this.selectedCard = (ev.target as HTMLLIElement).dataset.unit as CharacterType;
-        console.log("startDrag", this.selectedCard, ev);
+        this.isDraggingUnit = true;
+        this.selectedUnit = (ev.target as HTMLLIElement).dataset.unit as CharacterType;
+        console.log("startDrag", this.selectedUnit, ev);
     }
 
     dragCard(ev: PointerEvent) {
-        if (!this.isDraggingCard) return;
+        if (!this.isDraggingUnit) return;
         this.dragPos = new Vec2(ev.offsetX, Math.max(ev.offsetY, this.TOP_DRAG_Y));
     }
 
     dragEnd(ev: PointerEvent) {
-        if (!this.isDraggingCard) return;
+        if (!this.isDraggingUnit) return;
         this.dragPos = null;
 
         let entity: GameEntity | undefined = undefined;
-        switch (this.selectedCard) {
+        switch (this.selectedUnit) {
             case CharacterType.soldier:
                 entity = new Soldier(Team.blue, ev.offsetX, Math.max(ev.offsetY, this.TOP_DRAG_Y));
                 break;
@@ -54,12 +67,12 @@ class DragCardManager {
 
         Game.entities[entity.id] = entity;
 
-        this.selectedCard = null;
-        this.isDraggingCard = false;
+        this.selectedUnit = null;
+        this.isDraggingUnit = false;
     }
 
     tick() {
-        if (this.dragPos && this.selectedCard) {
+        if (this.dragPos && this.selectedUnit) {
             const { scale, translate } = SPRITE_TRANSFORMS;
             // draw SPRITE PREVIEW
             ctx.save();
@@ -67,13 +80,13 @@ class DragCardManager {
             ctx.translate(-this.dragPos.x / translate, -this.dragPos.y / translate);
             ctx.filter = "opacity(0.5)";
             ctx.drawImage(
-                poseImage[this.selectedCard].idle,
+                poseImage[this.selectedUnit].idle,
                 0,
                 0,
                 SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE,
                 this.dragPos.x - SPRITE_IMG_SIZE / 2,
-                this.dragPos.y - poseImage[this.selectedCard].idle.height / 2 - 6,
+                this.dragPos.y - poseImage[this.selectedUnit].idle.height / 2 - 6,
                 SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE
             );
@@ -185,23 +198,65 @@ class CollisionManager {
     }
 }
 
+class PlayerStats {
+    currentMana = 3;
+    manaPerMinute = 30;
+    buildInterval: number;
+    manaCounter = 0;
+
+    constructor() {
+        this.buildInterval = 60_000 / this.manaPerMinute;
+    }
+
+    tick(delta: number) {
+        this.manaCounter += delta;
+
+        const manaPercent = this.manaCounter / this.buildInterval;
+
+        manaBarFill.style.width = `${manaPercent * 100}%`;
+
+        if (this.manaCounter >= this.buildInterval) {
+            this.currentMana++;
+
+            const overflow = this.manaCounter - this.buildInterval;
+            this.manaCounter = overflow;
+        }
+
+        manaDisplay.textContent = String(this.currentMana);
+    }
+}
+
 export class Game {
     static entities: Record<string, GameEntity> = {};
     static castle: Castle;
     static textEntities: Record<string, FloatingText> = {};
 
-    dragCardManager: DragCardManager;
+    dragCardManager: DragUnitManager;
     waveManager: WaveManager;
     collisionManager: CollisionManager;
+    playerStats: PlayerStats;
 
     constructor() {
-        this.setupCanvas();
+        /** DOM SETUP */
+        unitsDisplay.style.width = CANVAS_WIDTH + "px";
+        manaBar.style.width = CANVAS_WIDTH + "px";
+        [soldierAttrs, swordsmanAttrs].forEach(({ type, cost }) => {
+            unitsDisplay.innerHTML += `<li class="card" data-unit="${type}" style="user-select: none">${type} <br> ${cost}</li>`;
+        });
+
+        /** CANVAS SETUP */
+        canvas.width = CANVAS_WIDTH;
+        canvas.height = CANVAS_HEIGHT;
+        canvas.classList.remove("hidden");
+        // Disable image smoothing for crisp pixel art
+        ctx.imageSmoothingEnabled = false;
 
         Game.castle = new Castle(400);
 
-        this.dragCardManager = new DragCardManager();
+        this.dragCardManager = new DragUnitManager();
         this.collisionManager = new CollisionManager();
         this.waveManager = new WaveManager();
+        this.playerStats = new PlayerStats();
 
         this.waveManager.startWave();
         this.toggleIsPlaying();
@@ -211,15 +266,6 @@ export class Game {
             console.log("wave-start");
             this.toggleIsPlaying();
         });
-    }
-
-    setupCanvas() {
-        canvas.width = CANVAS_WIDTH;
-        canvas.height = CANVAS_HEIGHT;
-        cardsDisplay.style.width = CANVAS_WIDTH + "px";
-        canvas.classList.remove("hidden");
-        // Disable image smoothing for crisp pixel art
-        ctx.imageSmoothingEnabled = false;
     }
 
     toggleIsPlaying() {
@@ -267,6 +313,8 @@ export class Game {
         }
 
         this.dragCardManager.tick();
+
+        this.playerStats.tick(delta);
 
         if (Game.castle.isDead()) {
             console.log("GAME OVER");
