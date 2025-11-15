@@ -161,6 +161,13 @@ export const poseImage: Record<string, Record<CharacterState, HTMLImageElement>>
     },
 };
 
+export const unitCosts = {
+    soldier: 3,
+    swordsman: 5,
+    orc: 4,
+    skeleton: 2,
+};
+
 export const orcAttrs: Omit<CharacterAttrs, "team"> = {
     type: CharacterType.orc,
     hp: 300,
@@ -169,7 +176,7 @@ export const orcAttrs: Omit<CharacterAttrs, "team"> = {
     attackRange: 52,
     attacksPerMinute: 25,
     sightRange: 220,
-    cost: 4,
+    cost: unitCosts.orc,
 };
 
 export const soldierAttrs: Omit<CharacterAttrs, "team"> = {
@@ -180,7 +187,7 @@ export const soldierAttrs: Omit<CharacterAttrs, "team"> = {
     attackRange: 44,
     attacksPerMinute: 36,
     sightRange: 240,
-    cost: 3,
+    cost: unitCosts.soldier,
 };
 
 export const swordsmanAttrs: Omit<CharacterAttrs, "team"> = {
@@ -191,7 +198,7 @@ export const swordsmanAttrs: Omit<CharacterAttrs, "team"> = {
     attackRange: 44,
     attacksPerMinute: 40,
     sightRange: 260,
-    cost: 5,
+    cost: unitCosts.swordsman,
 };
 
 export const skeletonAttrs: Omit<CharacterAttrs, "team"> = {
@@ -202,7 +209,7 @@ export const skeletonAttrs: Omit<CharacterAttrs, "team"> = {
     attackRange: 36,
     attacksPerMinute: 40,
     sightRange: 190,
-    cost: 2,
+    cost: unitCosts.skeleton,
 };
 
 export const DRAW_CHAR_RADIUS = true;

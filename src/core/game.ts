@@ -7,6 +7,7 @@ import {
     DRAG_UNIT_Y_LIMIT_PERCENT,
     soldierAttrs,
     swordsmanAttrs,
+    unitCosts,
 } from "../lib/constants";
 import {
     unitsDisplay,
@@ -33,25 +34,28 @@ class DragUnitManager {
     TOP_DRAG_Y = CANVAS_HEIGHT - CANVAS_HEIGHT * DRAG_UNIT_Y_LIMIT_PERCENT;
 
     constructor() {
-        // window.addEventListener("keypress", this.toggleCharToDeploy.bind(this));
         unitsDisplay.addEventListener("pointerdown", this.startDrag.bind(this));
-        canvas.addEventListener("pointermove", this.dragCard.bind(this));
+        canvas.addEventListener("pointermove", this.dragUnit.bind(this));
         canvas.addEventListener("pointerup", this.dragEnd.bind(this));
     }
 
     startDrag(ev: PointerEvent) {
         this.isDraggingUnit = true;
-        this.selectedUnit = (ev.target as HTMLLIElement).dataset.unit as CharacterType;
-        console.log("startDrag", this.selectedUnit, ev);
+        const unit = (ev.target as HTMLLIElement).dataset.unit as CharacterType;
+
+        const cost = unitCosts[unit];
+        if (cost > PlayerStats.currentMana) return;
+
+        this.selectedUnit = unit;
     }
 
-    dragCard(ev: PointerEvent) {
+    dragUnit(ev: PointerEvent) {
         if (!this.isDraggingUnit) return;
         this.dragPos = new Vec2(ev.offsetX, Math.max(ev.offsetY, this.TOP_DRAG_Y));
     }
 
     dragEnd(ev: PointerEvent) {
-        if (!this.isDraggingUnit) return;
+        if (!this.isDraggingUnit || !this.selectedUnit) return;
         this.dragPos = null;
 
         let entity: GameEntity | undefined = undefined;
@@ -66,6 +70,10 @@ class DragUnitManager {
         if (!entity) throw Error("entity error");
 
         Game.entities[entity.id] = entity;
+
+        const cost = unitCosts[this.selectedUnit];
+
+        PlayerStats.currentMana -= cost;
 
         this.selectedUnit = null;
         this.isDraggingUnit = false;
@@ -199,30 +207,35 @@ class CollisionManager {
 }
 
 class PlayerStats {
-    currentMana = 3;
+    static currentMana = 3;
     manaPerMinute = 30;
     buildInterval: number;
-    manaCounter = 0;
+    manaTimer = 0;
 
     constructor() {
         this.buildInterval = 60_000 / this.manaPerMinute;
     }
 
     tick(delta: number) {
-        this.manaCounter += delta;
-
-        const manaPercent = this.manaCounter / this.buildInterval;
-
+        const manaPercent = this.manaTimer / this.buildInterval;
         manaBarFill.style.width = `${manaPercent * 100}%`;
+        manaDisplay.textContent = String(PlayerStats.currentMana);
 
-        if (this.manaCounter >= this.buildInterval) {
-            this.currentMana++;
+        Array.from(unitsDisplay.children).forEach((ele) => {
+            const unitLI = ele as HTMLLIElement;
+            const cost = Number(unitLI.dataset["cost"]);
 
-            const overflow = this.manaCounter - this.buildInterval;
-            this.manaCounter = overflow;
+            unitLI.style.color = PlayerStats.currentMana < cost ? "gray" : "white";
+        });
+
+        if (this.manaTimer >= this.buildInterval) {
+            PlayerStats.currentMana++;
+
+            const overflow = this.manaTimer - this.buildInterval;
+            this.manaTimer = overflow;
         }
 
-        manaDisplay.textContent = String(this.currentMana);
+        this.manaTimer += delta;
     }
 }
 
@@ -241,7 +254,7 @@ export class Game {
         unitsDisplay.style.width = CANVAS_WIDTH + "px";
         manaBar.style.width = CANVAS_WIDTH + "px";
         [soldierAttrs, swordsmanAttrs].forEach(({ type, cost }) => {
-            unitsDisplay.innerHTML += `<li class="card" data-unit="${type}" style="user-select: none">${type} <br> ${cost}</li>`;
+            unitsDisplay.innerHTML += `<li class="card" data-unit="${type}" data-cost="${cost}" style="user-select: none">${type} <br> ${cost}</li>`;
         });
 
         /** CANVAS SETUP */
