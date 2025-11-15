@@ -1,5 +1,5 @@
 import { FLOATING_TEXT_Y_OFFSET } from "../lib/constants";
-import { ctx } from "../lib/DOM";
+import { DOM } from "../lib/DOM";
 import { idMaker } from "../lib/helperFns";
 import { Game } from "./game";
 
@@ -69,15 +69,15 @@ export class FloatingText extends Updatable {
     }
 
     draw() {
-        ctx.font = `bold ${floatingTextFontSize[this.size]}px Arial`;
-        ctx.fillStyle = this.color;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
+        DOM.ctx.font = `bold ${floatingTextFontSize[this.size]}px Arial`;
+        DOM.ctx.fillStyle = this.color;
+        DOM.ctx.textAlign = "center";
+        DOM.ctx.textBaseline = "middle";
 
         const perc = Math.max((this.duration - this.elapsed) / this.duration, 0);
-        ctx.filter = `opacity(${perc})`;
-        ctx.fillText(this.text, this.pos.x, this.pos.y);
-        ctx.filter = "none";
+        DOM.ctx.filter = `opacity(${perc})`;
+        DOM.ctx.fillText(this.text, this.pos.x, this.pos.y);
+        DOM.ctx.filter = "none";
     }
 
     update(delta: number) {

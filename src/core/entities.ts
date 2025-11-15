@@ -1,4 +1,3 @@
-import { ctx } from "../lib/DOM";
 import {
     finishLinesYpos,
     TIME_TO_REMOVE_DEAD_CHARACTERS,
@@ -16,6 +15,7 @@ import {
     swordsmanAttrs,
     DRAW_CHAR_RADIUS,
 } from "../lib/constants";
+import { DOM } from "../lib/DOM";
 import { Team, CharacterState, Facing } from "../lib/types";
 import type { CharacterAttrs } from "../lib/types";
 import { Game } from "./game";
@@ -71,10 +71,10 @@ export class Castle {
 
     draw() {
         if (this.isTakingDamage) {
-            ctx.filter = "brightness(400%)";
+            DOM.ctx.filter = "brightness(400%)";
         }
-        ctx.drawImage(castleWallsImg, 0, finishLinesYpos.red - 40, Math.min(window.innerWidth, 600), 160);
-        ctx.filter = "none";
+        DOM.ctx.drawImage(castleWallsImg, 0, finishLinesYpos.red - 40, Math.min(window.innerWidth, 600), 160);
+        DOM.ctx.filter = "none";
     }
 
     update(delta: number) {
@@ -324,34 +324,34 @@ export class Character extends GameEntity {
 
     draw() {
         if (DRAW_CHAR_SIGHT_RADIUS) {
-            ctx.strokeStyle = "#00FF00";
-            ctx.beginPath();
-            ctx.ellipse(this.pos.x, this.pos.y, this.sightRange, this.sightRange, 0, 0, 2 * Math.PI);
-            ctx.closePath();
-            ctx.stroke();
+            DOM.ctx.strokeStyle = "#00FF00";
+            DOM.ctx.beginPath();
+            DOM.ctx.ellipse(this.pos.x, this.pos.y, this.sightRange, this.sightRange, 0, 0, 2 * Math.PI);
+            DOM.ctx.closePath();
+            DOM.ctx.stroke();
         }
 
         if (DRAW_CHAR_RADIUS) {
-            ctx.strokeStyle = "#0099ff";
-            ctx.beginPath();
-            ctx.ellipse(this.pos.x, this.pos.y, this.radius, this.radius, 0, 0, 2 * Math.PI);
-            ctx.closePath();
-            ctx.stroke();
+            DOM.ctx.strokeStyle = "#0099ff";
+            DOM.ctx.beginPath();
+            DOM.ctx.ellipse(this.pos.x, this.pos.y, this.radius, this.radius, 0, 0, 2 * Math.PI);
+            DOM.ctx.closePath();
+            DOM.ctx.stroke();
         }
 
         if (this.isTakingDamage) {
-            ctx.filter = "grayscale(100%) brightness(1000%)";
+            DOM.ctx.filter = "grayscale(100%) brightness(1000%)";
         }
 
         const { scale, translate } = SPRITE_TRANSFORMS;
 
         if (this.facing == Facing.left) {
-            ctx.save();
-            ctx.scale(scale, scale);
-            ctx.scale(-1, 1);
-            ctx.translate(this.pos.x / translate, -this.pos.y / translate);
-            ctx.translate(0, 0);
-            ctx.drawImage(
+            DOM.ctx.save();
+            DOM.ctx.scale(scale, scale);
+            DOM.ctx.scale(-1, 1);
+            DOM.ctx.translate(this.pos.x / translate, -this.pos.y / translate);
+            DOM.ctx.translate(0, 0);
+            DOM.ctx.drawImage(
                 poseImage[this.type][this.state],
                 this.spriteIdx * 100,
                 0,
@@ -362,12 +362,12 @@ export class Character extends GameEntity {
                 -SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE
             );
-            ctx.restore();
+            DOM.ctx.restore();
         } else {
-            ctx.save();
-            ctx.scale(scale, scale);
-            ctx.translate(-this.pos.x / translate, -this.pos.y / translate);
-            ctx.drawImage(
+            DOM.ctx.save();
+            DOM.ctx.scale(scale, scale);
+            DOM.ctx.translate(-this.pos.x / translate, -this.pos.y / translate);
+            DOM.ctx.drawImage(
                 poseImage[this.type][this.state],
                 this.spriteIdx * 100,
                 0,
@@ -378,17 +378,17 @@ export class Character extends GameEntity {
                 SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE
             );
-            ctx.restore();
+            DOM.ctx.restore();
         }
 
-        ctx.filter = "none";
+        DOM.ctx.filter = "none";
 
         if (DRAW_CHAR_CENTER_POS) {
-            ctx.strokeStyle = "#FF0000";
-            ctx.beginPath();
-            ctx.ellipse(this.pos.x, this.pos.y, 2, 2, 0, 0, 2 * Math.PI);
-            ctx.closePath();
-            ctx.stroke();
+            DOM.ctx.strokeStyle = "#FF0000";
+            DOM.ctx.beginPath();
+            DOM.ctx.ellipse(this.pos.x, this.pos.y, 2, 2, 0, 0, 2 * Math.PI);
+            DOM.ctx.closePath();
+            DOM.ctx.stroke();
         }
     }
 }

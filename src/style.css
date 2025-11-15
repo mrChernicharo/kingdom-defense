@@ -93,7 +93,7 @@ button:focus-visible {
     visibility: hidden;
 }
 
-#unit-display {
+#bottom-bar {
     position: fixed;
     height: 100px;
     width: 100%;
@@ -101,33 +101,51 @@ button:focus-visible {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     margin: 0 auto;
     /* border: solid 1px #535bf2; */
 }
 
-#unit-display > ul {
-    display: flex;
-    /* border: solid 2px #c6501e; */
-}
-
-#mana-bar {
+#display-top {
     position: relative;
     height: 20px;
-    width: 100%;
-    background-color: rgb(6, 36, 125);
+
+    #mana-bar {
+        position: absolute;
+        height: 20px;
+        width: 25%;
+        background-color: rgb(6, 36, 125);
+        right: 0;
+    }
+
+    #mana-bar-fill {
+        background-image: linear-gradient(60deg, rgb(0, 89, 255), rgb(118, 25, 218));
+        /* background-image: linear-gradient(60deg, rgb(0, 89, 255), aquamarine); */
+        height: 100%;
+        width: 10%;
+    }
+    #mana-display {
+        position: absolute;
+        font-size: 40px;
+        font-weight: bold;
+        bottom: 20px;
+        right: 20px;
+    }
+}
+#display-bottom {
+    /* width: 100%; */
+    /* border: 1px solid red; */
+
+    #unit-display {
+        display: flex;
+        /* border: solid 2px #c6501e; */
+    }
 }
 
-#mana-bar-fill {
-    background-image: linear-gradient(60deg, rgb(0, 89, 255), rgb(118, 25, 218));
-    /* background-image: linear-gradient(60deg, rgb(0, 89, 255), aquamarine); */
-    height: 100%;
-    width: 10%;
-}
-#mana-display {
-    position: absolute;
-    font-size: 40px;
-    font-weight: bold;
-    bottom: 20px;
-    right: 20px;
+#wave-bonus-screen {
+    background-color: #333;
+    position: fixed;
+    top: 300px;
+    width: 100%;
+    border: 1px solid red;
+    text-align: center;
 }

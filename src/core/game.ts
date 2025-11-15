@@ -9,18 +9,7 @@ import {
     swordsmanAttrs,
     unitCosts,
 } from "../lib/constants";
-import {
-    unitsDisplay,
-    canvas,
-    ctx,
-    nextWaveBtn,
-    afterWaveScreen,
-    playBtn,
-    gameOverBanner,
-    manaBar,
-    manaBarFill,
-    manaDisplay,
-} from "../lib/DOM";
+import { DOM } from "../lib/DOM";
 import { wait } from "../lib/helperFns";
 import { LEVELS, type Level } from "../lib/levels";
 import { CharacterType, Team } from "../lib/types";
@@ -34,9 +23,9 @@ class DragUnitManager {
     TOP_DRAG_Y = CANVAS_HEIGHT - CANVAS_HEIGHT * DRAG_UNIT_Y_LIMIT_PERCENT;
 
     constructor() {
-        unitsDisplay.addEventListener("pointerdown", this.startDrag.bind(this));
-        canvas.addEventListener("pointermove", this.dragUnit.bind(this));
-        canvas.addEventListener("pointerup", this.dragEnd.bind(this));
+        DOM.unitsDisplay.addEventListener("pointerdown", this.startDrag.bind(this));
+        DOM.canvas.addEventListener("pointermove", this.dragUnit.bind(this));
+        DOM.canvas.addEventListener("pointerup", this.dragEnd.bind(this));
     }
 
     startDrag(ev: PointerEvent) {
@@ -83,11 +72,11 @@ class DragUnitManager {
         if (this.dragPos && this.selectedUnit) {
             const { scale, translate } = SPRITE_TRANSFORMS;
             // draw SPRITE PREVIEW
-            ctx.save();
-            ctx.scale(scale, scale);
-            ctx.translate(-this.dragPos.x / translate, -this.dragPos.y / translate);
-            ctx.filter = "opacity(0.5)";
-            ctx.drawImage(
+            DOM.ctx.save();
+            DOM.ctx.scale(scale, scale);
+            DOM.ctx.translate(-this.dragPos.x / translate, -this.dragPos.y / translate);
+            DOM.ctx.filter = "opacity(0.5)";
+            DOM.ctx.drawImage(
                 poseImage[this.selectedUnit].idle,
                 0,
                 0,
@@ -98,21 +87,24 @@ class DragUnitManager {
                 SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE
             );
-            ctx.restore();
+            DOM.ctx.restore();
         }
     }
 }
 
 class WaveManager {
-    waveIdx = 0;
-    waveFinished = false;
-    afterWaveScreenVisible = false;
     level: Level;
+    waveIdx: number;
+    isWaveBonusScreenEnabled = false;
+    waveFinished = false;
 
     constructor() {
-        nextWaveBtn.addEventListener("click", this.onCallNextWave.bind(this));
+        this.waveIdx = 0;
+
         const levelIdx = Number(new URLSearchParams(location.search).get("level"));
         this.level = LEVELS[levelIdx];
+
+        DOM.nextWaveBtn.addEventListener("click", this.onCallNextWave.bind(this));
     }
 
     async onCallNextWave() {
@@ -124,7 +116,7 @@ class WaveManager {
             return location.assign("/lobby.html");
         } else {
             console.log("Called next wave");
-            this.toggleAfterWaveScreen();
+            this.toggleWaveBonusScreen();
             this.startWave();
             window.dispatchEvent(new CustomEvent("wave-start", { detail: null }));
         }
@@ -142,13 +134,13 @@ class WaveManager {
         });
     }
 
-    toggleAfterWaveScreen() {
-        this.afterWaveScreenVisible = !this.afterWaveScreenVisible;
+    toggleWaveBonusScreen() {
+        this.isWaveBonusScreenEnabled = !this.isWaveBonusScreenEnabled;
 
-        if (this.afterWaveScreenVisible) {
-            afterWaveScreen.classList.remove("hidden");
+        if (this.isWaveBonusScreenEnabled) {
+            DOM.waveBonusScreen.classList.remove("hidden");
         } else {
-            afterWaveScreen.classList.add("hidden");
+            DOM.waveBonusScreen.classList.add("hidden");
         }
     }
 }
@@ -208,7 +200,7 @@ class CollisionManager {
 
 class PlayerStats {
     static currentMana = 3;
-    manaPerMinute = 30;
+    manaPerMinute = 120;
     buildInterval: number;
     manaTimer = 0;
 
@@ -218,10 +210,10 @@ class PlayerStats {
 
     tick(delta: number) {
         const manaPercent = this.manaTimer / this.buildInterval;
-        manaBarFill.style.width = `${manaPercent * 100}%`;
-        manaDisplay.textContent = String(PlayerStats.currentMana);
+        DOM.manaBarFill.style.width = `${manaPercent * 100}%`;
+        DOM.manaDisplay.textContent = String(PlayerStats.currentMana);
 
-        Array.from(unitsDisplay.children).forEach((ele) => {
+        Array.from(DOM.unitsDisplay.children).forEach((ele) => {
             const unitLI = ele as HTMLLIElement;
             const cost = Number(unitLI.dataset["cost"]);
 
@@ -251,18 +243,20 @@ export class Game {
 
     constructor() {
         /** DOM SETUP */
-        unitsDisplay.style.width = CANVAS_WIDTH + "px";
-        manaBar.style.width = CANVAS_WIDTH + "px";
+        new DOM();
+
+        DOM.displayTop.style.width = CANVAS_WIDTH + "px";
+        DOM.displayBottom.style.width = CANVAS_WIDTH + "px";
         [soldierAttrs, swordsmanAttrs].forEach(({ type, cost }) => {
-            unitsDisplay.innerHTML += `<li class="card" data-unit="${type}" data-cost="${cost}" style="user-select: none">${type} <br> ${cost}</li>`;
+            DOM.unitsDisplay.innerHTML += `<li class="card" data-unit="${type}" data-cost="${cost}" style="user-select: none">${type} <br> ${cost}</li>`;
         });
 
         /** CANVAS SETUP */
-        canvas.width = CANVAS_WIDTH;
-        canvas.height = CANVAS_HEIGHT;
-        canvas.classList.remove("hidden");
+        DOM.canvas.width = CANVAS_WIDTH;
+        DOM.canvas.height = CANVAS_HEIGHT;
+        DOM.canvas.classList.remove("hidden");
         // Disable image smoothing for crisp pixel art
-        ctx.imageSmoothingEnabled = false;
+        DOM.ctx.imageSmoothingEnabled = false;
 
         Game.castle = new Castle(400);
 
@@ -274,7 +268,7 @@ export class Game {
         this.waveManager.startWave();
         this.toggleIsPlaying();
 
-        playBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
+        DOM.playBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
         window.addEventListener("wave-start", () => {
             console.log("wave-start");
             this.toggleIsPlaying();
@@ -283,7 +277,7 @@ export class Game {
 
     toggleIsPlaying() {
         Clock.togglePause();
-        playBtn.textContent = Clock.isPaused ? "Play" : "Pause";
+        DOM.playBtn.textContent = Clock.isPaused ? "Play" : "Pause";
 
         if (!Clock.isPaused) {
             this.tick();
@@ -292,10 +286,10 @@ export class Game {
 
     tick() {
         const delta = Clock.tick();
-        ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        DOM.ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-        ctx.fillStyle = this.waveManager.level.bgColor;
-        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        DOM.ctx.fillStyle = this.waveManager.level.bgColor;
+        DOM.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
         Game.castle.update(delta);
         Game.castle.draw();
@@ -331,8 +325,8 @@ export class Game {
 
         if (Game.castle.isDead()) {
             console.log("GAME OVER");
-            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-            gameOverBanner.classList.remove("hidden");
+            DOM.ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            DOM.gameOverBanner.classList.remove("hidden");
             Clock.togglePause();
         }
 
@@ -345,7 +339,7 @@ export class Game {
             console.log("all enemies are DEAD!");
             wait(2000).then(() => {
                 Clock.togglePause();
-                this.waveManager.toggleAfterWaveScreen();
+                this.waveManager.toggleWaveBonusScreen();
             });
         }
     }

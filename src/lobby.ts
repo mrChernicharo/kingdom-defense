@@ -1,4 +1,7 @@
 import { LEVELS } from "./lib/levels";
+import { DOM } from "./lib/DOM";
+
+new DOM();
 
 const uList = document.querySelector("#level-select-list");
 
