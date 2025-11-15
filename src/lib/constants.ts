@@ -23,14 +23,6 @@ import skeletonDeadImgSrc from "/src/assets/images/Skeleton-Death.png";
 
 import { Team, CharacterState, CharacterType, type CharacterAttrs } from "./types";
 
-export const afterWaveScreen = document.querySelector("#after-wave-screen") as HTMLDivElement;
-export const nextWaveBtn = afterWaveScreen.querySelector("button") as HTMLButtonElement;
-export const gameOverBanner = document.querySelector("#gameover-banner") as HTMLDivElement;
-export const cardsDisplay = document.querySelector("#cards-display ul") as HTMLUListElement;
-export const playBtn = document.querySelector("#play-btn") as HTMLButtonElement;
-export const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
-export const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-
 export const castleWallsImg = new Image();
 castleWallsImg.src = castleWalls;
 
@@ -191,12 +183,12 @@ export const soldierAttrs: Omit<CharacterAttrs, "team"> = {
 
 export const swordsmanAttrs: Omit<CharacterAttrs, "team"> = {
     type: CharacterType.swordsman,
-    hp: 200,
-    damage: 30,
-    speed: 36,
+    hp: 300,
+    damage: 45,
+    speed: 32,
     attackRange: 44,
-    attacksPerMinute: 36,
-    sightRange: 240,
+    attacksPerMinute: 40,
+    sightRange: 260,
 };
 
 export const skeletonAttrs: Omit<CharacterAttrs, "team"> = {
@@ -209,7 +201,10 @@ export const skeletonAttrs: Omit<CharacterAttrs, "team"> = {
     sightRange: 190,
 };
 
-export const DRAW_CHAR_CENTER_POS = false;
 export const DRAW_CHAR_RADIUS = true;
+export const DRAW_CHAR_CENTER_POS = false;
 export const DRAW_CHAR_SIGHT_RADIUS = false;
+
 export const TIME_TO_REMOVE_DEAD_CHARACTERS = 3000;
+export const DRAG_UNIT_Y_LIMIT_PERCENT = 0.6;
+export const FLOATING_TEXT_Y_OFFSET = 24;

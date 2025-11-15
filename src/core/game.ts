@@ -1,17 +1,12 @@
 import {
-    canvas,
     CANVAS_WIDTH,
     CANVAS_HEIGHT,
-    cardsDisplay,
-    playBtn,
-    ctx,
     SPRITE_TRANSFORMS,
     poseImage,
     SPRITE_IMG_SIZE,
-    gameOverBanner,
-    afterWaveScreen,
-    nextWaveBtn,
+    DRAG_UNIT_Y_LIMIT_PERCENT,
 } from "../lib/constants";
+import { cardsDisplay, canvas, ctx, nextWaveBtn, afterWaveScreen, playBtn, gameOverBanner } from "../lib/DOM";
 import { wait } from "../lib/helperFns";
 import { LEVELS, type Level } from "../lib/levels";
 import { CharacterType, Team } from "../lib/types";
@@ -22,6 +17,7 @@ class DragCardManager {
     isDraggingCard = false;
     selectedCard: CharacterType | null = null;
     dragPos: Vec2 | null = null;
+    TOP_DRAG_Y = CANVAS_HEIGHT - CANVAS_HEIGHT * DRAG_UNIT_Y_LIMIT_PERCENT;
 
     constructor() {
         // window.addEventListener("keypress", this.toggleCharToDeploy.bind(this));
@@ -38,7 +34,7 @@ class DragCardManager {
 
     dragCard(ev: PointerEvent) {
         if (!this.isDraggingCard) return;
-        this.dragPos = new Vec2(ev.offsetX, ev.offsetY);
+        this.dragPos = new Vec2(ev.offsetX, Math.max(ev.offsetY, this.TOP_DRAG_Y));
     }
 
     dragEnd(ev: PointerEvent) {
@@ -48,10 +44,10 @@ class DragCardManager {
         let entity: GameEntity | undefined = undefined;
         switch (this.selectedCard) {
             case CharacterType.soldier:
-                entity = new Soldier(Team.blue, ev.offsetX, ev.offsetY);
+                entity = new Soldier(Team.blue, ev.offsetX, Math.max(ev.offsetY, this.TOP_DRAG_Y));
                 break;
             case CharacterType.swordsman:
-                entity = new Swordsman(Team.blue, ev.offsetX, ev.offsetY);
+                entity = new Swordsman(Team.blue, ev.offsetX, Math.max(ev.offsetY, this.TOP_DRAG_Y));
                 break;
         }
         if (!entity) throw Error("entity error");
@@ -143,8 +139,12 @@ class CollisionManager {
         for (let i = 0; i < allEntities.length; i++) {
             const entityA = allEntities[i];
 
+            if (entityA.isDead()) continue;
+
             for (let j = i + 1; j < allEntities.length; j++) {
                 const entityB = allEntities[j];
+
+                if (entityB.isDead()) continue;
 
                 if (this.checkCollision(entityA, entityB)) {
                     this.resolveCollision(entityA, entityB);
@@ -195,7 +195,7 @@ export class Game {
     collisionManager: CollisionManager;
 
     constructor() {
-        this.canvasSetup();
+        this.setupCanvas();
 
         Game.castle = new Castle(400);
 
@@ -213,7 +213,7 @@ export class Game {
         });
     }
 
-    canvasSetup() {
+    setupCanvas() {
         canvas.width = CANVAS_WIDTH;
         canvas.height = CANVAS_HEIGHT;
         cardsDisplay.style.width = CANVAS_WIDTH + "px";
@@ -241,18 +241,19 @@ export class Game {
         Game.castle.update(delta);
         Game.castle.draw();
 
-        Object.values(Game.entities)
-            .sort((a, b) => a.pos.y - b.pos.y)
-            .forEach((entity) => {
-                entity.update(delta);
-            });
+        Object.values(Game.entities).forEach((entity) => {
+            entity.update(delta);
+        });
 
         // alter entities positions in case of collisions
         this.collisionManager.update();
 
-        Object.values(Game.entities).forEach((entity) => {
-            entity.draw();
-        });
+        // sorting by y pos ensures sprites are drawn with the right Z-index
+        Object.values(Game.entities)
+            .sort((a, b) => a.pos.y - b.pos.y)
+            .forEach((entity) => {
+                entity.draw();
+            });
 
         Object.values(Game.textEntities)
             .sort((a, b) => a.pos.y - b.pos.y)

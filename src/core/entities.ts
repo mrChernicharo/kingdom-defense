@@ -1,3 +1,4 @@
+import { ctx } from "../lib/DOM";
 import {
     finishLinesYpos,
     TIME_TO_REMOVE_DEAD_CHARACTERS,
@@ -12,9 +13,9 @@ import {
     orcAttrs,
     skeletonAttrs,
     castleWallsImg,
-    ctx,
     swordsmanAttrs,
     DRAW_CHAR_RADIUS,
+    FLOATING_TEXT_Y_OFFSET,
 } from "../lib/constants";
 import { idMaker } from "../lib/helperFns";
 import { Team, CharacterState, Facing } from "../lib/types";
@@ -354,7 +355,7 @@ export class Character extends GameEntity {
         if (DRAW_CHAR_RADIUS) {
             ctx.strokeStyle = "#0099ff";
             ctx.beginPath();
-            ctx.ellipse(this.pos.x, this.pos.y - 10, this.radius, this.radius, 0, 0, 2 * Math.PI);
+            ctx.ellipse(this.pos.x, this.pos.y, this.radius, this.radius, 0, 0, 2 * Math.PI);
             ctx.closePath();
             ctx.stroke();
         }
@@ -449,7 +450,7 @@ const floatingTextFontSize = {
     m: 16,
     l: 24,
 };
-const OFFSET = 24;
+
 export class FloatingText extends Updatable {
     text: string;
     duration: number;
@@ -458,7 +459,7 @@ export class FloatingText extends Updatable {
     elapsed = 0;
 
     constructor(x = 0, y = 0, text: string, opts?: FloatingTextOpts) {
-        super(x, y - OFFSET);
+        super(x, y - FLOATING_TEXT_Y_OFFSET);
         this.text = text;
         this.color = opts?.color ?? "white";
         this.size = opts?.size ?? "m";
