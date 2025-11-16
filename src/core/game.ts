@@ -36,40 +36,46 @@ class DragUnitManager {
     }
 
     startDrag(ev: PointerEvent) {
-        this.isDraggingUnit = true;
         const unit = (ev.target as HTMLLIElement).dataset.unit as CharacterType;
 
         const cost = unitCosts[unit];
         if (cost > PlayerStats.currentMana) return;
 
         this.selectedUnit = unit;
+        this.isDraggingUnit = true;
     }
 
     dragUnit(ev: PointerEvent) {
-        if (!this.isDraggingUnit) return;
-        this.dragPos = new Vec2(ev.offsetX, Math.max(ev.offsetY, this.TOP_DRAG_Y));
+        console.log(ev.buttons);
+        if (ev.buttons == 1) {
+            this.dragPos = new Vec2(ev.offsetX, Math.max(ev.offsetY, this.TOP_DRAG_Y));
+        } else {
+            this.isDraggingUnit = false;
+            this.selectedUnit = null;
+        }
     }
 
     dragEnd(ev: PointerEvent) {
-        if (!this.isDraggingUnit || !this.selectedUnit) return;
         this.dragPos = null;
 
-        let entity: GameEntity | undefined = undefined;
-        switch (this.selectedUnit) {
-            case CharacterType.soldier:
-                entity = new Soldier(Team.blue, ev.offsetX, Math.max(ev.offsetY, this.TOP_DRAG_Y));
-                break;
-            case CharacterType.swordsman:
-                entity = new Swordsman(Team.blue, ev.offsetX, Math.max(ev.offsetY, this.TOP_DRAG_Y));
-                break;
+        if (this.isDraggingUnit && this.selectedUnit) {
+            let entity: GameEntity | undefined = undefined;
+            switch (this.selectedUnit) {
+                case CharacterType.soldier:
+                    entity = new Soldier(Team.blue, ev.offsetX, Math.max(ev.offsetY, this.TOP_DRAG_Y));
+                    break;
+                case CharacterType.swordsman:
+                    entity = new Swordsman(Team.blue, ev.offsetX, Math.max(ev.offsetY, this.TOP_DRAG_Y));
+                    break;
+            }
+            if (!entity) throw Error("entity error");
+
+            Game.entities[entity.id] = entity;
+
+            const cost = unitCosts[this.selectedUnit];
+
+            PlayerStats.currentMana -= cost;
         }
-        if (!entity) throw Error("entity error");
-
-        Game.entities[entity.id] = entity;
-
-        const cost = unitCosts[this.selectedUnit];
-
-        PlayerStats.currentMana -= cost;
 
         this.selectedUnit = null;
         this.isDraggingUnit = false;

@@ -26,6 +26,9 @@ export class DOM {
     static manaBar: HTMLDivElement;
     static manaDisplay: HTMLSpanElement;
     static manaBarFill: HTMLDivElement;
+    static castleBar: HTMLDivElement;
+    static castleDisplay: HTMLSpanElement;
+    static castleBarFill: HTMLDivElement;
 
     constructor() {
         DOM.canvas = document.querySelector("#canvas") as HTMLCanvasElement;
@@ -50,9 +53,13 @@ export class DOM {
         DOM.displayTop = DOM.bottomBar?.querySelector("#display-top") as HTMLUListElement;
         DOM.displayBottom = DOM.bottomBar?.querySelector("#display-bottom") as HTMLUListElement;
         DOM.unitsDisplay = DOM.bottomBar?.querySelector("#unit-display") as HTMLUListElement;
+
         DOM.manaBar = document.querySelector("#mana-bar") as HTMLDivElement;
         DOM.manaDisplay = document.querySelector("#mana-display") as HTMLSpanElement;
         DOM.manaBarFill = document.querySelector("#mana-bar-fill") as HTMLDivElement;
+        DOM.castleBar = document.querySelector("#castle-bar") as HTMLDivElement;
+        DOM.castleDisplay = document.querySelector("#castle-display") as HTMLSpanElement;
+        DOM.castleBarFill = document.querySelector("#castle-bar-fill") as HTMLDivElement;
     }
 
     static renderBonusCard(card: BonusCard) {

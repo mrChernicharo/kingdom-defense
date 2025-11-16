@@ -49,8 +49,10 @@ export class Castle {
     hp: number;
     hurtTimer: number;
     isTakingDamage: boolean;
-    constructor(hp: number) {
-        this.hp = hp;
+    MAX_HP: number;
+    constructor(MAX_HP: number) {
+        this.MAX_HP = MAX_HP;
+        this.hp = MAX_HP;
         this.hurtTimer = 150;
         this.isTakingDamage = false;
     }
@@ -75,6 +77,10 @@ export class Castle {
         }
         DOM.ctx.drawImage(castleWallsImg, 0, finishLinesYpos.red - 40, Math.min(window.innerWidth, 600), 160);
         DOM.ctx.filter = "none";
+
+        const percent = this.hp / this.MAX_HP;
+        DOM.castleBarFill.style.width = `${percent * 100}%`;
+        DOM.castleDisplay.textContent = String(this.hp);
     }
 
     update(delta: number) {
