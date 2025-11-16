@@ -95,23 +95,45 @@ export class FloatingText extends Updatable {
     }
 }
 
+const CLOCK_DEFAULT_TIME_MULTIPLIER = 4;
 export class Clock {
     static isPaused = true;
     static elapsed = 0;
     static prevTime = Date.now();
-    static currTime = Date.now();
+
+    static speedMultiplier = CLOCK_DEFAULT_TIME_MULTIPLIER;
+    static isSlowingDown = false;
 
     static togglePause(): void {
         Clock.isPaused = !Clock.isPaused;
     }
 
+    static slowdownAndPause(): void {
+        Clock.isSlowingDown = true;
+    }
+
     static tick(): number {
-        Clock.currTime = Date.now();
-        let delta = Clock.currTime - Clock.prevTime;
-        if (delta > 20) delta = 20;
+        const currTime = Date.now();
+
+        let delta = (currTime - Clock.prevTime) * Clock.speedMultiplier;
+
+        if (delta > 20 * Clock.speedMultiplier) delta = 20; // <--- this line prevents time jumps after pausing
+
         Clock.elapsed += delta;
 
-        Clock.prevTime = Clock.currTime;
+        if (Clock.isSlowingDown) {
+            if (Clock.speedMultiplier >= 0.1) {
+                Clock.speedMultiplier *= 0.9;
+                // Clock.speedMultiplier -= 0.005;
+            } else {
+                Clock.isPaused = true;
+                Clock.speedMultiplier = CLOCK_DEFAULT_TIME_MULTIPLIER;
+                Clock.isSlowingDown = false;
+                DOM.playBtn.textContent = Clock.isPaused ? "Play" : "Pause";
+            }
+        }
+
+        Clock.prevTime = currTime;
         return delta;
     }
 }

@@ -16,6 +16,8 @@ import { CharacterType, Team } from "../lib/types";
 import { GameEntity, Castle, Soldier, Character, Swordsman } from "./entities";
 import { Clock, FloatingText, Vec2 } from "./shared";
 
+new DOM();
+
 class DragUnitManager {
     isDraggingUnit = false;
     selectedUnit: CharacterType | null = null;
@@ -198,8 +200,9 @@ class CollisionManager {
     }
 }
 
+const INITIAL_MANA = 3;
 class PlayerStats {
-    static currentMana = 3;
+    static currentMana = INITIAL_MANA;
     manaPerMinute = 120;
     buildInterval: number;
     manaTimer = 0;
@@ -242,21 +245,17 @@ export class Game {
     playerStats: PlayerStats;
 
     constructor() {
-        /** DOM SETUP */
-        new DOM();
-
         DOM.displayTop.style.width = CANVAS_WIDTH + "px";
         DOM.displayBottom.style.width = CANVAS_WIDTH + "px";
         [soldierAttrs, swordsmanAttrs].forEach(({ type, cost }) => {
             DOM.unitsDisplay.innerHTML += `<li class="card" data-unit="${type}" data-cost="${cost}" style="user-select: none">${type} <br> ${cost}</li>`;
         });
 
-        /** CANVAS SETUP */
         DOM.canvas.width = CANVAS_WIDTH;
         DOM.canvas.height = CANVAS_HEIGHT;
-        DOM.canvas.classList.remove("hidden");
         // Disable image smoothing for crisp pixel art
         DOM.ctx.imageSmoothingEnabled = false;
+        DOM.canvas.classList.remove("hidden");
 
         Game.castle = new Castle(400);
 
@@ -269,10 +268,12 @@ export class Game {
         this.toggleIsPlaying();
 
         DOM.playBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
-        window.addEventListener("wave-start", () => {
-            console.log("wave-start");
-            this.toggleIsPlaying();
-        });
+        DOM.tryAgainBtn.addEventListener("click", this.restartGame.bind(this));
+        window.addEventListener("wave-start", this.toggleIsPlaying.bind(this));
+    }
+
+    restartGame() {
+        location.reload();
     }
 
     toggleIsPlaying() {
@@ -315,32 +316,34 @@ export class Game {
                 entity.draw();
             });
 
-        if (!Clock.isPaused) {
-            requestAnimationFrame(this.tick.bind(this));
-        }
-
         this.dragCardManager.tick();
 
         this.playerStats.tick(delta);
 
         if (Game.castle.isDead()) {
-            console.log("GAME OVER");
-            DOM.ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-            DOM.gameOverBanner.classList.remove("hidden");
-            Clock.togglePause();
+            DOM.gameOverBanner.style.opacity = "0.9";
+            // Clock.slowdownAndPause();
+            this.toggleIsPlaying();
+            console.log("==== GAME OVER ====");
         }
 
         const isAnyEnemyAlive = Object.values(Game.entities).find(
             (entity) => (entity as Character).team === Team.red && entity.isAlive()
         );
-        const areAllEnemiesDead = !isAnyEnemyAlive;
-        if (areAllEnemiesDead && !this.waveManager.waveFinished) {
+        const allEnemiesDead = !isAnyEnemyAlive;
+        if (allEnemiesDead && !this.waveManager.waveFinished) {
             this.waveManager.waveFinished = true;
             console.log("all enemies are DEAD!");
-            wait(2000).then(() => {
-                Clock.togglePause();
+
+            setTimeout(() => {
+                // Clock.slowdownAndPause();
+                this.toggleIsPlaying();
                 this.waveManager.toggleWaveBonusScreen();
-            });
+            }, 2000);
+        }
+
+        if (!Clock.isPaused) {
+            requestAnimationFrame(this.tick.bind(this));
         }
     }
 }

@@ -1,21 +1,3 @@
-// export const waveBonusScreen = document.querySelector("#wave-bonus-screen") as HTMLDivElement;
-// export const waveBonusScreenHeading = document.querySelector("#wave-bonus-screen-head") as HTMLHeadingElement;
-// export const nextWaveBtn = waveBonusScreen?.querySelector("button") as HTMLButtonElement;
-// export const gameOverBanner = document.querySelector("#gameover-banner") as HTMLDivElement;
-
-// export const playBtn = document.querySelector("#play-btn") as HTMLButtonElement;
-
-// export const bottomBar = document.querySelector("#bottom-bar") as HTMLDivElement;
-// export const displayTop = bottomBar?.querySelector("#display-top") as HTMLUListElement;
-// export const displayBottom = bottomBar?.querySelector("#display-bottom") as HTMLUListElement;
-// export const unitsDisplay = bottomBar?.querySelector("#unit-display") as HTMLUListElement;
-// export const manaBar = document.querySelector("#mana-bar") as HTMLDivElement;
-// export const manaDisplay = document.querySelector("#mana-display") as HTMLSpanElement;
-// export const manaBarFill = document.querySelector("#mana-bar-fill") as HTMLDivElement;
-
-// export const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
-// export const ctx = canvas?.getContext("2d") as CanvasRenderingContext2D;
-
 export class DOM {
     static canvas: HTMLCanvasElement;
     static ctx: CanvasRenderingContext2D;
@@ -25,7 +7,9 @@ export class DOM {
     static waveBonusScreen: HTMLDivElement;
     static waveBonusScreenHeading: HTMLHeadingElement;
     static nextWaveBtn: HTMLButtonElement;
+
     static gameOverBanner: HTMLDivElement;
+    static tryAgainBtn: HTMLButtonElement;
 
     static bottomBar: HTMLDivElement;
     static displayTop: HTMLUListElement;
@@ -42,7 +26,9 @@ export class DOM {
         DOM.waveBonusScreen = document.querySelector("#wave-bonus-screen") as HTMLDivElement;
         DOM.waveBonusScreenHeading = document.querySelector("#wave-bonus-screen-head") as HTMLHeadingElement;
         DOM.nextWaveBtn = DOM.waveBonusScreen?.querySelector("button") as HTMLButtonElement;
+
         DOM.gameOverBanner = document.querySelector("#gameover-banner") as HTMLDivElement;
+        DOM.tryAgainBtn = DOM.gameOverBanner?.querySelector("#try-again-btn") as HTMLButtonElement;
 
         DOM.playBtn = document.querySelector("#play-btn") as HTMLButtonElement;
 

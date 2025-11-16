@@ -9,13 +9,16 @@
     </head>
 
     <body>
-        <div style="position: fixed; background-color: #333; width: 100%">
+        <header id="game-header">
             <button id="play-btn"></button>
             <a href="/lobby.html">back</a>
-        </div>
+        </header>
 
-        <div id="gameover-banner" style="position: fixed; top: 300px; width: 100%" class="hidden">
-            <h1 style="text-align: center">Game Over</h1>
+        <div id="gameover-banner">
+            <h1>Game Over</h1>
+
+            <button id="try-again-btn">Try Again</button>
+            <a href="/lobby.html">back</a>
         </div>
 
         <div style="display: flex; justify-content: center">
@@ -38,7 +41,7 @@
             </div>
         </div>
 
-        <div id="bottom-bar">
+        <footer id="bottom-bar">
             <div id="display-top">
                 <div id="mana-bar">
                     <span id="mana-display"></span>
@@ -49,7 +52,7 @@
             <div id="display-bottom">
                 <ul id="unit-display"></ul>
             </div>
-        </div>
+        </footer>
 
         <script type="module" src="/src/main.ts"></script>
     </body>
