@@ -170,19 +170,6 @@ header#game-header {
     #wave-bonus-cards-list {
         display: flex;
         justify-content: center;
-
-        .bonus-card {
-            max-width: 180px;
-            height: 100%;
-            padding: 1rem;
-            border: 1px solid;
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-        }
     }
 }
 
@@ -216,4 +203,22 @@ header#game-header {
     align-items: center;
     transition: opacity 0.4s;
     opacity: 0.9;
+
+    #bonus-card-list {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.bonus-card {
+    max-width: 180px;
+    height: 100%;
+    padding: 1rem;
+    border: 1px solid;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
 }

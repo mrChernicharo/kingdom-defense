@@ -1,3 +1,5 @@
+import type { BonusCard } from "./cards";
+
 export class DOM {
     static canvas: HTMLCanvasElement;
     static ctx: CanvasRenderingContext2D;
@@ -15,6 +17,7 @@ export class DOM {
     static pauseMenuScreen: HTMLDivElement;
     static pauseMenuCloseBtn: HTMLButtonElement;
     static pauseMenuResumeBtn: HTMLButtonElement;
+    static bonusCardsList: HTMLUListElement;
 
     static bottomBar: HTMLDivElement;
     static displayTop: HTMLUListElement;
@@ -39,8 +42,9 @@ export class DOM {
         DOM.playBtn = document.querySelector("#play-btn") as HTMLButtonElement;
 
         DOM.pauseMenuScreen = document.querySelector("#pause-menu") as HTMLDivElement;
-        DOM.pauseMenuCloseBtn = document.querySelector("#pause-menu-close-btn") as HTMLButtonElement;
-        DOM.pauseMenuResumeBtn = document.querySelector("#pause-menu-resume-btn") as HTMLButtonElement;
+        DOM.pauseMenuCloseBtn = DOM.pauseMenuScreen?.querySelector("#pause-menu-close-btn") as HTMLButtonElement;
+        DOM.pauseMenuResumeBtn = DOM.pauseMenuScreen?.querySelector("#pause-menu-resume-btn") as HTMLButtonElement;
+        DOM.bonusCardsList = DOM.pauseMenuScreen?.querySelector("#bonus-card-list") as HTMLUListElement;
 
         DOM.bottomBar = document.querySelector("#bottom-bar") as HTMLDivElement;
         DOM.displayTop = DOM.bottomBar?.querySelector("#display-top") as HTMLUListElement;
@@ -49,5 +53,16 @@ export class DOM {
         DOM.manaBar = document.querySelector("#mana-bar") as HTMLDivElement;
         DOM.manaDisplay = document.querySelector("#mana-display") as HTMLSpanElement;
         DOM.manaBarFill = document.querySelector("#mana-bar-fill") as HTMLDivElement;
+    }
+
+    static renderBonusCard(card: BonusCard) {
+        return `
+                <div role="button" tab-index="0" class="bonus-card">
+                    <h3 style="line-height:normal;">${card.title}</h3>
+                    <p>${card.type}</p>
+                    <div style="background: ${card.iconName}; width: 25px; height: 25px; border-radius: 1000px"></div>
+                    <small style="text-align: center;">${card.description}</small>
+                </div>
+            `;
     }
 }

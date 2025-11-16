@@ -112,7 +112,7 @@ export const ALL_CARDS: BonusCard[] = [
         title: "cost reduction",
         description: "reduces all unit costs by 10%",
         type: "ECONOMIC",
-        iconName: "bronze",
+        iconName: "peru",
         effect: {
             attr: "cost",
             isPercent: true,
@@ -164,7 +164,7 @@ export const ALL_CARDS: BonusCard[] = [
         title: "blade mastery",
         description: "boosts swordsman damage by 20%",
         type: "SPECIFIC_UNIT",
-        iconName: "steel",
+        iconName: "slategray",
         effect: {
             attr: "damage",
             isPercent: true,
@@ -346,7 +346,7 @@ export const ALL_CARDS: BonusCard[] = [
         title: "treasure vault",
         description: "increases gold generation by 30%",
         type: "ECONOMIC",
-        iconName: "amber",
+        iconName: "goldenrod",
         effect: {
             attr: "gold",
             isPercent: true,
@@ -359,7 +359,7 @@ export const ALL_CARDS: BonusCard[] = [
         title: "fortified armor",
         description: "boosts all units' HP by 20%",
         type: "ALL_UNITS",
-        iconName: "platinum",
+        iconName: "lightsteelblue",
         effect: {
             attr: "hp",
             isPercent: true,
@@ -385,7 +385,7 @@ export const ALL_CARDS: BonusCard[] = [
         title: "sharpened weapons",
         description: "boosts all units' damage by 15%",
         type: "ALL_UNITS",
-        iconName: "ruby",
+        iconName: "darkred",
         effect: {
             attr: "damage",
             isPercent: true,
@@ -398,7 +398,7 @@ export const ALL_CARDS: BonusCard[] = [
         title: "tactical advantage",
         description: "increases all units' sight range by 40%",
         type: "UTILITY",
-        iconName: "emerald",
+        iconName: "mediumseagreen",
         effect: {
             attr: "sightRange",
             isPercent: true,

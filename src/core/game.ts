@@ -151,18 +151,10 @@ class WaveManager {
             const li = document.createElement("li");
 
             li.onclick = () => {
-                console.log(card);
                 PlayerStats.bonusCards.push(card);
                 this.onCallNextWave();
             };
-            li.innerHTML = `
-                <div role="button" tab-index="0" class="bonus-card">
-                    <h3 style="line-height:normal;">${card.title}</h3>
-                    <small>${card.type}</small>
-                    <p>${card.description}</p>
-                    <div style="background: ${card.iconName}; width: 25px; height: 25px;"></div>
-                </div>
-            `;
+            li.innerHTML = DOM.renderBonusCard(card);
             DOM.waveBonusCardsList.appendChild(li);
         });
 
@@ -314,9 +306,21 @@ export class Game {
             this.tick();
         }
 
+        function renderBonusCards(bonusCards: BonusCard[], onClick: (card: BonusCard) => void) {
+            bonusCards.forEach((card) => {
+                const li = document.createElement("li");
+                li.onclick = () => onClick(card);
+                li.innerHTML = DOM.renderBonusCard(card);
+                DOM.bonusCardsList.appendChild(li);
+            });
+        }
+
         setTimeout(() => {
             if (Clock.isPaused && !this.waveManager.isWaveBonusScreenEnabled && Game.castle.isAlive()) {
                 DOM.pauseMenuScreen.classList.remove("hidden");
+
+                DOM.bonusCardsList.innerHTML = "";
+                renderBonusCards(PlayerStats.bonusCards, (card) => console.log(card));
             } else {
                 DOM.pauseMenuScreen.classList.add("hidden");
             }
