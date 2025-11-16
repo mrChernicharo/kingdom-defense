@@ -12,6 +12,10 @@ export class DOM {
     static gameOverBanner: HTMLDivElement;
     static tryAgainBtn: HTMLButtonElement;
 
+    static pauseMenuScreen: HTMLDivElement;
+    static pauseMenuCloseBtn: HTMLButtonElement;
+    static pauseMenuResumeBtn: HTMLButtonElement;
+
     static bottomBar: HTMLDivElement;
     static displayTop: HTMLUListElement;
     static displayBottom: HTMLUListElement;
@@ -33,6 +37,10 @@ export class DOM {
         DOM.tryAgainBtn = DOM.gameOverBanner?.querySelector("#try-again-btn") as HTMLButtonElement;
 
         DOM.playBtn = document.querySelector("#play-btn") as HTMLButtonElement;
+
+        DOM.pauseMenuScreen = document.querySelector("#pause-menu") as HTMLDivElement;
+        DOM.pauseMenuCloseBtn = document.querySelector("#pause-menu-close-btn") as HTMLButtonElement;
+        DOM.pauseMenuResumeBtn = document.querySelector("#pause-menu-resume-btn") as HTMLButtonElement;
 
         DOM.bottomBar = document.querySelector("#bottom-bar") as HTMLDivElement;
         DOM.displayTop = DOM.bottomBar?.querySelector("#display-top") as HTMLUListElement;

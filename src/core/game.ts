@@ -297,6 +297,8 @@ export class Game {
 
         DOM.playBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
         DOM.tryAgainBtn.addEventListener("click", this.restartGame.bind(this));
+        DOM.pauseMenuResumeBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
+        DOM.pauseMenuCloseBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
         window.addEventListener("wave-start", this.toggleIsPlaying.bind(this));
     }
 
@@ -311,6 +313,14 @@ export class Game {
         if (!Clock.isPaused) {
             this.tick();
         }
+
+        setTimeout(() => {
+            if (Clock.isPaused && !this.waveManager.isWaveBonusScreenEnabled && Game.castle.isAlive()) {
+                DOM.pauseMenuScreen.classList.remove("hidden");
+            } else {
+                DOM.pauseMenuScreen.classList.add("hidden");
+            }
+        }, 0);
     }
 
     tick() {
