@@ -219,3 +219,6 @@ export const DRAW_CHAR_SIGHT_RADIUS = false;
 export const TIME_TO_REMOVE_DEAD_CHARACTERS = 3000;
 export const DRAG_UNIT_Y_LIMIT_PERCENT = 0.6;
 export const FLOATING_TEXT_Y_OFFSET = 24;
+
+export const INITIAL_MANA = 3;
+export const MANA_PER_MINUTE = 60;

@@ -85,10 +85,6 @@ button:focus-visible {
 /*********************************************************************/
 /*********************************************************************/
 
-canvas {
-    /* border: 1px solid #535bf2; */
-}
-
 .hidden {
     visibility: hidden;
 }
@@ -97,6 +93,15 @@ canvas {
     cursor: grab;
     padding: 1em;
     border: 1px solid;
+}
+
+canvas {
+    /* border: 1px solid #535bf2; */
+}
+
+#canvas-container {
+    display: flex;
+    justify-content: center;
 }
 
 header#game-header {
@@ -160,6 +165,24 @@ header#game-header {
     width: 100%;
     border: 1px solid red;
     text-align: center;
+
+    #wave-bonus-cards-list {
+        display: flex;
+        justify-content: center;
+
+        .bonus-card {
+            max-width: 180px;
+            height: 100%;
+            padding: 1rem;
+            border: 1px solid;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+    }
 }
 
 #gameover-banner {
@@ -179,4 +202,7 @@ header#game-header {
     a {
         pointer-events: all;
     }
+}
+
+#pause-menu {
 }

@@ -1,3 +1,4 @@
+import { ALL_CARDS, pickRandomCards, type BonusCard } from "../lib/cards";
 import {
     CANVAS_WIDTH,
     CANVAS_HEIGHT,
@@ -8,6 +9,8 @@ import {
     soldierAttrs,
     swordsmanAttrs,
     unitCosts,
+    INITIAL_MANA,
+    MANA_PER_MINUTE,
 } from "../lib/constants";
 import { DOM } from "../lib/DOM";
 import { wait } from "../lib/helperFns";
@@ -17,6 +20,8 @@ import { GameEntity, Castle, Soldier, Character, Swordsman } from "./entities";
 import { Clock, FloatingText, Vec2 } from "./shared";
 
 new DOM();
+
+console.log(ALL_CARDS);
 
 class DragUnitManager {
     isDraggingUnit = false;
@@ -139,6 +144,28 @@ class WaveManager {
     toggleWaveBonusScreen() {
         this.isWaveBonusScreenEnabled = !this.isWaveBonusScreenEnabled;
 
+        DOM.waveBonusCardsList.innerHTML = "";
+        const pickedCards = pickRandomCards(3, PlayerStats.bonusCards);
+
+        pickedCards.forEach((card) => {
+            const li = document.createElement("li");
+
+            li.onclick = () => {
+                console.log(card);
+                PlayerStats.bonusCards.push(card);
+                this.onCallNextWave();
+            };
+            li.innerHTML = `
+                <div role="button" tab-index="0" class="bonus-card">
+                    <h3 style="line-height:normal;">${card.title}</h3>
+                    <small>${card.type}</small>
+                    <p>${card.description}</p>
+                    <div style="background: ${card.iconName}; width: 25px; height: 25px;"></div>
+                </div>
+            `;
+            DOM.waveBonusCardsList.appendChild(li);
+        });
+
         if (this.isWaveBonusScreenEnabled) {
             DOM.waveBonusScreen.classList.remove("hidden");
         } else {
@@ -200,12 +227,13 @@ class CollisionManager {
     }
 }
 
-const INITIAL_MANA = 3;
 class PlayerStats {
     static currentMana = INITIAL_MANA;
-    manaPerMinute = 120;
+    manaPerMinute = MANA_PER_MINUTE;
     buildInterval: number;
     manaTimer = 0;
+
+    static bonusCards: BonusCard[] = [];
 
     constructor() {
         this.buildInterval = 60_000 / this.manaPerMinute;
