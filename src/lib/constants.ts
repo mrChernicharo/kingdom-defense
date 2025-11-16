@@ -221,4 +221,6 @@ export const DRAG_UNIT_Y_LIMIT_PERCENT = 0.6;
 export const FLOATING_TEXT_Y_OFFSET = 24;
 
 export const INITIAL_MANA = 3;
-export const MANA_PER_MINUTE = 60;
+export const MANA_PER_MINUTE = 30;
+
+export const CLOCK_DEFAULT_TIME_MULTIPLIER = 1;

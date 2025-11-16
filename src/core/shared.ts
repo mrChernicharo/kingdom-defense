@@ -1,4 +1,4 @@
-import { FLOATING_TEXT_Y_OFFSET } from "../lib/constants";
+import { CLOCK_DEFAULT_TIME_MULTIPLIER, FLOATING_TEXT_Y_OFFSET } from "../lib/constants";
 import { DOM } from "../lib/DOM";
 import { idMaker } from "../lib/helperFns";
 import { Game } from "./game";
@@ -95,7 +95,6 @@ export class FloatingText extends Updatable {
     }
 }
 
-const CLOCK_DEFAULT_TIME_MULTIPLIER = 4;
 export class Clock {
     static isPaused = true;
     static elapsed = 0;
