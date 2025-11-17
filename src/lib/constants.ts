@@ -82,82 +82,33 @@ skeletonWalkImg.src = skeletonWalkImgSrc;
 skeletonAttackImg.src = skeletonAttackImgSrc;
 skeletonDeadImg.src = skeletonDeadImgSrc;
 
-export const poseFrameCount: Record<string, Record<CharacterState, number>> = {
+export const spriteData: Record<
+    string,
+    Record<CharacterState, { frameCount: number; frameSpeed: number; image: HTMLImageElement }>
+> = {
     soldier: {
-        [CharacterState.idle]: 6,
-        [CharacterState.walk]: 8,
-        [CharacterState.attack]: 6,
-        [CharacterState.dead]: 4,
+        [CharacterState.idle]: { frameCount: 6, frameSpeed: 400, image: soldierIdleImg },
+        [CharacterState.walk]: { frameCount: 8, frameSpeed: 100, image: soldierWalkImg },
+        [CharacterState.attack]: { frameCount: 6, frameSpeed: 100, image: soldierAttackImg },
+        [CharacterState.dead]: { frameCount: 4, frameSpeed: 100, image: soldierDeadImg },
     },
     swordsman: {
-        [CharacterState.idle]: 6,
-        [CharacterState.walk]: 8,
-        [CharacterState.attack]: 6,
-        [CharacterState.dead]: 4,
+        [CharacterState.idle]: { frameCount: 6, frameSpeed: 400, image: swordsmanIdleImg },
+        [CharacterState.walk]: { frameCount: 8, frameSpeed: 100, image: swordsmanWalkImg },
+        [CharacterState.attack]: { frameCount: 6, frameSpeed: 100, image: swordsmanAttackImg },
+        [CharacterState.dead]: { frameCount: 4, frameSpeed: 100, image: swordsmanDeadImg },
     },
     orc: {
-        [CharacterState.idle]: 6,
-        [CharacterState.walk]: 8,
-        [CharacterState.attack]: 6,
-        [CharacterState.dead]: 4,
+        [CharacterState.idle]: { frameCount: 6, frameSpeed: 400, image: orcIdleImg },
+        [CharacterState.walk]: { frameCount: 8, frameSpeed: 100, image: orcWalkImg },
+        [CharacterState.attack]: { frameCount: 6, frameSpeed: 100, image: orcAttackImg },
+        [CharacterState.dead]: { frameCount: 4, frameSpeed: 100, image: orcDeadImg },
     },
     skeleton: {
-        [CharacterState.idle]: 6,
-        [CharacterState.walk]: 8,
-        [CharacterState.attack]: 6,
-        [CharacterState.dead]: 4,
-    },
-};
-export const poseFrameSpeed: Record<string, Record<CharacterState, number>> = {
-    soldier: {
-        [CharacterState.idle]: 400,
-        [CharacterState.walk]: 100,
-        [CharacterState.attack]: 100,
-        [CharacterState.dead]: 100,
-    },
-    swordsman: {
-        [CharacterState.idle]: 400,
-        [CharacterState.walk]: 100,
-        [CharacterState.attack]: 100,
-        [CharacterState.dead]: 100,
-    },
-    orc: {
-        [CharacterState.idle]: 400,
-        [CharacterState.walk]: 100,
-        [CharacterState.attack]: 100,
-        [CharacterState.dead]: 100,
-    },
-    skeleton: {
-        [CharacterState.idle]: 400,
-        [CharacterState.walk]: 100,
-        [CharacterState.attack]: 100,
-        [CharacterState.dead]: 100,
-    },
-};
-export const poseImage: Record<string, Record<CharacterState, HTMLImageElement>> = {
-    soldier: {
-        [CharacterState.idle]: soldierIdleImg,
-        [CharacterState.walk]: soldierWalkImg,
-        [CharacterState.attack]: soldierAttackImg,
-        [CharacterState.dead]: soldierDeadImg,
-    },
-    swordsman: {
-        [CharacterState.idle]: swordsmanIdleImg,
-        [CharacterState.walk]: swordsmanWalkImg,
-        [CharacterState.attack]: swordsmanAttackImg,
-        [CharacterState.dead]: swordsmanDeadImg,
-    },
-    orc: {
-        [CharacterState.idle]: orcIdleImg,
-        [CharacterState.walk]: orcWalkImg,
-        [CharacterState.attack]: orcAttackImg,
-        [CharacterState.dead]: orcDeadImg,
-    },
-    skeleton: {
-        [CharacterState.idle]: skeletonIdleImg,
-        [CharacterState.walk]: skeletonWalkImg,
-        [CharacterState.attack]: skeletonAttackImg,
-        [CharacterState.dead]: skeletonDeadImg,
+        [CharacterState.idle]: { frameCount: 6, frameSpeed: 400, image: skeletonIdleImg },
+        [CharacterState.walk]: { frameCount: 8, frameSpeed: 100, image: skeletonWalkImg },
+        [CharacterState.attack]: { frameCount: 6, frameSpeed: 100, image: skeletonAttackImg },
+        [CharacterState.dead]: { frameCount: 4, frameSpeed: 100, image: skeletonDeadImg },
     },
 };
 

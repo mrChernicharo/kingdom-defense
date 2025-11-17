@@ -3,7 +3,6 @@ import {
     CANVAS_WIDTH,
     CANVAS_HEIGHT,
     SPRITE_TRANSFORMS,
-    poseImage,
     SPRITE_IMG_SIZE,
     DRAG_UNIT_Y_LIMIT_PERCENT,
     soldierAttrs,
@@ -11,6 +10,7 @@ import {
     unitCosts,
     INITIAL_MANA,
     MANA_PER_MINUTE,
+    spriteData,
 } from "../lib/constants";
 import { DOM } from "../lib/DOM";
 import { wait } from "../lib/helperFns";
@@ -90,13 +90,13 @@ class DragUnitManager {
             DOM.ctx.translate(-this.dragPos.x / translate, -this.dragPos.y / translate);
             DOM.ctx.filter = "opacity(0.5)";
             DOM.ctx.drawImage(
-                poseImage[this.selectedUnit].idle,
+                spriteData[this.selectedUnit].idle.image,
                 0,
                 0,
                 SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE,
                 this.dragPos.x - SPRITE_IMG_SIZE / 2,
-                this.dragPos.y - poseImage[this.selectedUnit].idle.height / 2 - 6,
+                this.dragPos.y - spriteData[this.selectedUnit].idle.image.height / 2 - 6,
                 SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE
             );
@@ -238,6 +238,8 @@ class PlayerStats {
     }
 
     tick(delta: number) {
+        if (Game.castle.isDead()) return;
+
         const manaPercent = this.manaTimer / this.buildInterval;
         DOM.manaBarFill.style.width = `${manaPercent * 100}%`;
         DOM.manaDisplay.textContent = String(PlayerStats.currentMana);
@@ -369,22 +371,22 @@ export class Game {
         this.playerStats.tick(delta);
 
         if (Game.castle.isDead()) {
-            DOM.gameOverBanner.style.opacity = "0.9";
-            // Clock.slowdownAndPause();
-            this.toggleIsPlaying();
-            console.log("==== GAME OVER ====");
+            setTimeout(() => {
+                console.log("==== GAME OVER ====");
+                DOM.gameOverBanner.style.opacity = "0.9";
+                this.toggleIsPlaying();
+            }, 0);
         }
 
-        const isAnyEnemyAlive = Object.values(Game.entities).find(
+        const allEnemiesDead = !Object.values(Game.entities).find(
             (entity) => (entity as Character).team === Team.red && entity.isAlive()
         );
-        const allEnemiesDead = !isAnyEnemyAlive;
+
         if (allEnemiesDead && !this.waveManager.waveFinished) {
-            this.waveManager.waveFinished = true;
             console.log("all enemies are DEAD!");
+            this.waveManager.waveFinished = true;
 
             setTimeout(() => {
-                // Clock.slowdownAndPause();
                 this.toggleIsPlaying();
                 this.waveManager.toggleWaveBonusScreen();
             }, 2000);

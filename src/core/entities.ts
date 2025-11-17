@@ -1,11 +1,12 @@
 import {
     finishLinesYpos,
     TIME_TO_REMOVE_DEAD_CHARACTERS,
-    poseFrameSpeed,
-    poseFrameCount,
+    spriteData,
+    // poseFrameSpeed,
+    // poseFrameCount,
     DRAW_CHAR_SIGHT_RADIUS,
     SPRITE_TRANSFORMS,
-    poseImage,
+    // poseImage,
     SPRITE_IMG_SIZE,
     DRAW_CHAR_CENTER_POS,
     soldierAttrs,
@@ -77,10 +78,6 @@ export class Castle {
         }
         DOM.ctx.drawImage(castleWallsImg, 0, finishLinesYpos.red - 40, Math.min(window.innerWidth, 600), 160);
         DOM.ctx.filter = "none";
-
-        const percent = this.hp / this.MAX_HP;
-        DOM.castleBarFill.style.width = `${percent * 100}%`;
-        DOM.castleDisplay.textContent = String(this.hp);
     }
 
     update(delta: number) {
@@ -90,6 +87,10 @@ export class Castle {
         if (this.isTakingDamage) {
             this.hurtTimer += delta;
         }
+
+        const percent = this.hp / this.MAX_HP;
+        DOM.castleBarFill.style.width = `${percent * 100}%`;
+        DOM.castleDisplay.textContent = String(this.hp);
     }
 }
 
@@ -309,8 +310,8 @@ export class Character extends GameEntity {
                 break;
             default:
                 this.spriteIdx =
-                    Math.trunc(Clock.elapsed / poseFrameSpeed[this.type][this.state]) %
-                    poseFrameCount[this.type][this.state];
+                    Math.trunc(Clock.elapsed / spriteData[this.type][this.state].frameSpeed) %
+                    spriteData[this.type][this.state].frameCount;
         }
 
         if (this.hurtTimer > 150) {
@@ -358,13 +359,13 @@ export class Character extends GameEntity {
             DOM.ctx.translate(this.pos.x / translate, -this.pos.y / translate);
             DOM.ctx.translate(0, 0);
             DOM.ctx.drawImage(
-                poseImage[this.type][this.state],
+                spriteData[this.type][this.state].image,
                 this.spriteIdx * 100,
                 0,
                 SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE,
                 -this.pos.x + SPRITE_IMG_SIZE / 2,
-                this.pos.y - poseImage[this.type][this.state].height / 2 - 6,
+                this.pos.y - spriteData[this.type][this.state].image.height / 2 - 6,
                 -SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE
             );
@@ -374,13 +375,13 @@ export class Character extends GameEntity {
             DOM.ctx.scale(scale, scale);
             DOM.ctx.translate(-this.pos.x / translate, -this.pos.y / translate);
             DOM.ctx.drawImage(
-                poseImage[this.type][this.state],
+                spriteData[this.type][this.state].image,
                 this.spriteIdx * 100,
                 0,
                 SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE,
                 this.pos.x - SPRITE_IMG_SIZE / 2,
-                this.pos.y - poseImage[this.type][this.state].height / 2 - 6,
+                this.pos.y - spriteData[this.type][this.state].image.height / 2 - 6,
                 SPRITE_IMG_SIZE,
                 SPRITE_IMG_SIZE
             );
