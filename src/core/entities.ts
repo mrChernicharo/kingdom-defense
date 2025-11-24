@@ -15,6 +15,7 @@ import {
     castleWallsImg,
     swordsmanAttrs,
     DRAW_CHAR_RADIUS,
+    CANVAS_WIDTH,
 } from "../lib/constants";
 import { DOM } from "../lib/DOM";
 import { Team, CharacterState, Facing } from "../lib/types";
@@ -76,7 +77,12 @@ export class Castle {
         if (this.isTakingDamage) {
             DOM.ctx.filter = "brightness(400%)";
         }
-        DOM.ctx.drawImage(castleWallsImg, 0, finishLinesYpos.red - 40, Math.min(window.innerWidth, 600), 160);
+        const x = 0;
+        const y = finishLinesYpos.red;
+        const width = CANVAS_WIDTH;
+        const height = 160;
+        DOM.ctx.drawImage(castleWallsImg, x, y, width, height);
+        // DOM.ctx.drawImage(castleWallsImg, 0, finishLinesYpos.red - 40, Math.min(window.innerWidth, 600), 160);
         DOM.ctx.filter = "none";
     }
 

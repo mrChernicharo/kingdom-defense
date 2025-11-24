@@ -27,56 +27,106 @@ class DragUnitManager {
     isDraggingUnit = false;
     selectedUnit: CharacterType | null = null;
     dragPos: Vec2 | null = null;
+    dragOriginPos: Vec2 | null = null;
     TOP_DRAG_Y = CANVAS_HEIGHT - CANVAS_HEIGHT * DRAG_UNIT_Y_LIMIT_PERCENT;
 
     constructor() {
         DOM.unitsDisplay.addEventListener("pointerdown", this.startDrag.bind(this));
-        DOM.canvas.addEventListener("pointermove", this.dragUnit.bind(this));
-        DOM.canvas.addEventListener("pointerup", this.dragEnd.bind(this));
+        window.addEventListener("pointermove", this.dragUnit.bind(this));
+        window.addEventListener("pointerup", this.dragEnd.bind(this));
     }
 
     startDrag(ev: PointerEvent) {
+        ev.stopPropagation();
         const unit = (ev.target as HTMLLIElement).dataset.unit as CharacterType;
 
-        const cost = unitCosts[unit];
-        if (cost > PlayerStats.currentMana) return;
+        const unitCost = unitCosts[unit];
+        if (unitCost > PlayerStats.currentMana) return;
+
+        const cardRect = (ev.target as HTMLLIElement).getBoundingClientRect();
+        const clickedElemCenterPos = new Vec2(cardRect.x + cardRect.width / 2, cardRect.y + cardRect.height / 2);
+        this.dragOriginPos = clickedElemCenterPos;
 
         this.selectedUnit = unit;
         this.isDraggingUnit = true;
     }
 
-    dragUnit(ev: PointerEvent) {
-        console.log(ev.buttons);
-        if (ev.buttons == 1) {
-            this.dragPos = new Vec2(ev.offsetX, Math.max(ev.offsetY, this.TOP_DRAG_Y));
+    dragUnit(ev: PointerEvent | TouchEvent) {
+        ev.preventDefault();
+        let clientX = -1;
+        let clientY = -1;
+
+        if (ev instanceof PointerEvent) {
+            clientX = ev.clientX;
+            clientY = ev.clientY;
+        } else if (ev instanceof TouchEvent) {
+            clientX = ev.touches[0].clientX;
+            clientY = ev.touches[0].clientY;
+        }
+
+        const rect = DOM.canvas.getBoundingClientRect();
+
+        // 1. Calculate the Scale Factors
+        const scaleX = CANVAS_WIDTH / rect.width; // 720 / scaled_width
+        const scaleY = CANVAS_HEIGHT / rect.height; // 1280 / scaled_height
+
+        // 2. Convert to Game Coordinates
+        const gameX = (clientX - rect.left) * scaleX;
+        const gameY = (clientY - rect.top) * scaleY;
+
+        if (this.isDraggingUnit) {
+            this.dragPos = new Vec2(gameX, Math.max(gameY, this.TOP_DRAG_Y));
         } else {
             this.isDraggingUnit = false;
             this.selectedUnit = null;
         }
+
+        // if (ev instanceof PointerEvent) {
+        //     // console.log(ev.buttons);
+        //     // if (this.isDraggingUnit) {
+
+        // } else if (ev instanceof TouchEvent) {
+        //     console.log(`Input registered at game coordinates: (${gameX.toFixed(0)}, ${gameY.toFixed(0)})`);
+        // }
     }
 
-    dragEnd(ev: PointerEvent) {
-        this.dragPos = null;
+    dragEnd(_: PointerEvent) {
+        if (this.dragPos && this.isDraggingUnit && this.selectedUnit) {
+            console.log(this.dragOriginPos);
 
-        if (this.isDraggingUnit && this.selectedUnit) {
-            let entity: GameEntity | undefined = undefined;
-            switch (this.selectedUnit) {
-                case CharacterType.soldier:
-                    entity = new Soldier(Team.blue, ev.offsetX, Math.max(ev.offsetY, this.TOP_DRAG_Y));
-                    break;
-                case CharacterType.swordsman:
-                    entity = new Swordsman(Team.blue, ev.offsetX, Math.max(ev.offsetY, this.TOP_DRAG_Y));
-                    break;
+            console.log({
+                dragPos: this.dragPos,
+                dragOriginPos: this.dragOriginPos,
+                CANVAS_WIDTH,
+                CANVAS_HEIGHT,
+            });
+
+            const x = this.dragPos.x;
+            const y = this.dragPos.y;
+            const isInsideCanvas = x >= 0 && x <= CANVAS_WIDTH && y >= 0 && y <= CANVAS_HEIGHT;
+
+            if (isInsideCanvas) {
+                let entity: GameEntity | undefined = undefined;
+                switch (this.selectedUnit) {
+                    case CharacterType.soldier:
+                        entity = new Soldier(Team.blue, x, Math.max(y, this.TOP_DRAG_Y));
+                        break;
+                    case CharacterType.swordsman:
+                        entity = new Swordsman(Team.blue, x, Math.max(y, this.TOP_DRAG_Y));
+                        break;
+                }
+                if (!entity) throw Error("entity error");
+
+                Game.entities[entity.id] = entity;
+
+                const cost = unitCosts[this.selectedUnit];
+
+                PlayerStats.currentMana -= cost;
+            } else {
+                console.log("Dropped outside :: CANCEL");
             }
-            if (!entity) throw Error("entity error");
-
-            Game.entities[entity.id] = entity;
-
-            const cost = unitCosts[this.selectedUnit];
-
-            PlayerStats.currentMana -= cost;
         }
-
+        this.dragPos = null;
         this.selectedUnit = null;
         this.isDraggingUnit = false;
     }
@@ -308,31 +358,30 @@ export class Game {
 
     toggleIsPlaying() {
         Clock.togglePause();
-        DOM.playBtn.textContent = Clock.isPaused ? "Play" : "Pause";
+        const isPlaying = !Clock.isPaused;
+        DOM.playBtn.textContent = !isPlaying ? "Play" : "Pause";
 
-        if (!Clock.isPaused) {
+        if (isPlaying) {
             this.tick();
+        } else {
+            setTimeout(() => {
+                if (!this.waveManager.isWaveBonusScreenEnabled && Game.castle.isAlive()) {
+                    DOM.pauseMenuScreen.classList.remove("hidden");
+
+                    DOM.bonusCardsList.innerHTML = "";
+                    // renderBonusCards(PlayerStats.bonusCards, (card) => console.log(card));
+                    PlayerStats.bonusCards.forEach((card) => {
+                        const li = document.createElement("li");
+                        li.onclick = () => console.log(card);
+                        // li.onclick = () => onClick(card);
+                        li.innerHTML = DOM.renderBonusCard(card);
+                        DOM.bonusCardsList.appendChild(li);
+                    });
+                } else {
+                    DOM.pauseMenuScreen.classList.add("hidden");
+                }
+            }, 0);
         }
-
-        function renderBonusCards(bonusCards: BonusCard[], onClick: (card: BonusCard) => void) {
-            bonusCards.forEach((card) => {
-                const li = document.createElement("li");
-                li.onclick = () => onClick(card);
-                li.innerHTML = DOM.renderBonusCard(card);
-                DOM.bonusCardsList.appendChild(li);
-            });
-        }
-
-        setTimeout(() => {
-            if (Clock.isPaused && !this.waveManager.isWaveBonusScreenEnabled && Game.castle.isAlive()) {
-                DOM.pauseMenuScreen.classList.remove("hidden");
-
-                DOM.bonusCardsList.innerHTML = "";
-                renderBonusCards(PlayerStats.bonusCards, (card) => console.log(card));
-            } else {
-                DOM.pauseMenuScreen.classList.add("hidden");
-            }
-        }, 0);
     }
 
     tick() {
@@ -371,11 +420,11 @@ export class Game {
         this.playerStats.tick(delta);
 
         if (Game.castle.isDead()) {
-            setTimeout(() => {
-                console.log("==== GAME OVER ====");
-                DOM.gameOverBanner.style.opacity = "0.9";
-                this.toggleIsPlaying();
-            }, 0);
+            // setTimeout(() => {
+            //     console.log("==== GAME OVER ====");
+            //     DOM.gameOverBanner.style.opacity = "0.9";
+            //     // this.toggleIsPlaying();
+            // }, 0);
         }
 
         const allEnemiesDead = !Object.values(Game.entities).find(

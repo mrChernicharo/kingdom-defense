@@ -98,6 +98,17 @@ button:focus-visible {
 
 canvas {
     /* border: 1px solid #535bf2; */
+    background-color: wheat;
+    display: block;
+    margin: auto;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    max-width: 90dvw;
+    max-height: 90dvh;
 }
 
 #canvas-container {
@@ -173,6 +184,7 @@ header#game-header {
 
         #unit-display {
             display: flex;
+            background-color: #0d577a;
             /* border: solid 2px #c6501e; */
         }
     }
