@@ -1,68 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Kingdom Defense</title>
-        <link rel="stylesheet" href="/src/style.css" />
-    </head>
 
-    <body>
-        <header id="game-header">
-            <button id="play-btn"></button>
-            <a href="/lobby.html">back</a>
-        </header>
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kingdom Defense</title>
+    <link rel="stylesheet" href="/src/style.css" />
+</head>
 
-        <div id="gameover-banner">
-            <h1>Game Over</h1>
+<body>
+    <header id="game-header">
+        <button id="play-btn"></button>
 
-            <button id="try-again-btn">Try Again</button>
-            <a href="/lobby.html">back</a>
+        <div id="speed-control" class="game-control">
+            <fieldset>
+                <legend>Speed</legend>
+                <label>
+                    <input type="radio" name="game-speed" id="speed-0.5" value="0.5">
+                    0.5x
+                </label>
+                <label>
+                    <input type="radio" name="game-speed" id="speed-1" value="1" checked>
+                    1x
+                </label>
+                <label>
+                    <input type="radio" name="game-speed" id="speed-2" value="2">
+                    2x
+                </label>
+                <label>
+                    <input type="radio" name="game-speed" id="speed-4" value="4">
+                    4x
+                </label>
+                <label>
+                    <input type="radio" name="game-speed" id="speed-10" value="10">
+                    10x
+                </label>
+            </fieldset>
         </div>
 
-        <div id="pause-menu" class="hidden">
-            <button id="pause-menu-close-btn">x</button>
-            <h1>Game Paused</h1>
+        <a href="/lobby.html">back</a>
+    </header>
 
-            <ul id="bonus-card-list"></ul>
+    <div id="gameover-banner">
+        <h1>Game Over</h1>
 
-            <button id="pause-menu-resume-btn">Resume</button>
+        <button id="try-again-btn">Try Again</button>
+        <a href="/lobby.html">back</a>
+    </div>
+
+    <div id="pause-menu" class="hidden">
+        <button id="pause-menu-close-btn">x</button>
+        <h1>Game Paused</h1>
+
+        <ul id="bonus-card-list"></ul>
+
+        <button id="pause-menu-resume-btn">Resume</button>
+    </div>
+
+    <div id="canvas-container">
+        <canvas id="canvas" class="hidden"></canvas>
+    </div>
+
+    <div id="wave-bonus-screen" class="hidden">
+        <h1 id="wave-bonus-screen-head"></h1>
+
+        <div id="wave-bonus-screen-body">
+            <p>Choose a Power Up</p>
+
+            <ul id="wave-bonus-cards-list"></ul>
+
         </div>
+    </div>
 
-        <div id="canvas-container">
-            <canvas id="canvas" class="hidden"></canvas>
-        </div>
+    <footer id="bottom-bar">
+        <div id="display-top">
+            <div id="castle-bar">
+                <span id="castle-display"></span>
+                <div id="castle-bar-fill"></div>
+            </div>
 
-        <div id="wave-bonus-screen" class="hidden">
-            <h1 id="wave-bonus-screen-head"></h1>
-
-            <div id="wave-bonus-screen-body">
-                <p>Choose a Power Up</p>
-
-                <ul id="wave-bonus-cards-list"></ul>
-
+            <div id="mana-bar">
+                <span id="mana-display"></span>
+                <div id="mana-bar-fill"></div>
             </div>
         </div>
 
-        <footer id="bottom-bar">
-            <div id="display-top">
-                <div id="castle-bar">
-                    <span id="castle-display"></span>
-                    <div id="castle-bar-fill"></div>
-                </div>
+        <div id="display-bottom">
+            <ul id="unit-display"></ul>
+        </div>
+    </footer>
 
-                <div id="mana-bar">
-                    <span id="mana-display"></span>
-                    <div id="mana-bar-fill"></div>
-                </div>
-            </div>
+    <script type="module" src="/src/main.ts"></script>
+</body>
 
-            <div id="display-bottom">
-                <ul id="unit-display"></ul>
-            </div>
-        </footer>
-
-        <script type="module" src="/src/main.ts"></script>
-    </body>
 </html>

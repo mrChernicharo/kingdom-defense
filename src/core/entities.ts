@@ -79,7 +79,8 @@ export class Castle extends GameEntity {
         const y = finishLinesYpos.red;
         const width = CANVAS_WIDTH;
         const height = 160;
-        DOM.ctx.drawImage(castleWallsImg, x, y, width, height);
+        DOM.ctx.drawImage(castleWallsImg, x, y - 40, width, height);
+        // DOM.ctx.drawImage(castleWallsImg, x, y, width, height);
         // DOM.ctx.drawImage(castleWallsImg, 0, finishLinesYpos.red - 40, Math.min(window.innerWidth, 600), 160);
         DOM.ctx.filter = "none";
     }
@@ -460,29 +461,30 @@ export class Projectile extends Updatable {
 
         console.log("PROJECTILE", Game.projectiles, this);
 
-        const direction = new Vec2(this.target.pos.x - this.pos.x, this.target.pos.y - this.pos.y);
+        const direction = this.getDirection();
+        // const direction = new Vec2(this.target.pos.x - this.pos.x, this.target.pos.y - this.pos.y);
 
-        // this.angle += -0.025;
         this.angle = Math.atan2(direction.y, direction.x);
     }
 
-    update(_delta: number): void {
+    private getDirection(): Vec2 {
         const direction = new Vec2(this.target.pos.x - this.pos.x, this.target.pos.y - this.pos.y);
         const magnitude = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
-        const normalizedVec = new Vec2(direction.x / magnitude, direction.y / magnitude);
-        const nextPos = new Vec2(this.pos.x + normalizedVec.x * this.speed, this.pos.y + normalizedVec.y * this.speed);
+        return new Vec2(direction.x / magnitude, direction.y / magnitude);
+    }
+
+    update(_delta: number): void {
+        const direction = this.getDirection();
+        const nextPos = new Vec2(this.pos.x + direction.x * this.speed, this.pos.y + direction.y * this.speed);
 
         this.pos = nextPos;
 
         const distToTarget = this.pos.distance(this.target.pos);
         if (distToTarget < 8) {
+            new FloatingText(this.target.pos.x, this.target.pos.y, String(this.damage));
             this.target.takeDamage(this.damage);
             delete Game.projectiles[this.id];
         }
-
-        // this.angle += -0.025;
-        this.angle = Math.atan2(direction.y, direction.x);
-        // this.angle = Math.atan2(direction.y, direction.x);
     }
 
     draw() {

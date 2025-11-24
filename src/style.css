@@ -41,6 +41,12 @@ h1 {
     line-height: 1.1;
 }
 
+fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
 .logo {
     height: 6em;
     padding: 1.5em;
@@ -119,6 +125,7 @@ canvas {
 
 header#game-header {
     position: fixed;
+    display: flex;
     background-color: #333;
     width: 100%;
 }
@@ -237,6 +244,7 @@ header#game-header {
     align-items: center;
     transition: opacity 0.4s;
     opacity: 0.9;
+    z-index: 100;
 
     #bonus-card-list {
         display: grid;

@@ -107,32 +107,16 @@ export class Clock {
         Clock.isPaused = !Clock.isPaused;
     }
 
-    static slowdownAndPause(): void {
-        Clock.isSlowingDown = true;
-    }
-
     static tick(): number {
         const currTime = Date.now();
-
         let delta = (currTime - Clock.prevTime) * Clock.speedMultiplier;
 
-        if (delta > 20 * Clock.speedMultiplier) delta = 20; // <--- this line prevents time jumps after pausing
+        // prevent time jumps after pausing
+        if (delta > 20 * Clock.speedMultiplier) delta = 20;
 
         Clock.elapsed += delta;
-
-        if (Clock.isSlowingDown) {
-            if (Clock.speedMultiplier >= 0.1) {
-                Clock.speedMultiplier *= 0.9;
-                // Clock.speedMultiplier -= 0.005;
-            } else {
-                Clock.isPaused = true;
-                Clock.speedMultiplier = CLOCK_DEFAULT_TIME_MULTIPLIER;
-                Clock.isSlowingDown = false;
-                DOM.playBtn.textContent = Clock.isPaused ? "Play" : "Pause";
-            }
-        }
-
         Clock.prevTime = currTime;
+
         return delta;
     }
 }

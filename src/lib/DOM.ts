@@ -5,6 +5,7 @@ export class DOM {
     static ctx: CanvasRenderingContext2D;
 
     static playBtn: HTMLButtonElement;
+    static speedControl: HTMLDivElement;
 
     static waveBonusScreen: HTMLDivElement;
     static waveBonusCardsList: HTMLUListElement;
@@ -42,6 +43,7 @@ export class DOM {
         DOM.tryAgainBtn = DOM.gameOverBanner?.querySelector("#try-again-btn") as HTMLButtonElement;
 
         DOM.playBtn = document.querySelector("#play-btn") as HTMLButtonElement;
+        DOM.speedControl = document.querySelector("#speed-control") as HTMLDivElement;
 
         DOM.pauseMenuScreen = document.querySelector("#pause-menu") as HTMLDivElement;
         DOM.pauseMenuCloseBtn = DOM.pauseMenuScreen?.querySelector("#pause-menu-close-btn") as HTMLButtonElement;

@@ -63,11 +63,19 @@ export class Game {
         DOM.tryAgainBtn.addEventListener("click", this.restartGame.bind(this));
         DOM.pauseMenuResumeBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
         DOM.pauseMenuCloseBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
+        DOM.speedControl.addEventListener("change", this.changeGameSpeed.bind(this));
         window.addEventListener("wave-start", this.toggleIsPlaying.bind(this));
     }
 
     restartGame() {
         location.reload();
+    }
+
+    changeGameSpeed(ev: Event) {
+        const input = ev.target as HTMLInputElement;
+        if (!input.checked) return;
+        const speed = Number(input.value);
+        Clock.speedMultiplier = speed;
     }
 
     toggleIsPlaying() {
@@ -76,6 +84,7 @@ export class Game {
         DOM.playBtn.textContent = !isPlaying ? "Play" : "Pause";
 
         if (isPlaying) {
+            DOM.pauseMenuScreen.classList.add("hidden");
             this.tick();
         } else {
             setTimeout(() => {

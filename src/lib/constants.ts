@@ -19,8 +19,8 @@ export const finishLinesYpos = {
 
 export const unitCosts = {
     soldier: 3,
-    archer: 4,
-    swordsman: 6,
+    archer: 3,
+    swordsman: 5,
     orc: 4,
     skeleton: 2,
 };
@@ -38,7 +38,7 @@ export const orcAttrs: Omit<CharacterAttrs, "team"> = {
 
 export const soldierAttrs: Omit<CharacterAttrs, "team"> = {
     type: CharacterType.soldier,
-    hp: 200,
+    hp: 220,
     damage: 30,
     speed: 36,
     attackRange: 52,
@@ -49,8 +49,8 @@ export const soldierAttrs: Omit<CharacterAttrs, "team"> = {
 
 export const archerAttrs: Omit<CharacterAttrs, "team"> = {
     type: CharacterType.archer,
-    hp: 100,
-    damage: 22,
+    hp: 110,
+    damage: 20,
     speed: 30,
     attackRange: 280,
     attacksPerMinute: 40,
