@@ -60,7 +60,8 @@ export class FloatingText extends Updatable {
     elapsed = 0;
 
     constructor(x = 0, y = 0, text: string, opts?: FloatingTextOpts) {
-        super(x, y - FLOATING_TEXT_Y_OFFSET);
+        super(x + Math.random() * 20 - 10, y - FLOATING_TEXT_Y_OFFSET + Math.random() * 10 - 5);
+
         this.text = text;
         this.color = opts?.color ?? "white";
         this.size = opts?.size ?? "m";

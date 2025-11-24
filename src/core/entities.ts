@@ -489,7 +489,8 @@ export class Projectile extends Updatable {
 
         const distToTarget = this.pos.distance(this.target.pos);
         if (distToTarget < 8) {
-            new FloatingText(this.target.pos.x, this.target.pos.y, String(this.damage));
+            const color = (this.target as Character)?.team == Team.blue ? "red" : "white";
+            new FloatingText(this.target.pos.x, this.target.pos.y, String(this.damage), { color });
             this.target.takeDamage(this.damage);
             delete Game.projectiles[this.id];
         }
