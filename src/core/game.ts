@@ -11,18 +11,160 @@ import {
     INITIAL_MANA,
     MANA_PER_MINUTE,
     archerAttrs,
+    finishLinesYpos,
 } from "../lib/constants";
 import { DOM } from "../lib/DOM";
 import { wait } from "../lib/helperFns";
 import { LEVELS, type Level } from "../lib/levels";
 import { spriteData } from "../lib/spritesConfig";
 import { CharacterType, Team } from "../lib/types";
-import { GameEntity, Castle, Soldier, Character, Swordsman, Archer } from "./entities";
+import { GameEntity, Castle, Soldier, Character, Swordsman, Archer, Projectile } from "./entities";
 import { Clock, FloatingText, Vec2 } from "./shared";
 
 new DOM();
 
 console.log(ALL_CARDS);
+
+export class Game {
+    static entities: Record<string, GameEntity> = {};
+    static castle: Castle;
+    static textEntities: Record<string, FloatingText> = {};
+    static projectiles: Record<string, Projectile> = {};
+
+    dragCardManager: DragUnitManager;
+    waveManager: WaveManager;
+    collisionManager: CollisionManager;
+    playerStats: PlayerStats;
+
+    constructor() {
+        DOM.displayTop.style.width = CANVAS_WIDTH + "px";
+        DOM.displayBottom.style.width = CANVAS_WIDTH + "px";
+        [soldierAttrs, swordsmanAttrs, archerAttrs].forEach(({ type, cost }) => {
+            DOM.unitsDisplay.innerHTML += `<li class="card" data-unit="${type}" data-cost="${cost}" style="user-select: none">${type} <br> ${cost}</li>`;
+        });
+
+        DOM.canvas.width = CANVAS_WIDTH;
+        DOM.canvas.height = CANVAS_HEIGHT;
+        // Disable image smoothing for crisp pixel art
+        DOM.ctx.imageSmoothingEnabled = false;
+        DOM.canvas.classList.remove("hidden");
+
+        Game.castle = new Castle(CANVAS_WIDTH / 2, finishLinesYpos.red, 400);
+
+        this.dragCardManager = new DragUnitManager();
+        this.collisionManager = new CollisionManager();
+        this.waveManager = new WaveManager();
+        this.playerStats = new PlayerStats();
+
+        this.waveManager.startWave();
+        this.toggleIsPlaying();
+
+        DOM.playBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
+        DOM.tryAgainBtn.addEventListener("click", this.restartGame.bind(this));
+        DOM.pauseMenuResumeBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
+        DOM.pauseMenuCloseBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
+        window.addEventListener("wave-start", this.toggleIsPlaying.bind(this));
+    }
+
+    restartGame() {
+        location.reload();
+    }
+
+    toggleIsPlaying() {
+        Clock.togglePause();
+        const isPlaying = !Clock.isPaused;
+        DOM.playBtn.textContent = !isPlaying ? "Play" : "Pause";
+
+        if (isPlaying) {
+            this.tick();
+        } else {
+            setTimeout(() => {
+                if (!this.waveManager.isWaveBonusScreenEnabled && Game.castle.isAlive()) {
+                    DOM.pauseMenuScreen.classList.remove("hidden");
+
+                    DOM.bonusCardsList.innerHTML = "";
+                    // renderBonusCards(PlayerStats.bonusCards, (card) => console.log(card));
+                    PlayerStats.bonusCards.forEach((card) => {
+                        const li = document.createElement("li");
+                        li.onclick = () => console.log(card);
+                        // li.onclick = () => onClick(card);
+                        li.innerHTML = DOM.renderBonusCard(card);
+                        DOM.bonusCardsList.appendChild(li);
+                    });
+                } else {
+                    DOM.pauseMenuScreen.classList.add("hidden");
+                }
+            }, 0);
+        }
+    }
+
+    tick() {
+        const delta = Clock.tick();
+        DOM.ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        DOM.ctx.fillStyle = this.waveManager.level.bgColor;
+        DOM.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        Game.castle.update(delta);
+        Game.castle.draw();
+
+        Object.values(Game.entities).forEach((entity) => {
+            entity.update(delta);
+        });
+
+        // alter entities positions in case of collisions
+        this.collisionManager.update();
+
+        // sorting by y pos ensures sprites are drawn with the right Z-index
+        Object.values(Game.entities)
+            .sort((a, b) => a.pos.y - b.pos.y)
+            .forEach((entity) => {
+                entity.draw();
+            });
+
+        Object.values(Game.projectiles)
+            .sort((a, b) => a.pos.y - b.pos.y)
+            .forEach((entity) => {
+                entity.update(delta);
+                entity.draw();
+            });
+
+        Object.values(Game.textEntities)
+            .sort((a, b) => a.pos.y - b.pos.y)
+            .forEach((entity) => {
+                entity.update(delta);
+                entity.draw();
+            });
+
+        this.dragCardManager.tick();
+        this.playerStats.tick(delta);
+
+        // handle end of wave or game over
+        const allEnemiesDead = !Object.values(Game.entities).find(
+            (entity) => (entity as Character).team === Team.red && entity.isAlive()
+        );
+
+        if (allEnemiesDead && !this.waveManager.waveFinished) {
+            console.log("all enemies are DEAD!");
+            this.waveManager.waveFinished = true;
+            setTimeout(() => {
+                this.toggleIsPlaying();
+                this.waveManager.toggleWaveBonusScreen();
+            }, 2000);
+        }
+
+        if (!Clock.isPaused && Game.castle.isDead()) {
+            console.log("==== GAME OVER ====");
+            this.toggleIsPlaying();
+            DOM.gameOverBanner.style.opacity = "0.9";
+        }
+
+        // continue the loop
+        if (!Clock.isPaused) {
+            requestAnimationFrame(this.tick.bind(this));
+        }
+    }
+}
 
 class DragUnitManager {
     isDraggingUnit = false;
@@ -77,7 +219,8 @@ class DragUnitManager {
         const gameY = (clientY - rect.top) * scaleY;
 
         if (this.isDraggingUnit) {
-            this.dragPos = new Vec2(gameX, Math.max(gameY, this.TOP_DRAG_Y));
+            this.dragPos = new Vec2(gameX, gameY);
+            // this.dragPos = new Vec2(gameX, Math.max(gameY, this.TOP_DRAG_Y));
         } else {
             this.isDraggingUnit = false;
             this.selectedUnit = null;
@@ -86,7 +229,7 @@ class DragUnitManager {
 
     dragEnd(_: PointerEvent) {
         if (this.dragPos && this.isDraggingUnit && this.selectedUnit) {
-            console.log(this.dragOriginPos);
+            // console.log(this.dragOriginPos);
 
             console.log({
                 dragPos: this.dragPos,
@@ -104,13 +247,16 @@ class DragUnitManager {
 
                 switch (this.selectedUnit) {
                     case CharacterType.soldier:
-                        entity = new Soldier(Team.blue, x, Math.max(y, this.TOP_DRAG_Y));
+                        entity = new Soldier(Team.blue, x, y);
+                        // entity = new Soldier(Team.blue, x, Math.max(y, this.TOP_DRAG_Y));
                         break;
                     case CharacterType.swordsman:
-                        entity = new Swordsman(Team.blue, x, Math.max(y, this.TOP_DRAG_Y));
+                        entity = new Swordsman(Team.blue, x, y);
+                        // entity = new Swordsman(Team.blue, x, Math.max(y, this.TOP_DRAG_Y));
                         break;
                     case CharacterType.archer:
-                        entity = new Archer(Team.blue, x, Math.max(y, this.TOP_DRAG_Y));
+                        entity = new Archer(Team.blue, x, y);
+                        // entity = new Archer(Team.blue, x, Math.max(y, this.TOP_DRAG_Y));
                         break;
                 }
 
@@ -165,8 +311,6 @@ class WaveManager {
 
         const levelIdx = Number(new URLSearchParams(location.search).get("level"));
         this.level = LEVELS[levelIdx];
-
-        DOM.nextWaveBtn.addEventListener("click", this.onCallNextWave.bind(this));
     }
 
     async onCallNextWave() {
@@ -308,138 +452,5 @@ class PlayerStats {
         }
 
         this.manaTimer += delta;
-    }
-}
-
-export class Game {
-    static entities: Record<string, GameEntity> = {};
-    static castle: Castle;
-    static textEntities: Record<string, FloatingText> = {};
-
-    dragCardManager: DragUnitManager;
-    waveManager: WaveManager;
-    collisionManager: CollisionManager;
-    playerStats: PlayerStats;
-
-    constructor() {
-        DOM.displayTop.style.width = CANVAS_WIDTH + "px";
-        DOM.displayBottom.style.width = CANVAS_WIDTH + "px";
-        [soldierAttrs, swordsmanAttrs, archerAttrs].forEach(({ type, cost }) => {
-            DOM.unitsDisplay.innerHTML += `<li class="card" data-unit="${type}" data-cost="${cost}" style="user-select: none">${type} <br> ${cost}</li>`;
-        });
-
-        DOM.canvas.width = CANVAS_WIDTH;
-        DOM.canvas.height = CANVAS_HEIGHT;
-        // Disable image smoothing for crisp pixel art
-        DOM.ctx.imageSmoothingEnabled = false;
-        DOM.canvas.classList.remove("hidden");
-
-        Game.castle = new Castle(400);
-
-        this.dragCardManager = new DragUnitManager();
-        this.collisionManager = new CollisionManager();
-        this.waveManager = new WaveManager();
-        this.playerStats = new PlayerStats();
-
-        this.waveManager.startWave();
-        this.toggleIsPlaying();
-
-        DOM.playBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
-        DOM.tryAgainBtn.addEventListener("click", this.restartGame.bind(this));
-        DOM.pauseMenuResumeBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
-        DOM.pauseMenuCloseBtn.addEventListener("click", this.toggleIsPlaying.bind(this));
-        window.addEventListener("wave-start", this.toggleIsPlaying.bind(this));
-    }
-
-    restartGame() {
-        location.reload();
-    }
-
-    toggleIsPlaying() {
-        Clock.togglePause();
-        const isPlaying = !Clock.isPaused;
-        DOM.playBtn.textContent = !isPlaying ? "Play" : "Pause";
-
-        if (isPlaying) {
-            this.tick();
-        } else {
-            setTimeout(() => {
-                if (!this.waveManager.isWaveBonusScreenEnabled && Game.castle.isAlive()) {
-                    DOM.pauseMenuScreen.classList.remove("hidden");
-
-                    DOM.bonusCardsList.innerHTML = "";
-                    // renderBonusCards(PlayerStats.bonusCards, (card) => console.log(card));
-                    PlayerStats.bonusCards.forEach((card) => {
-                        const li = document.createElement("li");
-                        li.onclick = () => console.log(card);
-                        // li.onclick = () => onClick(card);
-                        li.innerHTML = DOM.renderBonusCard(card);
-                        DOM.bonusCardsList.appendChild(li);
-                    });
-                } else {
-                    DOM.pauseMenuScreen.classList.add("hidden");
-                }
-            }, 0);
-        }
-    }
-
-    tick() {
-        const delta = Clock.tick();
-        DOM.ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-        DOM.ctx.fillStyle = this.waveManager.level.bgColor;
-        DOM.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-        Game.castle.update(delta);
-        Game.castle.draw();
-
-        Object.values(Game.entities).forEach((entity) => {
-            entity.update(delta);
-        });
-
-        // alter entities positions in case of collisions
-        this.collisionManager.update();
-
-        // sorting by y pos ensures sprites are drawn with the right Z-index
-        Object.values(Game.entities)
-            .sort((a, b) => a.pos.y - b.pos.y)
-            .forEach((entity) => {
-                entity.draw();
-            });
-
-        Object.values(Game.textEntities)
-            .sort((a, b) => a.pos.y - b.pos.y)
-            .forEach((entity) => {
-                entity.update(delta);
-                entity.draw();
-            });
-
-        this.dragCardManager.tick();
-        this.playerStats.tick(delta);
-
-        // handle end of wave or game over
-        const allEnemiesDead = !Object.values(Game.entities).find(
-            (entity) => (entity as Character).team === Team.red && entity.isAlive()
-        );
-
-        if (allEnemiesDead && !this.waveManager.waveFinished) {
-            console.log("all enemies are DEAD!");
-            this.waveManager.waveFinished = true;
-            setTimeout(() => {
-                this.toggleIsPlaying();
-                this.waveManager.toggleWaveBonusScreen();
-            }, 2000);
-        }
-
-        if (!Clock.isPaused && Game.castle.isDead()) {
-            console.log("==== GAME OVER ====");
-            this.toggleIsPlaying();
-            DOM.gameOverBanner.style.opacity = "0.9";
-        }
-
-        // continue the loop
-        if (!Clock.isPaused) {
-            requestAnimationFrame(this.tick.bind(this));
-        }
     }
 }

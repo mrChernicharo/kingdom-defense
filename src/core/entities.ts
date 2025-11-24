@@ -14,7 +14,7 @@ import {
     archerAttrs,
 } from "../lib/constants";
 import { DOM } from "../lib/DOM";
-import { castleWallsImg, spriteData } from "../lib/spritesConfig";
+import { castleWallsImg, projectileSprites, spriteData, type ProjectileName } from "../lib/spritesConfig";
 import { Team, CharacterState, Facing, CharacterType } from "../lib/types";
 import type { CharacterAttrs } from "../lib/types";
 import { Game } from "./game";
@@ -44,12 +44,13 @@ export class GameEntity extends Updatable {
     }
 }
 
-export class Castle {
+export class Castle extends GameEntity {
     hp: number;
     hurtTimer: number;
     isTakingDamage: boolean;
     MAX_HP: number;
-    constructor(MAX_HP: number) {
+    constructor(x = 0, y = 0, MAX_HP: number) {
+        super("castle", x, y, MAX_HP, 80);
         this.MAX_HP = MAX_HP;
         this.hp = MAX_HP;
         this.hurtTimer = 150;
@@ -118,7 +119,7 @@ export class Character extends GameEntity {
     canTurn: boolean;
 
     attackCooldownTimer: number;
-    hasLandedHit: boolean;
+    isPerformingAttack: boolean;
     isTakingDamage: boolean;
 
     constructor(x = 0, y = 0, attrs: CharacterAttrs) {
@@ -145,14 +146,14 @@ export class Character extends GameEntity {
         this.canTurn = true;
         this.turnTimer = 0;
 
-        this.hasLandedHit = false;
+        this.isPerformingAttack = false;
         this.isTakingDamage = false;
     }
 
     isAtFinishLine() {
         const distToFinish = finishLinesYpos[this.team] - this.pos.y;
         // console.log({ distToFinish });
-        return distToFinish < 12;
+        return Math.abs(distToFinish) < 12;
     }
 
     walkTowards(targetPos: Vec2, delta: number) {
@@ -212,35 +213,41 @@ export class Character extends GameEntity {
             this.state = CharacterState.attack;
             this.attackCooldownTimer = 0;
         }
-        if (this.attackCooldownTimer > 300 && this.state === CharacterState.attack && !this.hasLandedHit) {
-            this.hasLandedHit = true;
-            this.target.takeDamage(this.damage);
 
-            if (this.target instanceof GamePoint) {
-                const color = (this.target as Character)?.team == Team.blue ? "red" : "white";
-                new FloatingText(this.target.pos.x, this.target.pos.y, String(this.damage), { color });
+        if (this.attackCooldownTimer > 300 && this.state === CharacterState.attack && !this.isPerformingAttack) {
+            this.isPerformingAttack = true;
+
+            if (this.type === CharacterType.archer) {
+                const projectile = new Projectile(this.pos.x, this.pos.y, this.target, "arrow", 4, this.damage);
+
+                console.log("=== archer attack ===", projectile);
+            } else {
+                this.target.takeDamage(this.damage);
+
+                if (this.target instanceof GamePoint) {
+                    const color = (this.target as Character)?.team == Team.blue ? "red" : "white";
+                    new FloatingText(this.target.pos.x, this.target.pos.y, String(this.damage), { color });
+                }
             }
 
+            // prettier-ignore
             console.log(
                 this.target instanceof Castle
-                    ? `${this.type.toUpperCase()} Hits Caslte dealing ${this.damage} dmg \n%cCastle hp is now: ${
-                          Game.castle.hp
-                      }`
-                    : `${this.type.toUpperCase()} ${this.spriteIdx} Hits ${this.target.type.toUpperCase()} dealing ${
-                          this.damage
-                      } dmg \n%c${this.target.type.toUpperCase()} hp is now: ${this.target.hp}`,
+                    ? `${this.type.toUpperCase()} Hits Caslte dealing ${this.damage} dmg \n%cCastle hp is now: ${Game.castle.hp}`
+                    : `${this.type.toUpperCase()} ${this.spriteIdx} Hits ${this.target.type.toUpperCase()} dealing ${this.damage} dmg \n%c${this.target.type.toUpperCase()} hp is now: ${this.target.hp}`,
                 "color: orange"
             );
         }
+
         if (this.attackCooldownTimer >= 600) {
             this.state = CharacterState.idle;
-            this.hasLandedHit = false;
+            this.isPerformingAttack = false;
         }
     }
 
     lookForClosestTarget(): GameEntity | null {
         let minDist = Infinity;
-        let target: GameEntity | null = null;
+        let target: GameEntity | Castle | null = null;
 
         Object.values(Game.entities).forEach((entity) => {
             if (entity.isDead()) return;
@@ -297,11 +304,12 @@ export class Character extends GameEntity {
                 if (this.team === Team.red && this.isAtFinishLine()) {
                     this.target = Game.castle;
                     this.performAttack();
-                    this;
+                    // this;
                 } else {
                     this.walkToFinishLine(delta);
                 }
             }
+            // console.log(this.target);
         }
 
         switch (this.state) {
@@ -403,24 +411,6 @@ export class Character extends GameEntity {
     }
 }
 
-export class Soldier extends Character {
-    constructor(team: Team, x = 0, y = 0) {
-        super(x, y, { ...soldierAttrs, team });
-    }
-}
-
-export class Archer extends Character {
-    constructor(team: Team, x = 0, y = 0) {
-        super(x, y, { ...archerAttrs, team });
-    }
-}
-
-export class Swordsman extends Character {
-    constructor(team: Team, x = 0, y = 0) {
-        super(x, y, { ...swordsmanAttrs, team });
-    }
-}
-
 export class Orc extends Character {
     constructor(team: Team, x = 0, y = 0) {
         super(x, y, { ...orcAttrs, team });
@@ -430,6 +420,79 @@ export class Orc extends Character {
 export class Skeleton extends Character {
     constructor(team: Team, x = 0, y = 0) {
         super(x, y, { ...skeletonAttrs, team });
+    }
+}
+
+export class Soldier extends Character {
+    constructor(team: Team, x = 0, y = 0) {
+        super(x, y, { ...soldierAttrs, team });
+    }
+}
+
+export class Swordsman extends Character {
+    constructor(team: Team, x = 0, y = 0) {
+        super(x, y, { ...swordsmanAttrs, team });
+    }
+}
+
+export class Archer extends Character {
+    constructor(team: Team, x = 0, y = 0) {
+        super(x, y, { ...archerAttrs, team });
+    }
+}
+
+export class Projectile extends Updatable {
+    target: GameEntity;
+    sprite: HTMLImageElement;
+    speed: number;
+    damage: number;
+    angle: number;
+
+    constructor(x = 0, y = 0, target: GameEntity, name: ProjectileName, speed: number, damage: number) {
+        super(x, y);
+        this.speed = speed;
+        this.damage = damage;
+        this.sprite = projectileSprites[name];
+        this.target = target;
+        this.angle = 0;
+
+        Game.projectiles[this.id] = this;
+
+        console.log("PROJECTILE", Game.projectiles, this);
+
+        const direction = new Vec2(this.target.pos.x - this.pos.x, this.target.pos.y - this.pos.y);
+
+        // this.angle += -0.025;
+        this.angle = Math.atan2(direction.y, direction.x);
+    }
+
+    update(_delta: number): void {
+        const direction = new Vec2(this.target.pos.x - this.pos.x, this.target.pos.y - this.pos.y);
+        const magnitude = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
+        const normalizedVec = new Vec2(direction.x / magnitude, direction.y / magnitude);
+        const nextPos = new Vec2(this.pos.x + normalizedVec.x * this.speed, this.pos.y + normalizedVec.y * this.speed);
+
+        this.pos = nextPos;
+
+        const distToTarget = this.pos.distance(this.target.pos);
+        if (distToTarget < 8) {
+            this.target.takeDamage(this.damage);
+            delete Game.projectiles[this.id];
+        }
+
+        // this.angle += -0.025;
+        this.angle = Math.atan2(direction.y, direction.x);
+        // this.angle = Math.atan2(direction.y, direction.x);
+    }
+
+    draw() {
+        DOM.ctx.save();
+
+        DOM.ctx.translate(this.pos.x, this.pos.y);
+        DOM.ctx.rotate(this.angle);
+        DOM.ctx.drawImage(this.sprite, -SPRITE_IMG_SIZE / 2, -this.sprite.height / 2, SPRITE_IMG_SIZE, SPRITE_IMG_SIZE);
+
+        DOM.ctx.restore();
     }
 }
 

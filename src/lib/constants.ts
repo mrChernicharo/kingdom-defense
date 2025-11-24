@@ -18,9 +18,9 @@ export const finishLinesYpos = {
 };
 
 export const unitCosts = {
-    archer: 4,
     soldier: 3,
-    swordsman: 5,
+    archer: 4,
+    swordsman: 6,
     orc: 4,
     skeleton: 2,
 };
@@ -60,7 +60,7 @@ export const archerAttrs: Omit<CharacterAttrs, "team"> = {
 
 export const swordsmanAttrs: Omit<CharacterAttrs, "team"> = {
     type: CharacterType.swordsman,
-    hp: 300,
+    hp: 310,
     damage: 45,
     speed: 32,
     attackRange: 50,
@@ -80,7 +80,7 @@ export const skeletonAttrs: Omit<CharacterAttrs, "team"> = {
     cost: unitCosts.skeleton,
 };
 
-export const DRAW_CHAR_RADIUS = true;
+export const DRAW_CHAR_RADIUS = false;
 export const DRAW_CHAR_CENTER_POS = false;
 export const DRAW_CHAR_SIGHT_RADIUS = false;
 
@@ -89,6 +89,6 @@ export const DRAG_UNIT_Y_LIMIT_PERCENT = 0.6;
 export const FLOATING_TEXT_Y_OFFSET = 24;
 
 export const INITIAL_MANA = 3;
-export const MANA_PER_MINUTE = 30;
+export const MANA_PER_MINUTE = 36;
 
 export const CLOCK_DEFAULT_TIME_MULTIPLIER = 1;

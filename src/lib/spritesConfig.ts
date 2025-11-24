@@ -1,5 +1,9 @@
 import castleWalls from "/src/assets/images/castle-wall.png";
 
+import arrowSrc from "/src/assets/images/Arrow01(100x100).png";
+import goldArrowSrc from "/src/assets/images/Arrow02(100x100).png";
+import boneArrowSrc from "/src/assets/images/Arrow03(100x100).png";
+
 import soldierIdleImgSrc from "/src/assets/images/Soldier-Idle.png";
 import soldierWalkImgSrc from "/src/assets/images/Soldier-Walk.png";
 import soldierAttackImgSrc from "/src/assets/images/Soldier-Attack01.png";
@@ -24,6 +28,7 @@ import skeletonIdleImgSrc from "/src/assets/images/Skeleton-Idle.png";
 import skeletonWalkImgSrc from "/src/assets/images/Skeleton-Walk.png";
 import skeletonAttackImgSrc from "/src/assets/images/Skeleton-Attack01.png";
 import skeletonDeadImgSrc from "/src/assets/images/Skeleton-Death.png";
+
 import { CharacterState } from "./types";
 
 export const castleWallsImg = new Image();
@@ -84,6 +89,13 @@ skeletonWalkImg.src = skeletonWalkImgSrc;
 skeletonAttackImg.src = skeletonAttackImgSrc;
 skeletonDeadImg.src = skeletonDeadImgSrc;
 
+export const arrowImg = new Image();
+export const goldArrowImg = new Image();
+export const boneArrowImg = new Image();
+arrowImg.src = arrowSrc;
+goldArrowImg.src = goldArrowSrc;
+boneArrowImg.src = boneArrowSrc;
+
 export const spriteData: Record<
     string,
     Record<CharacterState, { frameCount: number; frameSpeed: number; image: HTMLImageElement }>
@@ -118,4 +130,11 @@ export const spriteData: Record<
         [CharacterState.attack]: { frameCount: 6, frameSpeed: 100, image: skeletonAttackImg },
         [CharacterState.dead]: { frameCount: 4, frameSpeed: 100, image: skeletonDeadImg },
     },
+};
+
+export type ProjectileName = "arrow" | "goldArrow" | "boneArrow";
+export const projectileSprites: Record<ProjectileName, HTMLImageElement> = {
+    arrow: arrowImg,
+    goldArrow: goldArrowImg,
+    boneArrow: boneArrowImg,
 };

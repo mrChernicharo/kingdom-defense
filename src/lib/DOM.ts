@@ -37,7 +37,6 @@ export class DOM {
         DOM.waveBonusScreen = document.querySelector("#wave-bonus-screen") as HTMLDivElement;
         DOM.waveBonusScreenHeading = document.querySelector("#wave-bonus-screen-head") as HTMLHeadingElement;
         DOM.waveBonusCardsList = document.querySelector("#wave-bonus-cards-list") as HTMLUListElement;
-        DOM.nextWaveBtn = DOM.waveBonusScreen?.querySelector("button") as HTMLButtonElement;
 
         DOM.gameOverBanner = document.querySelector("#gameover-banner") as HTMLDivElement;
         DOM.tryAgainBtn = DOM.gameOverBanner?.querySelector("#try-again-btn") as HTMLButtonElement;
