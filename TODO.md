@@ -1,9 +1,12 @@
 -   larger sprites ✅
 -   mo assets ✅
--   draw blue/red base
--   base interactions
--   damage numbers
--   responsiveness
--   more units
--   power ups (cards)
--   unit cost -→ elixir bar
+-   draw base ✅
+-   base interactions ✅
+-   damage numbers ✅
+-   more units ✅
+-   power ups (cards) ✅
+-   unit cost -→ elixir bar ✅
+
+
+- canvas fixed width/height > responsiveness through css
+

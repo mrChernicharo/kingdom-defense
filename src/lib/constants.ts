@@ -1,7 +1,9 @@
 import { Team, CharacterType, type CharacterAttrs } from "./types";
 
-export const CANVAS_WIDTH = Math.min(window.innerWidth, 600);
-export const CANVAS_HEIGHT = window.innerHeight - 100;
+// export const CANVAS_WIDTH = Math.min(window.innerWidth, 600);
+// export const CANVAS_HEIGHT = window.innerHeight - 100;
+export const CANVAS_WIDTH = 600;
+export const CANVAS_HEIGHT = 1200;
 
 export const SPRITE_IMG_SIZE = 100;
 const SPRITE_TRANSFORMS_OPTS = {
