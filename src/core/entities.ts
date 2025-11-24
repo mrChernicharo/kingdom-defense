@@ -12,6 +12,7 @@ import {
     DRAW_CHAR_RADIUS,
     CANVAS_WIDTH,
     archerAttrs,
+    skeletonArcherAttrs,
 } from "../lib/constants";
 import { DOM } from "../lib/DOM";
 import { castleWallsImg, projectileSprites, spriteData, type ProjectileName } from "../lib/spritesConfig";
@@ -218,10 +219,11 @@ export class Character extends GameEntity {
         if (this.attackCooldownTimer > 300 && this.state === CharacterState.attack && !this.isPerformingAttack) {
             this.isPerformingAttack = true;
 
-            if (this.type === CharacterType.archer) {
-                const projectile = new Projectile(this.pos.x, this.pos.y, this.target, "arrow", 4, this.damage);
+            if (this.type === CharacterType.archer || this.type === CharacterType.skeletonArcher) {
+                const projName: ProjectileName = this.type === CharacterType.skeletonArcher ? "boneArrow" : "arrow";
+                const projectile = new Projectile(this.pos.x, this.pos.y, this.target, projName, 4, this.damage);
 
-                console.log("=== archer attack ===", projectile);
+                console.log("=== ranged attack ===", projectile);
             } else {
                 this.target.takeDamage(this.damage);
 
@@ -442,6 +444,12 @@ export class Archer extends Character {
     }
 }
 
+export class SkeletonArcher extends Character {
+    constructor(team: Team, x = 0, y = 0) {
+        super(x, y, { ...skeletonArcherAttrs, team });
+    }
+}
+
 export class Projectile extends Updatable {
     target: GameEntity;
     sprite: HTMLImageElement;
@@ -507,4 +515,5 @@ export const heroClasses = {
 export const enemyClasses = {
     [CharacterType.orc]: Orc,
     [CharacterType.skeleton]: Skeleton,
+    [CharacterType.skeletonArcher]: SkeletonArcher,
 };

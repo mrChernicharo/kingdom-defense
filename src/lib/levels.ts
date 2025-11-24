@@ -1,7 +1,7 @@
-import { Orc, Skeleton } from "../core/entities";
+import { Orc, Skeleton, SkeletonArcher } from "../core/entities";
 import { CANVAS_WIDTH } from "./constants";
 
-export type EnemyClass = typeof Skeleton | typeof Orc;
+export type EnemyClass = typeof Skeleton | typeof Orc | typeof SkeletonArcher;
 
 export type EnemyBlueprint = [EnemyClass, number, number];
 
@@ -324,37 +324,29 @@ export const LEVELS: Level[] = [
         waves: [
             [
                 [Orc, 20, -100],
-                [Orc, 40, -20],
                 [Orc, 60, 30],
-                [Orc, 80, 10],
                 [Orc, 100, -90],
                 [Orc, 120, -40],
-                [Orc, 140, -20],
                 [Orc, 180, -100],
                 [Skeleton, CANVAS_WIDTH - 40, 0],
                 [Skeleton, CANVAS_WIDTH - 60, 20],
-                [Skeleton, CANVAS_WIDTH - 70, 40],
                 [Skeleton, CANVAS_WIDTH - 90, 60],
-                [Skeleton, CANVAS_WIDTH - 120, 60],
                 [Skeleton, CANVAS_WIDTH - 150, 40],
+                [SkeletonArcher, CANVAS_WIDTH - 140, 30],
+                [SkeletonArcher, CANVAS_WIDTH - 160, -10],
                 [Skeleton, CANVAS_WIDTH - 170, 20],
-                [Skeleton, CANVAS_WIDTH - 200, 0],
             ],
             [
                 [Orc, 20, 15],
-                [Orc, 40, -25],
                 [Orc, 60, 20],
-                [Orc, 80, -15],
                 [Orc, 100, 25],
                 [Orc, 120, -20],
-                [Orc, 140, 15],
                 [Orc, 180, -10],
                 [Skeleton, CANVAS_WIDTH - 40, 10],
-                [Skeleton, CANVAS_WIDTH - 60, -20],
                 [Skeleton, CANVAS_WIDTH - 70, 25],
-                [Skeleton, CANVAS_WIDTH - 90, -15],
                 [Skeleton, CANVAS_WIDTH - 120, 20],
                 [Skeleton, CANVAS_WIDTH - 150, -10],
+                [SkeletonArcher, CANVAS_WIDTH - 140, -5],
                 [Skeleton, CANVAS_WIDTH - 170, 15],
                 [Skeleton, CANVAS_WIDTH - 200, -20],
             ],
@@ -374,6 +366,7 @@ export const LEVELS: Level[] = [
                 [Skeleton, CANVAS_WIDTH - 95, -20],
                 [Skeleton, CANVAS_WIDTH - 115, 25],
                 [Skeleton, CANVAS_WIDTH - 135, -15],
+                [SkeletonArcher, CANVAS_WIDTH - 120, 10],
                 [Skeleton, CANVAS_WIDTH - 155, 20],
                 [Skeleton, CANVAS_WIDTH - 175, -10],
             ],
@@ -416,6 +409,7 @@ export const LEVELS: Level[] = [
                 [Skeleton, CANVAS_WIDTH - 110, 30],
                 [Skeleton, CANVAS_WIDTH - 130, -20],
                 [Skeleton, CANVAS_WIDTH - 150, 25],
+                [SkeletonArcher, CANVAS_WIDTH - 145, -5],
                 [Skeleton, CANVAS_WIDTH - 170, -15],
             ],
             [

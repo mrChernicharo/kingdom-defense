@@ -23,6 +23,7 @@ export const unitCosts = {
     swordsman: 5,
     orc: 4,
     skeleton: 2,
+    "skeleton-archer": 3,
 };
 
 export const orcAttrs: Omit<CharacterAttrs, "team"> = {
@@ -56,6 +57,17 @@ export const archerAttrs: Omit<CharacterAttrs, "team"> = {
     attacksPerMinute: 40,
     sightRange: 400,
     cost: unitCosts.archer,
+};
+
+export const skeletonArcherAttrs: Omit<CharacterAttrs, "team"> = {
+    type: CharacterType.skeletonArcher,
+    hp: 120,
+    damage: 18,
+    speed: 32,
+    attackRange: 280,
+    attacksPerMinute: 40,
+    sightRange: 380,
+    cost: unitCosts["skeleton-archer"],
 };
 
 export const swordsmanAttrs: Omit<CharacterAttrs, "team"> = {

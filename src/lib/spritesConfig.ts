@@ -29,6 +29,11 @@ import skeletonWalkImgSrc from "/src/assets/images/Skeleton-Walk.png";
 import skeletonAttackImgSrc from "/src/assets/images/Skeleton-Attack01.png";
 import skeletonDeadImgSrc from "/src/assets/images/Skeleton-Death.png";
 
+import skeletonArcherIdleImgSrc from "/src/assets/images/Skeleton Archer-Idle.png";
+import skeletonArcherWalkImgSrc from "/src/assets/images/Skeleton Archer-Walk.png";
+import skeletonArcherAttackImgSrc from "/src/assets/images/Skeleton Archer-Attack.png";
+import skeletonArcherDeadImgSrc from "/src/assets/images/Skeleton Archer-Death.png";
+
 import { CharacterState } from "./types";
 
 export const castleWallsImg = new Image();
@@ -89,6 +94,15 @@ skeletonWalkImg.src = skeletonWalkImgSrc;
 skeletonAttackImg.src = skeletonAttackImgSrc;
 skeletonDeadImg.src = skeletonDeadImgSrc;
 
+export const skeletonArcherIdleImg = new Image();
+export const skeletonArcherWalkImg = new Image();
+export const skeletonArcherAttackImg = new Image();
+export const skeletonArcherDeadImg = new Image();
+skeletonArcherIdleImg.src = skeletonArcherIdleImgSrc;
+skeletonArcherWalkImg.src = skeletonArcherWalkImgSrc;
+skeletonArcherAttackImg.src = skeletonArcherAttackImgSrc;
+skeletonArcherDeadImg.src = skeletonArcherDeadImgSrc;
+
 export const arrowImg = new Image();
 export const goldArrowImg = new Image();
 export const boneArrowImg = new Image();
@@ -129,6 +143,12 @@ export const spriteData: Record<
         [CharacterState.walk]: { frameCount: 8, frameSpeed: 100, image: skeletonWalkImg },
         [CharacterState.attack]: { frameCount: 6, frameSpeed: 100, image: skeletonAttackImg },
         [CharacterState.dead]: { frameCount: 4, frameSpeed: 100, image: skeletonDeadImg },
+    },
+    "skeleton-archer": {
+        [CharacterState.idle]: { frameCount: 6, frameSpeed: 400, image: skeletonArcherIdleImg },
+        [CharacterState.walk]: { frameCount: 8, frameSpeed: 100, image: skeletonArcherWalkImg },
+        [CharacterState.attack]: { frameCount: 9, frameSpeed: 100, image: skeletonArcherAttackImg },
+        [CharacterState.dead]: { frameCount: 4, frameSpeed: 100, image: skeletonArcherDeadImg },
     },
 };
 

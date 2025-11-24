@@ -9,6 +9,7 @@ export enum Team {
 export enum CharacterType {
     orc = "orc",
     skeleton = "skeleton",
+    skeletonArcher = "skeleton-archer",
 
     soldier = "soldier",
     swordsman = "swordsman",

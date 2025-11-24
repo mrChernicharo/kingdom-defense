@@ -323,6 +323,9 @@ class WaveManager {
     }
 
     async onCallNextWave() {
+        // reset mana for next wave
+        PlayerStats.currentMana = INITIAL_MANA;
+
         this.waveIdx++;
 
         if (this.waveIdx >= this.level.waves.length) {
