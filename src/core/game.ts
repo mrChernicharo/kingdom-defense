@@ -45,8 +45,8 @@ class DragUnitManager {
 
         const cardRect = (ev.target as HTMLLIElement).getBoundingClientRect();
         const clickedElemCenterPos = new Vec2(cardRect.x + cardRect.width / 2, cardRect.y + cardRect.height / 2);
-        this.dragOriginPos = clickedElemCenterPos;
 
+        this.dragOriginPos = clickedElemCenterPos;
         this.selectedUnit = unit;
         this.isDraggingUnit = true;
     }
@@ -64,6 +64,8 @@ class DragUnitManager {
             clientY = ev.touches[0].clientY;
         }
 
+        console.log(clientX, clientY);
+
         const rect = DOM.canvas.getBoundingClientRect();
 
         // 1. Calculate the Scale Factors
@@ -80,14 +82,6 @@ class DragUnitManager {
             this.isDraggingUnit = false;
             this.selectedUnit = null;
         }
-
-        // if (ev instanceof PointerEvent) {
-        //     // console.log(ev.buttons);
-        //     // if (this.isDraggingUnit) {
-
-        // } else if (ev instanceof TouchEvent) {
-        //     console.log(`Input registered at game coordinates: (${gameX.toFixed(0)}, ${gameY.toFixed(0)})`);
-        // }
     }
 
     dragEnd(_: PointerEvent) {
