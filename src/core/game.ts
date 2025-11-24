@@ -10,13 +10,14 @@ import {
     unitCosts,
     INITIAL_MANA,
     MANA_PER_MINUTE,
-    spriteData,
+    archerAttrs,
 } from "../lib/constants";
 import { DOM } from "../lib/DOM";
 import { wait } from "../lib/helperFns";
 import { LEVELS, type Level } from "../lib/levels";
+import { spriteData } from "../lib/spritesConfig";
 import { CharacterType, Team } from "../lib/types";
-import { GameEntity, Castle, Soldier, Character, Swordsman } from "./entities";
+import { GameEntity, Castle, Soldier, Character, Swordsman, Archer } from "./entities";
 import { Clock, FloatingText, Vec2 } from "./shared";
 
 new DOM();
@@ -64,8 +65,7 @@ class DragUnitManager {
             clientY = ev.touches[0].clientY;
         }
 
-        console.log(clientX, clientY);
-
+        // console.log(clientX, clientY);
         const rect = DOM.canvas.getBoundingClientRect();
 
         // 1. Calculate the Scale Factors
@@ -101,6 +101,7 @@ class DragUnitManager {
 
             if (isInsideCanvas) {
                 let entity: GameEntity | undefined = undefined;
+
                 switch (this.selectedUnit) {
                     case CharacterType.soldier:
                         entity = new Soldier(Team.blue, x, Math.max(y, this.TOP_DRAG_Y));
@@ -108,7 +109,11 @@ class DragUnitManager {
                     case CharacterType.swordsman:
                         entity = new Swordsman(Team.blue, x, Math.max(y, this.TOP_DRAG_Y));
                         break;
+                    case CharacterType.archer:
+                        entity = new Archer(Team.blue, x, Math.max(y, this.TOP_DRAG_Y));
+                        break;
                 }
+
                 if (!entity) throw Error("entity error");
 
                 Game.entities[entity.id] = entity;
@@ -319,7 +324,7 @@ export class Game {
     constructor() {
         DOM.displayTop.style.width = CANVAS_WIDTH + "px";
         DOM.displayBottom.style.width = CANVAS_WIDTH + "px";
-        [soldierAttrs, swordsmanAttrs].forEach(({ type, cost }) => {
+        [soldierAttrs, swordsmanAttrs, archerAttrs].forEach(({ type, cost }) => {
             DOM.unitsDisplay.innerHTML += `<li class="card" data-unit="${type}" data-cost="${cost}" style="user-select: none">${type} <br> ${cost}</li>`;
         });
 
@@ -410,17 +415,9 @@ export class Game {
             });
 
         this.dragCardManager.tick();
-
         this.playerStats.tick(delta);
 
-        if (Game.castle.isDead()) {
-            // setTimeout(() => {
-            //     console.log("==== GAME OVER ====");
-            //     DOM.gameOverBanner.style.opacity = "0.9";
-            //     // this.toggleIsPlaying();
-            // }, 0);
-        }
-
+        // handle end of wave or game over
         const allEnemiesDead = !Object.values(Game.entities).find(
             (entity) => (entity as Character).team === Team.red && entity.isAlive()
         );
@@ -428,13 +425,19 @@ export class Game {
         if (allEnemiesDead && !this.waveManager.waveFinished) {
             console.log("all enemies are DEAD!");
             this.waveManager.waveFinished = true;
-
             setTimeout(() => {
                 this.toggleIsPlaying();
                 this.waveManager.toggleWaveBonusScreen();
             }, 2000);
         }
 
+        if (!Clock.isPaused && Game.castle.isDead()) {
+            console.log("==== GAME OVER ====");
+            this.toggleIsPlaying();
+            DOM.gameOverBanner.style.opacity = "0.9";
+        }
+
+        // continue the loop
         if (!Clock.isPaused) {
             requestAnimationFrame(this.tick.bind(this));
         }

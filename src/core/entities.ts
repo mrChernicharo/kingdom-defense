@@ -1,24 +1,21 @@
 import {
     finishLinesYpos,
     TIME_TO_REMOVE_DEAD_CHARACTERS,
-    spriteData,
-    // poseFrameSpeed,
-    // poseFrameCount,
     DRAW_CHAR_SIGHT_RADIUS,
     SPRITE_TRANSFORMS,
-    // poseImage,
     SPRITE_IMG_SIZE,
     DRAW_CHAR_CENTER_POS,
     soldierAttrs,
     orcAttrs,
     skeletonAttrs,
-    castleWallsImg,
     swordsmanAttrs,
     DRAW_CHAR_RADIUS,
     CANVAS_WIDTH,
+    archerAttrs,
 } from "../lib/constants";
 import { DOM } from "../lib/DOM";
-import { Team, CharacterState, Facing } from "../lib/types";
+import { castleWallsImg, spriteData } from "../lib/spritesConfig";
+import { Team, CharacterState, Facing, CharacterType } from "../lib/types";
 import type { CharacterAttrs } from "../lib/types";
 import { Game } from "./game";
 import { Clock, FloatingText, GamePoint, Updatable, Vec2 } from "./shared";
@@ -412,6 +409,12 @@ export class Soldier extends Character {
     }
 }
 
+export class Archer extends Character {
+    constructor(team: Team, x = 0, y = 0) {
+        super(x, y, { ...archerAttrs, team });
+    }
+}
+
 export class Swordsman extends Character {
     constructor(team: Team, x = 0, y = 0) {
         super(x, y, { ...swordsmanAttrs, team });
@@ -429,3 +432,14 @@ export class Skeleton extends Character {
         super(x, y, { ...skeletonAttrs, team });
     }
 }
+
+export const heroClasses = {
+    [CharacterType.soldier]: Soldier,
+    [CharacterType.swordsman]: Swordsman,
+    [CharacterType.archer]: Archer,
+};
+
+export const enemyClasses = {
+    [CharacterType.orc]: Orc,
+    [CharacterType.skeleton]: Skeleton,
+};

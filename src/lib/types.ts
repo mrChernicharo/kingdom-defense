@@ -8,9 +8,11 @@ export enum Team {
 }
 export enum CharacterType {
     orc = "orc",
-    soldier = "soldier",
     skeleton = "skeleton",
+
+    soldier = "soldier",
     swordsman = "swordsman",
+    archer = "archer",
 }
 
 export enum CharacterState {
