@@ -4,6 +4,7 @@ import { Team, CharacterType, type CharacterAttrs } from "./types";
 // export const CANVAS_HEIGHT = window.innerHeight - 100;
 export const CANVAS_WIDTH = 600;
 export const CANVAS_HEIGHT = 1200;
+export const BOTTOM_LIMIT_Y = CANVAS_HEIGHT - 140;
 
 export const SPRITE_IMG_SIZE = 100;
 const SPRITE_TRANSFORMS_OPTS = {
@@ -16,11 +17,11 @@ export const SPRITE_TRANSFORMS = SPRITE_TRANSFORMS_OPTS.md;
 
 export const finishLinesYpos = {
     [Team.blue]: 0,
-    [Team.red]: CANVAS_HEIGHT - 180,
+    [Team.red]: BOTTOM_LIMIT_Y,
 };
 
 export const unitCosts = {
-    soldier: 3,
+    soldier: 2,
     archer: 3,
     swordsman: 5,
     orc: 4,
@@ -41,7 +42,7 @@ export const orcAttrs: Omit<CharacterAttrs, "team"> = {
 
 export const soldierAttrs: Omit<CharacterAttrs, "team"> = {
     type: CharacterType.soldier,
-    hp: 220,
+    hp: 160,
     damage: 30,
     speed: 36,
     attackRange: 52,

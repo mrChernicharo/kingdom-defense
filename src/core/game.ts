@@ -37,24 +37,13 @@ export class Game {
     playerStats: PlayerStats;
 
     constructor() {
-        DOM.displayTop.style.width = CANVAS_WIDTH + "px";
-        DOM.displayBottom.style.width = CANVAS_WIDTH + "px";
-        [soldierAttrs, swordsmanAttrs, archerAttrs].forEach(({ type, cost }) => {
-            DOM.unitsDisplay.innerHTML += `<li class="card" data-unit="${type}" data-cost="${cost}" style="user-select: none">${type} <br> ${cost}</li>`;
-        });
-
-        DOM.canvas.width = CANVAS_WIDTH;
-        DOM.canvas.height = CANVAS_HEIGHT;
-        // Disable image smoothing for crisp pixel art
-        DOM.ctx.imageSmoothingEnabled = false;
-        DOM.canvas.classList.remove("hidden");
-
-        Game.castle = new Castle(CANVAS_WIDTH / 2, finishLinesYpos.red, 400);
+        DOM.initializeCanvas();
 
         this.dragCardManager = new DragUnitManager();
         this.collisionManager = new CollisionManager();
         this.waveManager = new WaveManager();
         this.playerStats = new PlayerStats();
+        Game.castle = new Castle(CANVAS_WIDTH / 2, finishLinesYpos.red, 400);
 
         this.waveManager.startWave();
         this.toggleIsPlaying();
@@ -90,9 +79,8 @@ export class Game {
             setTimeout(() => {
                 if (!this.waveManager.isWaveBonusScreenEnabled && Game.castle.isAlive()) {
                     DOM.pauseMenuScreen.classList.remove("hidden");
-
                     DOM.bonusCardsList.innerHTML = "";
-                    // renderBonusCards(PlayerStats.bonusCards, (card) => console.log(card));
+
                     PlayerStats.bonusCards.forEach((card) => {
                         const li = document.createElement("li");
                         li.onclick = () => console.log(card);
@@ -133,16 +121,16 @@ export class Game {
 
         Object.values(Game.projectiles)
             .sort((a, b) => a.pos.y - b.pos.y)
-            .forEach((entity) => {
-                entity.update(delta);
-                entity.draw();
+            .forEach((projectile) => {
+                projectile.update(delta);
+                projectile.draw();
             });
 
         Object.values(Game.textEntities)
             .sort((a, b) => a.pos.y - b.pos.y)
-            .forEach((entity) => {
-                entity.update(delta);
-                entity.draw();
+            .forEach((textEntity) => {
+                textEntity.update(delta);
+                textEntity.draw();
             });
 
         this.dragCardManager.tick();
@@ -165,7 +153,7 @@ export class Game {
         if (!Clock.isPaused && Game.castle.isDead()) {
             console.log("==== GAME OVER ====");
             this.toggleIsPlaying();
-            DOM.gameOverBanner.style.opacity = "0.9";
+            DOM.enableGameoverBanner();
         }
 
         // continue the loop

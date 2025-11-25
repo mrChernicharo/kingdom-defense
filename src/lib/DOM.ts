@@ -1,4 +1,5 @@
 import type { BonusCard } from "./cards";
+import { CANVAS_WIDTH, soldierAttrs, swordsmanAttrs, archerAttrs, CANVAS_HEIGHT } from "./constants";
 
 export class DOM {
     static canvas: HTMLCanvasElement;
@@ -72,5 +73,24 @@ export class DOM {
                     <small style="text-align: center;">${card.description}</small>
                 </div>
             `;
+    }
+
+    static enableGameoverBanner() {
+        DOM.gameOverBanner.style.opacity = "0.9";
+        DOM.gameOverBanner.style.pointerEvents = "all";
+    }
+
+    static initializeCanvas() {
+        DOM.displayTop.style.width = CANVAS_WIDTH + "px";
+        DOM.displayBottom.style.width = CANVAS_WIDTH + "px";
+        [soldierAttrs, swordsmanAttrs, archerAttrs].forEach(({ type, cost }) => {
+            DOM.unitsDisplay.innerHTML += `<li class="card" data-unit="${type}" data-cost="${cost}" style="user-select: none">${type} <br> ${cost}</li>`;
+        });
+
+        DOM.canvas.width = CANVAS_WIDTH;
+        DOM.canvas.height = CANVAS_HEIGHT;
+        // Disable image smoothing for crisp pixel art
+        DOM.ctx.imageSmoothingEnabled = false;
+        DOM.canvas.classList.remove("hidden");
     }
 }

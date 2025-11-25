@@ -483,7 +483,10 @@ export class Projectile extends Updatable {
 
     update(_delta: number): void {
         const direction = this.getDirection();
-        const nextPos = new Vec2(this.pos.x + direction.x * this.speed, this.pos.y + direction.y * this.speed);
+        const nextPos = new Vec2(
+            this.pos.x + direction.x * this.speed * _delta * 0.1,
+            this.pos.y + direction.y * this.speed * _delta * 0.1
+        );
 
         this.pos = nextPos;
 
