@@ -33,3 +33,5 @@ export interface CharacterAttrs {
     team: Team;
     cost: number;
 }
+
+export type CharacterBlueprint = Omit<CharacterAttrs, "team"> & { description: string };

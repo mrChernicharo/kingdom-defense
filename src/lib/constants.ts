@@ -1,4 +1,4 @@
-import { Team, CharacterType, type CharacterAttrs } from "./types";
+import { Team, CharacterType, type CharacterBlueprint } from "./types";
 
 // export const CANVAS_WIDTH = Math.min(window.innerWidth, 600);
 // export const CANVAS_HEIGHT = window.innerHeight - 100;
@@ -29,7 +29,7 @@ export const unitCosts = {
     "skeleton-archer": 3,
 };
 
-export const orcAttrs: Omit<CharacterAttrs, "team"> = {
+export const orcAttrs: CharacterBlueprint = {
     type: CharacterType.orc,
     hp: 300,
     damage: 40,
@@ -38,9 +38,10 @@ export const orcAttrs: Omit<CharacterAttrs, "team"> = {
     attacksPerMinute: 25,
     sightRange: 220,
     cost: unitCosts.orc,
+    description: "Strong melee unit with high health and damage.",
 };
 
-export const soldierAttrs: Omit<CharacterAttrs, "team"> = {
+export const soldierAttrs: CharacterBlueprint = {
     type: CharacterType.soldier,
     hp: 160,
     damage: 30,
@@ -49,9 +50,10 @@ export const soldierAttrs: Omit<CharacterAttrs, "team"> = {
     attacksPerMinute: 36,
     sightRange: 240,
     cost: unitCosts.soldier,
+    description: "Balanced unit with good speed and attack rate.",
 };
 
-export const archerAttrs: Omit<CharacterAttrs, "team"> = {
+export const archerAttrs: CharacterBlueprint = {
     type: CharacterType.archer,
     hp: 110,
     damage: 20,
@@ -60,9 +62,10 @@ export const archerAttrs: Omit<CharacterAttrs, "team"> = {
     attacksPerMinute: 40,
     sightRange: 400,
     cost: unitCosts.archer,
+    description: "Ranged attacker with long range and wide sight.",
 };
 
-export const skeletonArcherAttrs: Omit<CharacterAttrs, "team"> = {
+export const skeletonArcherAttrs: CharacterBlueprint = {
     type: CharacterType.skeletonArcher,
     hp: 120,
     damage: 18,
@@ -71,9 +74,10 @@ export const skeletonArcherAttrs: Omit<CharacterAttrs, "team"> = {
     attacksPerMinute: 40,
     sightRange: 380,
     cost: unitCosts["skeleton-archer"],
+    description: "Undead ranged unit with moderate range and health.",
 };
 
-export const swordsmanAttrs: Omit<CharacterAttrs, "team"> = {
+export const swordsmanAttrs: CharacterBlueprint = {
     type: CharacterType.swordsman,
     hp: 310,
     damage: 45,
@@ -82,9 +86,10 @@ export const swordsmanAttrs: Omit<CharacterAttrs, "team"> = {
     attacksPerMinute: 40,
     sightRange: 260,
     cost: unitCosts.swordsman,
+    description: "Powerful melee warrior with highest health and damage.",
 };
 
-export const skeletonAttrs: Omit<CharacterAttrs, "team"> = {
+export const skeletonAttrs: CharacterBlueprint = {
     type: CharacterType.skeleton,
     hp: 140,
     damage: 20,
@@ -93,6 +98,7 @@ export const skeletonAttrs: Omit<CharacterAttrs, "team"> = {
     attacksPerMinute: 40,
     sightRange: 190,
     cost: unitCosts.skeleton,
+    description: "Fast undead melee unit with low cost and speed advantage.",
 };
 
 export const DRAW_CHAR_RADIUS = false;

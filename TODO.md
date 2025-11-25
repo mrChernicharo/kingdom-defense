@@ -9,6 +9,7 @@
 
 
 - canvas fixed width/height > manage responsiveness through css ✅
+- more pages ✅
 - skill effects
 - elixir, gold, xp, emeralds
 - permanent skills

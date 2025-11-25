@@ -1,5 +1,6 @@
 import type { BonusCard } from "./cards";
 import { CANVAS_WIDTH, soldierAttrs, swordsmanAttrs, archerAttrs, CANVAS_HEIGHT } from "./constants";
+import type { CharacterBlueprint } from "./types";
 
 export class DOM {
     static canvas: HTMLCanvasElement;
@@ -66,11 +67,31 @@ export class DOM {
 
     static renderBonusCard(card: BonusCard) {
         return `
+            <li>
                 <div role="button" tab-index="0" class="bonus-card">
                     <h3 style="line-height:normal;">${card.title}</h3>
                     <p>${card.type}</p>
                     <div style="background: ${card.iconName}; width: 25px; height: 25px; border-radius: 1000px"></div>
                     <small style="text-align: center;">${card.description}</small>
+                </div>
+            </li>
+            `;
+    }
+
+    static renderUnitCard(unit: CharacterBlueprint) {
+        return `
+                <div role="button" tab-index="0" class="unit-card">
+                    <h3 style="line-height:normal;">${unit.type}</h3>
+                    <p>Cost: ${unit.cost} mana</p>
+                    <small>${unit.description}</small>
+                    <ul>
+                        <li>HP: ${unit.hp}</li>
+                        <li>Damage: ${unit.damage}</li>
+                        <li>Speed: ${unit.speed}</li>
+                        <li>Attack Range: ${unit.attackRange}</li>
+                        <li>Attacks Per Minute: ${unit.attacksPerMinute}</li>
+                        <li>Sight Range: ${unit.sightRange}</li>
+                    </ul>       
                 </div>
             `;
     }
