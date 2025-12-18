@@ -13,31 +13,29 @@
     <header id="game-header">
         <button id="play-btn"></button>
 
-        <div id="speed-control" class="game-control">
-            <fieldset>
-                <legend>Speed</legend>
-                <label>
-                    <input type="radio" name="game-speed" id="speed-0.5" value="0.5">
-                    0.5x
-                </label>
-                <label>
-                    <input type="radio" name="game-speed" id="speed-1" value="1" checked>
-                    1x
-                </label>
-                <label>
-                    <input type="radio" name="game-speed" id="speed-2" value="2">
-                    2x
-                </label>
-                <label>
-                    <input type="radio" name="game-speed" id="speed-4" value="4">
-                    4x
-                </label>
-                <label>
-                    <input type="radio" name="game-speed" id="speed-10" value="10">
-                    10x
-                </label>
-            </fieldset>
-        </div>
+        <fieldset id="speed-control" class="game-control">
+            <legend>Speed</legend>
+            <label>
+                <input type="radio" name="game-speed" id="speed-0.5" value="0.5">
+                0.5x
+            </label>
+            <label>
+                <input type="radio" name="game-speed" id="speed-1" value="1" checked>
+                1x
+            </label>
+            <label>
+                <input type="radio" name="game-speed" id="speed-2" value="2">
+                2x
+            </label>
+            <label>
+                <input type="radio" name="game-speed" id="speed-4" value="4">
+                4x
+            </label>
+            <label>
+                <input type="radio" name="game-speed" id="speed-10" value="10">
+                10x
+            </label>
+        </fieldset>
 
         <a href="./lobby.html">back</a>
     </header>
@@ -52,6 +50,8 @@
     <div id="pause-menu" class="hidden">
         <button id="pause-menu-close-btn">x</button>
         <h1>Game Paused</h1>
+
+        <h2 id="wave-display"></h2>
 
         <ul id="bonus-card-list"></ul>
 

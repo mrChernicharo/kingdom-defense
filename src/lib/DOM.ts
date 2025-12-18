@@ -20,6 +20,7 @@ export class DOM {
     static pauseMenuScreen: HTMLDivElement;
     static pauseMenuCloseBtn: HTMLButtonElement;
     static pauseMenuResumeBtn: HTMLButtonElement;
+    static waveDisplay: HTMLHeadingElement;
     static bonusCardsList: HTMLUListElement;
 
     static bottomBar: HTMLDivElement;
@@ -51,6 +52,7 @@ export class DOM {
         DOM.pauseMenuCloseBtn = DOM.pauseMenuScreen?.querySelector("#pause-menu-close-btn") as HTMLButtonElement;
         DOM.pauseMenuResumeBtn = DOM.pauseMenuScreen?.querySelector("#pause-menu-resume-btn") as HTMLButtonElement;
         DOM.bonusCardsList = DOM.pauseMenuScreen?.querySelector("#bonus-card-list") as HTMLUListElement;
+        DOM.waveDisplay = DOM.pauseMenuScreen?.querySelector("#wave-display") as HTMLHeadingElement;
 
         DOM.bottomBar = document.querySelector("#bottom-bar") as HTMLDivElement;
         DOM.displayTop = DOM.bottomBar?.querySelector("#display-top") as HTMLUListElement;

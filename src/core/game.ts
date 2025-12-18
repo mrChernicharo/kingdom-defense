@@ -5,12 +5,9 @@ import {
     SPRITE_TRANSFORMS,
     SPRITE_IMG_SIZE,
     DRAG_UNIT_Y_LIMIT_PERCENT,
-    soldierAttrs,
-    swordsmanAttrs,
     unitCosts,
     INITIAL_MANA,
     MANA_PER_MINUTE,
-    archerAttrs,
     finishLinesYpos,
 } from "../lib/constants";
 import { DOM } from "../lib/DOM";
@@ -80,11 +77,11 @@ export class Game {
                 if (!this.waveManager.isWaveBonusScreenEnabled && Game.castle.isAlive()) {
                     DOM.pauseMenuScreen.classList.remove("hidden");
                     DOM.bonusCardsList.innerHTML = "";
+                    DOM.waveDisplay.textContent = `wave ${Number(this.waveManager.waveIdx) + 1}`;
 
                     PlayerStats.bonusCards.forEach((card) => {
                         const li = document.createElement("li");
                         li.onclick = () => console.log(card);
-                        // li.onclick = () => onClick(card);
                         li.innerHTML = DOM.renderBonusCard(card);
                         DOM.bonusCardsList.appendChild(li);
                     });

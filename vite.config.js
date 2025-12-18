@@ -9,11 +9,11 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 main: resolve(__dirname, "index.html"),
-                lobby: resolve(__dirname, "/src/pages/lobby.html"),
-                game: resolve(__dirname, "/src/pages/game.html"),
-                units: resolve(__dirname, "/src/pages/units.html"),
-                cards: resolve(__dirname, "/src/pages/cards.html"),
-                shop: resolve(__dirname, "/src/pages/shop.html"),
+                lobby: resolve(__dirname, "/src/html/lobby.html"),
+                game: resolve(__dirname, "/src/html/game.html"),
+                units: resolve(__dirname, "/src/html/units.html"),
+                cards: resolve(__dirname, "/src/html/cards.html"),
+                shop: resolve(__dirname, "/src/html/shop.html"),
             },
         },
     },
