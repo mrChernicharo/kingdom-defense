@@ -21,3 +21,6 @@ elixir - spawn units
 xp - in-battle upgrades (bonus cards)
 gold - permanent upgrades
 emeralds - unlock units
+
+
+https://www.svgrepo.com/

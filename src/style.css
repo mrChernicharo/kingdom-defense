@@ -260,13 +260,53 @@ header#game-header {
     justify-content: center;
     align-items: center;
     transition: opacity 0.4s;
-    opacity: 0.9;
+    opacity: 0.92;
     z-index: 100;
 
-    #bonus-card-list {
-        display: grid;
-        gap: 0.5rem;
-        grid-template-columns: repeat(3, 1fr);
+    #pause-menu-viewport {
+        width: 100%;
+        height: 199%;
+        padding: 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        align-items: center;
+
+        #close-btn-container {
+            width: 100%;
+            text-align: right;
+
+            /* #pause-menu-close-btn { } */
+        }
+
+        h1 {
+            margin: 24px 0 0;
+        }
+
+        h2 {
+            margin: 16px 0 16px;
+        }
+
+        #bonus-card-list {
+            display: grid;
+            gap: 0.5rem;
+            grid-template-columns: repeat(3, 1fr);
+            min-height: 120px;
+            /* border: 2px #666 solid; */
+            /* width: 100%; */
+        }
+
+        #btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 200px;
+            margin: 32px 0 0;
+
+            * {
+                width: 100%;
+            }
+        }
     }
 }
 

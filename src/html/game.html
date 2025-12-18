@@ -11,7 +11,9 @@
 
 <body>
     <header id="game-header">
-        <button id="play-btn"></button>
+        <a href="./lobby.html">
+            <img width="36" style="margin-top: 10px;" src="/src/assets/icons/exit.svg" />
+        </a>
 
         <fieldset id="speed-control" class="game-control">
             <legend>Speed</legend>
@@ -37,7 +39,7 @@
             </label>
         </fieldset>
 
-        <a href="./lobby.html">back</a>
+        <button id="play-btn"></button>
     </header>
 
     <div id="gameover-banner">
@@ -48,14 +50,25 @@
     </div>
 
     <div id="pause-menu" class="hidden">
-        <button id="pause-menu-close-btn">x</button>
-        <h1>Game Paused</h1>
+        <div id="pause-menu-viewport">
+            <div id="close-btn-container">
+                <button id="pause-menu-close-btn">x</button>
+            </div>
 
-        <h2 id="wave-display"></h2>
+            <h1>Game Paused</h1>
 
-        <ul id="bonus-card-list"></ul>
+            <h2 id="wave-display"></h2>
 
-        <button id="pause-menu-resume-btn">Resume</button>
+
+            <ul id="bonus-card-list"></ul>
+
+            <div id="btn-container">
+                <button id="pause-menu-resume-btn">Resume</button>
+                <a href="./lobby.html">
+                    <button id="pause-menu-back-btn">Back</button>
+                </a>
+            </div>
+        </div>
     </div>
 
     <div id="canvas-container">
