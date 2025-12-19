@@ -21,8 +21,8 @@ export const finishLinesYpos = {
 export const unitCosts = {
     soldier: 2,
     archer: 3,
-    swordsman: 5,
-    orc: 4,
+    swordsman: 4,
+    orc: 3,
     skeleton: 2,
     "skeleton-archer": 3,
 };

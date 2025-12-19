@@ -68,29 +68,30 @@ export class Game {
         Clock.togglePause();
         const isPlaying = !Clock.isPaused;
         DOM.playBtn.textContent = !isPlaying ? "Play" : "Pause";
+        // console.log("toggle is playing", { waveFinished: this.waveManager.waveFinished, isPlaying });
 
         if (isPlaying) {
             if (!DOM.pauseMenuScreen.classList.contains("hidden")) {
+                // game resumed
                 DOM.pauseMenuScreen.classList.add("hidden");
             }
+
             this.tick();
         } else {
-            // setTimeout(() => {
-            if (Game.castle.isAlive() && !this.waveManager.isWaveBonusScreenEnabled) {
+            if (Game.castle.isDead() || this.waveManager.waveFinished) {
+                DOM.pauseMenuScreen.classList.add("hidden");
+            } else {
+                // simple pause
                 DOM.pauseMenuScreen.classList.remove("hidden");
                 DOM.bonusCardsList.innerHTML = "";
                 DOM.waveDisplay.textContent = `wave ${Number(this.waveManager.waveIdx) + 1}`;
-
                 PlayerStats.bonusCards.forEach((card) => {
                     const li = document.createElement("li");
                     li.onclick = () => console.log(card);
                     li.innerHTML = DOM.renderBonusCard(card);
                     DOM.bonusCardsList.appendChild(li);
                 });
-            } else {
-                DOM.pauseMenuScreen.classList.add("hidden");
             }
-            // }, 0);
         }
     }
 
@@ -146,6 +147,7 @@ export class Game {
             setTimeout(() => {
                 this.toggleIsPlaying();
                 this.waveManager.toggleWaveBonusScreen();
+                console.log("==== WAVE ENDED ====");
             }, 2000);
         }
 

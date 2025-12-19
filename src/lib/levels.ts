@@ -13,6 +13,26 @@ export type Level = {
 
 export const LEVELS: Level[] = [
     {
+        name: "training",
+        bgColor: "#007f00",
+        waves: [
+            [
+                [Skeleton, CANVAS_WIDTH / 2, -75],
+                [Skeleton, CANVAS_WIDTH / 2, -45],
+                [Skeleton, CANVAS_WIDTH / 2, -15],
+            ],
+            [
+                [Skeleton, CANVAS_WIDTH / 2, -75],
+                [Skeleton, CANVAS_WIDTH / 2, -60],
+                [Skeleton, CANVAS_WIDTH / 2, -45],
+                [Skeleton, CANVAS_WIDTH / 2, -30],
+                [Skeleton, CANVAS_WIDTH / 2, -15],
+                [Skeleton, CANVAS_WIDTH / 2, 15],
+            ],
+        ],
+    },
+
+    {
         name: "forest 01",
         bgColor: "#007f00",
         waves: [

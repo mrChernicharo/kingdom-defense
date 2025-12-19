@@ -307,7 +307,7 @@ small {
     /* background-color: #370a58; */
     /* background-color: #242424; */
     background-color: rgb(4, 116, 4);
-    text-shadow: 0.1em 0.1em #1a1a1a;
+    text-shadow: var(--s2) var(--s2) #1a1a1a;
 
     font-synthesis: none;
     text-rendering: optimizeLegibility;
@@ -317,6 +317,7 @@ small {
 
 * {
     box-sizing: border-box;
+    font-weight: bold;
     padding: 0;
     margin: 0;
 }
@@ -378,6 +379,7 @@ button {
     background-color: #ddd;
     cursor: pointer;
     transition: border-color 0.25s;
+    text-shadow: var(--s1) var(--s1) #dddddd;
 }
 button:hover {
     background-color: #888;
