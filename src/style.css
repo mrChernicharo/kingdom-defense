@@ -44,50 +44,146 @@ body {
 /* Base font size using CSS custom properties */
 :root {
     /* Mobile first approach - smallest sizes */
-    --text-xs: 0.75rem; /* 12px */
-    --text-sm: 0.875rem; /* 14px */
-    --text-base: 1rem; /* 16px */
-    --text-lg: 1.125rem; /* 18px */
-    --text-xl: 1.25rem; /* 20px */
-    --text-2xl: 1.5rem; /* 24px */
-    --text-3xl: 1.875rem; /* 30px */
-    --text-4xl: 2.25rem; /* 36px */
-    --text-5xl: 3rem; /* 48px */
+    --s1: 1px; /* 0.25rem equivalent */
+    --s2: 2px; /* 0.5rem equivalent */
+    --s3: 3px; /* 0.75rem equivalent */
+    --s4: 4px; /* 1rem equivalent */
+    --s5: 5px; /* 1.25rem equivalent */
+    --s6: 6px; /* 1.5rem equivalent */
+    --s7: 7px; /* 1.75rem equivalent */
+    --s8: 8px; /* 2rem equivalent */
+    --s10: 10px; /* 2.5rem equivalent */
+    --s12: 12px; /* 3rem equivalent */
+    --s14: 14px; /* 3.5rem equivalent */
+    --s16: 16px; /* 4rem equivalent */
+    --s18: 18px; /* 4.5rem equivalent */
+    --s20: 20px; /* 5rem equivalent */
+    --s24: 24px; /* 6rem equivalent */
+    --s28: 28px; /* 7rem equivalent */
+    --s32: 32px; /* 8rem equivalent */
+    --s36: 36px; /* 9rem equivalent */
+    --s40: 40px; /* 10rem equivalent */
+    --s44: 44px; /* 11rem equivalent */
+    --s48: 48px; /* 12rem equivalent */
+    --s56: 56px; /* 14rem equivalent */
+    --s64: 64px; /* 16rem equivalent */
+
+    --text-xs: 0.5rem; /* 8px */
+    --text-sm: 0.625rem; /* 10px */
+    --text-base: 0.75rem; /* 12px */
+    --text-lg: 0.875rem; /* 14px */
+    --text-xl: 1rem; /* 16px */
+    --text-2xl: 1.125rem; /* 18px */
+    --text-3xl: 1.25rem; /* 20px */
+    --text-4xl: 1.5rem; /* 24px */
+    --text-5xl: 1.875rem; /* 30px */
 }
 
 /* Tablet sizes (768px and up) */
 @media (min-width: 768px) {
     :root {
-        --text-xs: 0.8rem;
-        --text-sm: 0.9rem;
-        --text-base: 1.1rem;
-        --text-lg: 1.3rem;
-        --text-xl: 1.5rem;
-        --text-2xl: 1.8rem;
-        --text-3xl: 2.2rem;
-        --text-4xl: 2.8rem;
-        --text-5xl: 3.5rem;
+        --s1: 1px;
+        --s2: 3px;
+        --s3: 4px;
+        --s4: 5px;
+        --s5: 6px;
+        --s6: 8px;
+        --s7: 9px;
+        --s8: 10px;
+        --s10: 13px;
+        --s12: 15px;
+        --s14: 18px;
+        --s16: 20px;
+        --s18: 23px;
+        --s20: 25px;
+        --s24: 30px;
+        --s28: 35px;
+        --s32: 40px;
+        --s36: 45px;
+        --s40: 50px;
+        --s44: 55px;
+        --s48: 60px;
+        --s56: 70px;
+        --s64: 80px;
+
+        --text-xs: 0.625rem; /* 10px */
+        --text-sm: 0.75rem; /* 12px */
+        --text-base: 0.875rem; /* 14px */
+        --text-lg: 1rem; /* 16px */
+        --text-xl: 1.25rem; /* 20px */
+        --text-2xl: 1.5rem; /* 24px */
+        --text-3xl: 1.75rem; /* 28px */
+        --text-4xl: 2.25rem; /* 36px */
+        --text-5xl: 2.75rem; /* 44px */
     }
 }
 
 /* Desktop sizes (1024px and up) */
 @media (min-width: 1024px) {
     :root {
-        --text-xs: 0.875rem;
-        --text-sm: 1rem;
-        --text-base: 1.125rem;
-        --text-lg: 1.375rem;
-        --text-xl: 1.625rem;
-        --text-2xl: 2rem;
-        --text-3xl: 2.5rem;
-        --text-4xl: 3.25rem;
-        --text-5xl: 4rem;
+        --s1: 2px;
+        --s2: 3px;
+        --s3: 5px;
+        --s4: 6px;
+        --s5: 8px;
+        --s6: 9px;
+        --s7: 11px;
+        --s8: 12px;
+        --s10: 15px;
+        --s12: 18px;
+        --s14: 21px;
+        --s16: 24px;
+        --s18: 27px;
+        --s20: 30px;
+        --s24: 36px;
+        --s28: 42px;
+        --s32: 48px;
+        --s36: 54px;
+        --s40: 60px;
+        --s44: 66px;
+        --s48: 72px;
+        --s56: 84px;
+        --s64: 96px;
+
+        --text-xs: 0.75rem; /* 12px */
+        --text-sm: 0.875rem; /* 14px */
+        --text-base: 1rem; /* 16px */
+        --text-lg: 1.25rem; /* 20px */
+        --text-xl: 1.5rem; /* 24px */
+        --text-2xl: 1.875rem; /* 30px */
+        --text-3xl: 2.25rem; /* 36px */
+        --text-4xl: 2.875rem; /* 46px */
+        --text-5xl: 3.5rem; /* 56px */
     }
 }
 
 /* Large desktop (1440px and up) */
 @media (min-width: 1440px) {
     :root {
+        --s1: 2px;
+        --s2: 4px;
+        --s3: 6px;
+        --s4: 8px;
+        --s5: 10px;
+        --s6: 12px;
+        --s7: 14px;
+        --s8: 16px;
+        --s10: 20px;
+        --s12: 24px;
+        --s14: 28px;
+        --s16: 32px;
+        --s18: 36px;
+        --s20: 40px;
+        --s24: 48px;
+        --s28: 56px;
+        --s32: 64px;
+        --s36: 72px;
+        --s40: 80px;
+        --s44: 88px;
+        --s48: 96px;
+        --s56: 112px;
+        --s64: 128px;
+
         --text-xs: 1rem;
         --text-sm: 1.125rem;
         --text-base: 1.25rem;
@@ -208,10 +304,16 @@ li {
     list-style: none;
 }
 
+/*********************************************************************/
+/*********************************************************************/
+/*********************************************************************/
+/*********************************************************************/
+/*********************************************************************/
+
 button {
-    border-radius: 8px;
+    border-radius: 4px;
+    padding: 0.3em 0.6em;
     border: 1px solid transparent;
-    padding: 0.6em 1.2em;
     color: #1a1a1a;
     background-color: #ddd;
     cursor: pointer;
@@ -226,11 +328,28 @@ button:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
 }
 
-/* @media (max-width: 768px) {
+@media (min-width: 768px) {
     button {
-        font-size: var(--text-sm);
+        border-radius: 5px;
+        padding: 0.4em 0.8em;
     }
-} */
+}
+
+/* Desktop sizes (1024px and up) */
+@media (min-width: 1024px) {
+    button {
+        border-radius: 6px;
+        padding: 0.5em 1em;
+    }
+}
+
+/* Large desktop (1440px and up) */
+@media (min-width: 1440px) {
+    button {
+        border-radius: 8px;
+        padding: 0.6em 1.2em;
+    }
+}
 
 /*********************************************************************/
 /*********************************************************************/
