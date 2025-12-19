@@ -1,7 +1,5 @@
 import { Team, CharacterType, type CharacterBlueprint } from "./types";
 
-// export const CANVAS_WIDTH = Math.min(window.innerWidth, 600);
-// export const CANVAS_HEIGHT = window.innerHeight - 100;
 export const CANVAS_WIDTH = 600;
 export const CANVAS_HEIGHT = 1200;
 export const BOTTOM_LIMIT_Y = CANVAS_HEIGHT - 140;
