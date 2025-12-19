@@ -342,8 +342,10 @@ header#game-header {
         touch-action: none;
 
         #unit-display {
-            display: flex;
+            width: 100%;
             background-color: #0d577a;
+            display: flex;
+            justify-content: center;
             /* border: solid 2px #1e40c6; */
         }
     }

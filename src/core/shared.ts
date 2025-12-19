@@ -110,12 +110,15 @@ export class Clock {
 
     static tick(): number {
         const currTime = Date.now();
+
         let delta = (currTime - Clock.prevTime) * Clock.speedMultiplier;
 
-        // prevent time jumps after pausing
-        if (delta > 20 * Clock.speedMultiplier) delta = 20;
+        const avgDelta = 33 * Clock.speedMultiplier;
 
-        Clock.elapsed += delta;
+        // prevent time jumps after pausing
+        if (delta > avgDelta * 4) delta = avgDelta;
+
+        Clock.elapsed += avgDelta;
         Clock.prevTime = currTime;
 
         return delta;

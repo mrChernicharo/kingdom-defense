@@ -104,9 +104,7 @@ export class DOM {
     }
 
     static initializeCanvas() {
-        // DOM.displayTop.style.width = CANVAS_WIDTH + "px";
-        // DOM.displayBottom.style.width = CANVAS_WIDTH + "px";
-        [soldierAttrs, swordsmanAttrs, archerAttrs].forEach(({ type, cost }) => {
+        [soldierAttrs, archerAttrs, swordsmanAttrs].forEach(({ type, cost }) => {
             DOM.unitsDisplay.innerHTML += `<li class="card" data-unit="${type}" data-cost="${cost}" style="user-select: none">${type} <br> ${cost}</li>`;
         });
 
