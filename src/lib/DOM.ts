@@ -68,15 +68,14 @@ export class DOM {
     }
 
     static renderBonusCard(card: BonusCard) {
+        /* <p>${card.type}</p> */
         return `
-            <li>
                 <div role="button" tab-index="0" class="bonus-card">
-                    <h3 style="line-height:normal;">${card.title}</h3>
-                    <p>${card.type}</p>
-                    <div style="background: ${card.iconName}; width: 25px; height: 25px; border-radius: 1000px"></div>
-                    <small style="text-align: center;">${card.description}</small>
+                    <h3>${card.title}</h3>
+                    
+                    <div class="bonus-card-circle" style="background: ${card.iconName}; width: 25px; height: 25px; border-radius: 1000px"></div>
+                    <small class="bonus-card-description">${card.description}</small>
                 </div>
-            </li>
             `;
     }
 

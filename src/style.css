@@ -1,43 +1,6 @@
-@font-face {
-    font-family: "Londrina";
-    src: url(/src/assets/fonts/LondrinaSolid-Regular.ttf);
-}
-
-:root {
-    font-family: "Londrina", Arial, sans-serif;
-    line-height: 1.5;
-    font-weight: 400;
-
-    color: rgba(255, 255, 255, 0.87);
-    /* background-color: #370a58; */
-    /* background-color: #242424; */
-    background-color: rgb(4, 116, 4);
-    text-shadow: 0.1em 0.1em #1a1a1a;
-
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-}
-
-body {
-    margin: 0;
-    min-width: 320px;
-    min-height: 100vh;
-    /* zoom: 1.5; */
-    /* zoom: 2; */
-    /* zoom: 4; */
-}
-
 /*********************************************************************/
 /*********************************************************************/
-/*********************************************************************/
+/************************** CSS VARIABLES ****************************/
 /*********************************************************************/
 /*********************************************************************/
 
@@ -65,8 +28,23 @@ body {
     --s40: 40px; /* 10rem equivalent */
     --s44: 44px; /* 11rem equivalent */
     --s48: 48px; /* 12rem equivalent */
+    --s52: 52px; /* 13rem equivalent */
     --s56: 56px; /* 14rem equivalent */
+    --s60: 60px; /* 15rem equivalent */
     --s64: 64px; /* 16rem equivalent */
+    --s72: 72px; /* 18rem equivalent */
+    --s80: 80px; /* 20rem equivalent */
+    --s96: 96px; /* 24rem equivalent */
+    --s112: 112px; /* 28rem equivalent */
+    --s128: 128px; /* 32rem equivalent */
+    --s144: 144px; /* 36rem equivalent */
+    --s160: 160px; /* 40rem equivalent */
+    --s176: 176px; /* 44rem equivalent */
+    --s192: 192px; /* 48rem equivalent */
+    --s208: 208px; /* 52rem equivalent */
+    --s224: 224px; /* 56rem equivalent */
+    --s240: 240px; /* 60rem equivalent */
+    --s256: 256px; /* 64rem equivalent */
 
     --text-xs: 0.5rem; /* 8px */
     --text-sm: 0.625rem; /* 10px */
@@ -103,8 +81,23 @@ body {
         --s40: 50px;
         --s44: 55px;
         --s48: 60px;
+        --s52: 65px;
         --s56: 70px;
+        --s60: 75px;
         --s64: 80px;
+        --s72: 90px;
+        --s80: 100px;
+        --s96: 120px;
+        --s112: 140px;
+        --s128: 160px;
+        --s144: 180px;
+        --s160: 200px;
+        --s176: 220px;
+        --s192: 240px;
+        --s208: 260px;
+        --s224: 280px;
+        --s240: 300px;
+        --s256: 320px;
 
         --text-xs: 0.625rem; /* 10px */
         --text-sm: 0.75rem; /* 12px */
@@ -142,8 +135,23 @@ body {
         --s40: 60px;
         --s44: 66px;
         --s48: 72px;
+        --s52: 78px;
         --s56: 84px;
+        --s60: 90px;
         --s64: 96px;
+        --s72: 108px;
+        --s80: 120px;
+        --s96: 144px;
+        --s112: 168px;
+        --s128: 192px;
+        --s144: 216px;
+        --s160: 240px;
+        --s176: 264px;
+        --s192: 288px;
+        --s208: 312px;
+        --s224: 336px;
+        --s240: 360px;
+        --s256: 384px;
 
         --text-xs: 0.75rem; /* 12px */
         --text-sm: 0.875rem; /* 14px */
@@ -181,8 +189,23 @@ body {
         --s40: 80px;
         --s44: 88px;
         --s48: 96px;
+        --s52: 104px;
         --s56: 112px;
+        --s60: 120px;
         --s64: 128px;
+        --s72: 144px;
+        --s80: 160px;
+        --s96: 192px;
+        --s112: 224px;
+        --s128: 256px;
+        --s144: 288px;
+        --s160: 320px;
+        --s176: 352px;
+        --s192: 384px;
+        --s208: 416px;
+        --s224: 448px;
+        --s240: 480px;
+        --s256: 512px;
 
         --text-xs: 1rem;
         --text-sm: 1.125rem;
@@ -266,9 +289,46 @@ small {
 
 /*********************************************************************/
 /*********************************************************************/
+/***************************** GLOBALS *******************************/
 /*********************************************************************/
 /*********************************************************************/
-/*********************************************************************/
+
+@font-face {
+    font-family: "Londrina";
+    src: url(/src/assets/fonts/LondrinaSolid-Regular.ttf);
+}
+
+:root {
+    font-family: "Londrina", Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+
+    color: rgba(255, 255, 255, 0.87);
+    /* background-color: #370a58; */
+    /* background-color: #242424; */
+    background-color: rgb(4, 116, 4);
+    text-shadow: 0.1em 0.1em #1a1a1a;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    /* zoom: 1.5; */
+    /* zoom: 2; */
+    /* zoom: 4; */
+}
 
 a {
     font-weight: 500;
@@ -306,7 +366,7 @@ li {
 
 /*********************************************************************/
 /*********************************************************************/
-/*********************************************************************/
+/****************************** BUTTON *******************************/
 /*********************************************************************/
 /*********************************************************************/
 
@@ -493,7 +553,8 @@ header#game-header {
 
         #wave-bonus-cards-list {
             display: flex;
-            gap: 0.5rem;
+            gap: var(--s4);
+            /* gap: 0.5rem; */
             justify-content: center;
         }
     }
@@ -541,7 +602,7 @@ header#game-header {
     #pause-menu-viewport {
         width: 100%;
         height: 199%;
-        padding: 50px;
+        padding: var(--s16);
         display: flex;
         flex-direction: column;
         justify-content: start;
@@ -564,7 +625,7 @@ header#game-header {
 
         #bonus-card-list {
             display: grid;
-            gap: 0.5rem;
+            gap: var(--s4);
             grid-template-columns: repeat(3, 1fr);
             min-height: 120px;
             /* border: 2px #666 solid; */
@@ -574,9 +635,9 @@ header#game-header {
         #btn-container {
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            width: 200px;
-            margin: 32px 0 0;
+            gap: var(--s8);
+            width: var(--s128);
+            margin: var(--s32) 0 0;
 
             * {
                 width: 100%;
@@ -587,17 +648,39 @@ header#game-header {
 
 .unit-card,
 .bonus-card {
-    max-width: 180px;
+    max-width: 30vw;
     height: 100%;
-    padding: 1rem;
+    padding: var(--s8);
     border: 1px solid;
-    border-radius: 16px;
+    border-radius: var(--s8);
+    text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
     transition: transform 0.2s ease, background-color 0.2s ease;
+
+    h3 {
+        /* border: 1px solid red; */
+        min-height: var(--s48);
+        font-size: var(--text-base);
+        display: flex;
+        align-items: center;
+        text-transform: capitalize;
+    }
+
+    /* .bonus-card-circle { */
+    /* border: 1px solid transparent; */
+    /* } */
+
+    .bonus-card-description {
+        /* border: 1px solid red; */
+        display: flex;
+        align-items: center;
+        min-height: var(--s48);
+        line-height: var(--s14);
+    }
 
     &:hover {
         /* z-index: 1000; */
