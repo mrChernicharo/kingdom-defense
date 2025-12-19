@@ -164,6 +164,112 @@ export class Game {
     }
 }
 
+class WaveManager {
+    level: Level;
+    waveIdx: number;
+    isWaveBonusScreenEnabled = false;
+    waveFinished = false;
+
+    constructor() {
+        this.waveIdx = 0;
+
+        const levelIdx = Number(new URLSearchParams(location.search).get("level"));
+        this.level = LEVELS[levelIdx];
+    }
+
+    async onCallNextWave() {
+        // reset mana for next wave
+        PlayerStats.currentMana = INITIAL_MANA;
+
+        this.waveIdx++;
+
+        if (this.waveIdx >= this.level.waves.length) {
+            console.log("Victory!");
+            await wait(2000);
+            return location.assign("/lobby.html");
+        } else {
+            console.log("Called next wave");
+            this.toggleWaveBonusScreen();
+            this.startWave();
+            window.dispatchEvent(new CustomEvent("wave-start", { detail: null }));
+        }
+    }
+
+    startWave() {
+        Game.entities = {};
+        this.waveFinished = false;
+        console.log({ level: this.level, location, waveIdx: this.waveIdx });
+
+        this.level.waves[this.waveIdx].forEach((enemyBlueprint) => {
+            const [EnemyClass, x, y] = enemyBlueprint;
+            const enemy = new EnemyClass(Team.red, x, y);
+            Game.entities[enemy.id] = enemy;
+        });
+    }
+
+    toggleWaveBonusScreen() {
+        this.isWaveBonusScreenEnabled = !this.isWaveBonusScreenEnabled;
+
+        DOM.waveBonusCardsList.innerHTML = "";
+        const pickedCards = pickRandomCards(3, PlayerStats.bonusCards);
+
+        pickedCards.forEach((card) => {
+            const li = document.createElement("li");
+
+            li.onclick = () => {
+                PlayerStats.bonusCards.push(card);
+                this.onCallNextWave();
+            };
+            li.innerHTML = DOM.renderBonusCard(card);
+            DOM.waveBonusCardsList.appendChild(li);
+        });
+
+        if (this.isWaveBonusScreenEnabled) {
+            DOM.waveBonusScreen.classList.remove("hidden");
+        } else {
+            DOM.waveBonusScreen.classList.add("hidden");
+        }
+    }
+}
+
+class ModalManager {
+    static #stack: string[] = [];
+
+    static show(modalName: string) {
+        if (ModalManager.#stack.includes(modalName)) return;
+        ModalManager.#stack.push(modalName);
+    }
+
+    static close(modalName?: string) {
+        if (modalName) {
+            ModalManager.#stack = ModalManager.#stack.filter((modal) => modal != modalName);
+        } else {
+            ModalManager.#stack.pop();
+        }
+    }
+
+    static print() {
+        console.log(ModalManager.#stack);
+    }
+}
+ModalManager.print();
+ModalManager.show("pause");
+ModalManager.print();
+ModalManager.show("pause");
+ModalManager.print();
+ModalManager.show("quit");
+ModalManager.print();
+ModalManager.show("quit");
+ModalManager.print();
+ModalManager.close();
+ModalManager.print();
+ModalManager.close();
+ModalManager.print();
+ModalManager.close();
+ModalManager.print();
+ModalManager.close();
+ModalManager.print();
+
 class DragUnitManager {
     isDraggingUnit = false;
     selectedUnit: CharacterType | null = null;
@@ -294,74 +400,6 @@ class DragUnitManager {
                 SPRITE_IMG_SIZE
             );
             DOM.ctx.restore();
-        }
-    }
-}
-
-class WaveManager {
-    level: Level;
-    waveIdx: number;
-    isWaveBonusScreenEnabled = false;
-    waveFinished = false;
-
-    constructor() {
-        this.waveIdx = 0;
-
-        const levelIdx = Number(new URLSearchParams(location.search).get("level"));
-        this.level = LEVELS[levelIdx];
-    }
-
-    async onCallNextWave() {
-        // reset mana for next wave
-        PlayerStats.currentMana = INITIAL_MANA;
-
-        this.waveIdx++;
-
-        if (this.waveIdx >= this.level.waves.length) {
-            console.log("Victory!");
-            await wait(2000);
-            return location.assign("/lobby.html");
-        } else {
-            console.log("Called next wave");
-            this.toggleWaveBonusScreen();
-            this.startWave();
-            window.dispatchEvent(new CustomEvent("wave-start", { detail: null }));
-        }
-    }
-
-    startWave() {
-        Game.entities = {};
-        this.waveFinished = false;
-        console.log({ level: this.level, location, waveIdx: this.waveIdx });
-
-        this.level.waves[this.waveIdx].forEach((enemyBlueprint) => {
-            const [EnemyClass, x, y] = enemyBlueprint;
-            const enemy = new EnemyClass(Team.red, x, y);
-            Game.entities[enemy.id] = enemy;
-        });
-    }
-
-    toggleWaveBonusScreen() {
-        this.isWaveBonusScreenEnabled = !this.isWaveBonusScreenEnabled;
-
-        DOM.waveBonusCardsList.innerHTML = "";
-        const pickedCards = pickRandomCards(3, PlayerStats.bonusCards);
-
-        pickedCards.forEach((card) => {
-            const li = document.createElement("li");
-
-            li.onclick = () => {
-                PlayerStats.bonusCards.push(card);
-                this.onCallNextWave();
-            };
-            li.innerHTML = DOM.renderBonusCard(card);
-            DOM.waveBonusCardsList.appendChild(li);
-        });
-
-        if (this.isWaveBonusScreenEnabled) {
-            DOM.waveBonusScreen.classList.remove("hidden");
-        } else {
-            DOM.waveBonusScreen.classList.add("hidden");
         }
     }
 }
